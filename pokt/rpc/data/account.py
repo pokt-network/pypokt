@@ -38,7 +38,7 @@ def get_balance(
 def get_account_transactions(
     provider_url: str,
     address: str,
-    page: int = 1,
+    page: int = 0,
     per_page: int = 100,
     received: bool = True,
     prove: bool = False,

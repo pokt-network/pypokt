@@ -17,14 +17,14 @@
 
 ## `rpc.data.network`
 
-- [] allParams
+- [x] allParams
 - [x] height
-- [] param
-- [] supportedChains
-- [] state
-- [] supply
+- [x] param
+- [x] supportedChains
+- [x] state
+- [x] supply
 - [x] version
-- [] upgrade
+- [x] upgrade
 
 ## `rpc.data.block`
 
@@ -37,8 +37,10 @@
 
 ## `rpc.data.service`
 
-- [] app
-- [] apps
+- [x] app
+- [x] apps
+- [x] node
+- [x] nodes
 - [] nodeclaim
 - [] nodeclaims
-- [] signinginfo
+- [x] signinginfo

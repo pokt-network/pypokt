@@ -22,7 +22,7 @@ def get_block(
 def get_block_transactions(
     provider_url: str,
     height: int = 0,
-    page: int = 1,
+    page: int = 0,
     per_page: int = 100,
     prove: bool = False,
     order: str = "desc",
