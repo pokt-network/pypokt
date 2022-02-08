@@ -17,16 +17,16 @@ class Attribute(BaseModel):
 
 
 class ABCIEvent(BaseModel):
-    type_: Optional[str] = Field(None, alias='type')
+    type_: Optional[str] = Field(None, alias="type")
     attributes: Optional[List[Attribute]] = None
 
 
 class ABCIMessageLog(BaseModel):
     msg_index: Optional[int] = Field(
-        None, description='Ordered index of the log message'
+        None, description="Ordered index of the log message"
     )
-    success: Optional[bool] = Field(None, description='Success or failure?')
-    log: Optional[str] = Field(None, description='Full text of the log')
+    success: Optional[bool] = Field(None, description="Success or failure?")
+    log: Optional[str] = Field(None, description="Full text of the log")
     events: Optional[List[ABCIEvent]] = None
 
 
@@ -37,45 +37,45 @@ class Coin(BaseModel):
 
 class Application(BaseModel):
     address: Optional[str] = Field(
-        None, description='The hex address of the application'
+        None, description="The hex address of the application"
     )
     public_key: Optional[str] = Field(
-        None, description='The hex public key of the application'
+        None, description="The hex public key of the application"
     )
     jailed: Optional[bool] = Field(
-        False, description='Has the application been jailed from staked status'
+        False, description="Has the application been jailed from staked status"
     )
-    status: Optional[int] = Field(None, description='Application status')
-    chains: Optional[List[str]] = Field(None, description='Blockchains supported')
+    status: Optional[int] = Field(None, description="Application status")
+    chains: Optional[List[str]] = Field(None, description="Blockchains supported")
     tokens: Optional[str] = Field(
-        None, description='How many tokens has this node staked in uPOKT'
+        None, description="How many tokens has this node staked in uPOKT"
     )
     max_relays: Optional[int] = Field(
-        None, description='Maximum number of relays supported'
+        None, description="Maximum number of relays supported"
     )
     unstaking_time: Optional[str] = Field(
         None,
-        description='If unstaking, the minimum time for the validator to complete unstaking',
+        description="If unstaking, the minimum time for the validator to complete unstaking",
     )
 
 
 class ApplicationParams(BaseModel):
-    unstaking_time: Optional[str] = Field(None, description='duration of unstaking')
+    unstaking_time: Optional[str] = Field(None, description="duration of unstaking")
     max_applications: Optional[int] = Field(
-        None, description='maximum number of applications'
+        None, description="maximum number of applications"
     )
     app_stake_minimum: Optional[int] = Field(
-        None, description='minimum amount needed to stake as an application'
+        None, description="minimum amount needed to stake as an application"
     )
     base_relays_per_pokt: Optional[int] = Field(
-        None, description='base relays per POKT coin staked'
+        None, description="base relays per POKT coin staked"
     )
     stability_adjustment: Optional[int] = Field(
-        None, description='the stability adjustment from the governance'
+        None, description="the stability adjustment from the governance"
     )
     participation_rate_on: Optional[bool] = Field(
         None,
-        description='the participation rate affects the amount minted based on staked ratio',
+        description="the participation rate affects the amount minted based on staked ratio",
     )
 
 
@@ -84,8 +84,8 @@ class Applications(BaseModel):
 
 
 class Blockchain(BaseModel):
-    name: Optional[str] = Field(None, description='Name of the blockchain')
-    net_id: Optional[str] = Field(None, description='Network identifier')
+    name: Optional[str] = Field(None, description="Name of the blockchain")
+    net_id: Optional[str] = Field(None, description="Network identifier")
 
 
 class Consensus(BaseModel):
@@ -94,20 +94,20 @@ class Consensus(BaseModel):
 
 
 class Node(BaseModel):
-    address: Optional[str] = Field(None, description='The hex address of the validator')
-    chains: Optional[List[str]] = Field(None, description='Blockchains supported')
+    address: Optional[str] = Field(None, description="The hex address of the validator")
+    chains: Optional[List[str]] = Field(None, description="Blockchains supported")
     jailed: Optional[bool] = Field(
-        False, description='Has the validator been jailed from staked status'
+        False, description="Has the validator been jailed from staked status"
     )
-    public_key: Optional[str] = Field(None, description='The validator public hex key')
-    service_url: Optional[str] = Field(None, description='The validator service url')
-    status: Optional[int] = Field(None, description='Validator status')
+    public_key: Optional[str] = Field(None, description="The validator public hex key")
+    service_url: Optional[str] = Field(None, description="The validator service url")
+    status: Optional[int] = Field(None, description="Validator status")
     tokens: Optional[str] = Field(
-        None, description='How many tokens has this node staked in uPOKT'
+        None, description="How many tokens has this node staked in uPOKT"
     )
     unstaking_time: Optional[str] = Field(
         None,
-        description='If unstaking, the minimum time for the validator to complete unstaking',
+        description="If unstaking, the minimum time for the validator to complete unstaking",
     )
 
 
@@ -119,75 +119,75 @@ class SingleParam(BaseModel):
 class NodeParams(BaseModel):
     unstaking_time: Optional[datetime] = Field(
         None,
-        description='How much time must pass between the begin_unstaking_tx and the node transitioning to unstaked status',
+        description="How much time must pass between the begin_unstaking_tx and the node transitioning to unstaked status",
     )
     max_validators: Optional[int] = Field(
         None,
-        description='Maximum number of validators in the network at any given block',
+        description="Maximum number of validators in the network at any given block",
     )
     stake_denom: Optional[str] = Field(
         None,
-        description='The monetary denomination of the coins in the network `uPOKT`',
+        description="The monetary denomination of the coins in the network `uPOKT`",
     )
     stake_minimum: Optional[int] = Field(
         None,
-        description='Minimum amount of uPOKT needed to stake in the network as a node',
+        description="Minimum amount of uPOKT needed to stake in the network as a node",
     )
     session_block_frequency: Optional[int] = Field(
-        None, description='How many blocks are in a session'
+        None, description="How many blocks are in a session"
     )
     dao_allocation: Optional[int] = Field(
-        None, description='Award percentage of the mint for the DAO'
+        None, description="Award percentage of the mint for the DAO"
     )
     proposer_allocation: Optional[int] = Field(
-        None, description='Award percentage of the mint for the proposer'
+        None, description="Award percentage of the mint for the proposer"
     )
     max_evidence_age: Optional[str] = Field(
         None,
-        description='Maximum age of tendermint evidence that is still valid (currently not implemented in Cosmos or Pocket-Core)',
+        description="Maximum age of tendermint evidence that is still valid (currently not implemented in Cosmos or Pocket-Core)",
     )
     signed_blocks_window: Optional[int] = Field(
         None,
-        description='Window of time in blocks (unit) used for signature verification -> specifically in not signing (missing) blocks',
+        description="Window of time in blocks (unit) used for signature verification -> specifically in not signing (missing) blocks",
     )
     min_signed_per_window: Optional[int] = Field(
-        None, description='Minimum number of blocks the node must sign per window'
+        None, description="Minimum number of blocks the node must sign per window"
     )
     downtime_jail_duration: Optional[int] = Field(
         None,
-        description='Minimum amount of time node must spend in jail after missing blocks',
+        description="Minimum amount of time node must spend in jail after missing blocks",
     )
     slash_fraction_double_sign: Optional[int] = Field(
-        None, description='The factor of which a node is slashed for a double sign'
+        None, description="The factor of which a node is slashed for a double sign"
     )
     slash_fraction_downtime: Optional[int] = Field(
-        None, description='The factor of which a node is slashed for a double sign'
+        None, description="The factor of which a node is slashed for a double sign"
     )
 
 
 class PartSetHeader(BaseModel):
     total: Optional[int] = None
-    hash_: Optional[str] = Field(None, alias='hash')
+    hash_: Optional[str] = Field(None, alias="hash")
 
 
 class PocketParams(BaseModel):
     session_node_count: Optional[int] = Field(
-        None, description='Number of nodes in this session'
+        None, description="Number of nodes in this session"
     )
     proof_waiting_period: Optional[int] = Field(
-        None, description='Proof waiting period'
+        None, description="Proof waiting period"
     )
     supported_blockchains: Optional[List[str]] = Field(
-        None, description='Supported blockchains'
+        None, description="Supported blockchains"
     )
-    claim_expiration: Optional[int] = Field(None, description='Claim expiration')
+    claim_expiration: Optional[int] = Field(None, description="Claim expiration")
 
 
 class AAT(BaseModel):
     version: Optional[str] = None
-    app_pub_key: Optional[str] = Field(None, description='Application hex public key')
+    app_pub_key: Optional[str] = Field(None, description="Application hex public key")
     client_pub_key: Optional[str] = Field(
-        None, description='Application hex public key associated with a client'
+        None, description="Application hex public key associated with a client"
     )
     signature: Optional[str] = Field(None, description="Application's signature in hex")
 
@@ -205,19 +205,19 @@ class RelayMetadata(BaseModel):
 
 class RelayPayload(BaseModel):
     data: Optional[str] = Field(
-        None, description='The actual data of the request string for the external chain'
+        None, description="The actual data of the request string for the external chain"
     )
-    method: Optional[str] = Field(None, description='The HTTP CRUD method')
-    path: Optional[str] = Field(None, description='The REST path')
+    method: Optional[str] = Field(None, description="The HTTP CRUD method")
+    path: Optional[str] = Field(None, description="The REST path")
     headers: Optional[RelayHeader] = None
 
 
 class SessionHeader(BaseModel):
     app_public_key: Optional[str] = Field(
-        None, description='Application hex public key associated with a client'
+        None, description="Application hex public key associated with a client"
     )
-    chain: Optional[str] = Field(None, description='Network Identified in hex')
-    session_height: Optional[int] = Field(None, description='Height of the session')
+    chain: Optional[str] = Field(None, description="Network Identified in hex")
+    session_height: Optional[int] = Field(None, description="Height of the session")
 
 
 class SimpleProof(BaseModel):
@@ -236,31 +236,31 @@ class StoredReceipt(BaseModel):
 
 class SigningInfo(BaseModel):
     address: Optional[str] = Field(
-        None, description='operator address of the signing info'
+        None, description="operator address of the signing info"
     )
     index_offset: Optional[int] = Field(
         None,
-        description='The counter for the signing info (reset to 0 after SignedBlocksWindow elapses)',
+        description="The counter for the signing info (reset to 0 after SignedBlocksWindow elapses)",
     )
     jailed_blocks_counter: Optional[int] = Field(
-        None, description='The number of blocks jailed (reset to 0 after unjail)'
+        None, description="The number of blocks jailed (reset to 0 after unjail)"
     )
     jailed_until: Optional[str] = Field(
-        None, description='The time the node can be unjailed'
+        None, description="The time the node can be unjailed"
     )
     missed_blocks_counter: Optional[int] = Field(
         None,
-        description='The number of blocks missed within SignedBlocksWindow (can be decremented after the fact if new signature information/evidence is found)',
+        description="The number of blocks missed within SignedBlocksWindow (can be decremented after the fact if new signature information/evidence is found)",
     )
     start_height: Optional[int] = Field(
         None,
-        description='The origin height of the node (when it first joined the network)',
+        description="The origin height of the node (when it first joined the network)",
     )
 
 
 class HashSum(BaseModel):
-    hash_: Optional[str] = Field(None, alias='hash', description='byte array')
-    sum_: Optional[int] = Field(None, alias='sum', description='uint64')
+    hash_: Optional[str] = Field(None, alias="hash", description="byte array")
+    sum_: Optional[int] = Field(None, alias="sum", description="uint64")
 
 
 class Signature(BaseModel):
@@ -285,7 +285,7 @@ class TxResult(BaseModel):
     codespace: Optional[str] = None
     signer: Optional[str] = None
     recipient: Optional[str] = Field(
-        None, description='The receiver of the transaction, will be null if no receiver'
+        None, description="The receiver of the transaction, will be null if no receiver"
     )
     message_type: Optional[str] = Field(
         None,
@@ -336,39 +336,39 @@ class QueryHeightResponse(BaseModel):
 
 
 class QueryNodeReceipt(BaseModel):
-    address: Optional[str] = Field(None, description='Node address')
+    address: Optional[str] = Field(None, description="Node address")
     blockchain: Optional[str] = None
     app_pubkey: Optional[str] = Field(
-        None, description='Application hex public key associated with a client'
+        None, description="Application hex public key associated with a client"
     )
     session_block_height: Optional[int] = Field(
-        None, description='Session block height'
+        None, description="Session block height"
     )
-    height: Optional[int] = Field(None, description='Height of the session')
+    height: Optional[int] = Field(None, description="Height of the session")
 
 
 class QueryNodeReceiptsResponse(BaseModel):
     result: Optional[List[StoredReceipt]] = None
-    page: Optional[int] = Field(None, description='current page')
-    total_pages: Optional[int] = Field(None, description='maximum amount of pages')
+    page: Optional[int] = Field(None, description="current page")
+    total_pages: Optional[int] = Field(None, description="maximum amount of pages")
 
 
 class QuerySigningInfoResponse(BaseModel):
     result: Optional[List[SigningInfo]] = None
-    page: Optional[int] = Field(None, description='current page')
-    total_pages: Optional[int] = Field(None, description='maximum amount of pages')
+    page: Optional[int] = Field(None, description="current page")
+    total_pages: Optional[int] = Field(None, description="maximum amount of pages")
 
 
 class QueryNodesResponse(BaseModel):
     result: Optional[List[Node]] = None
-    page: Optional[int] = Field(None, description='current page')
-    total_pages: Optional[int] = Field(None, description='maximum amount of pages')
+    page: Optional[int] = Field(None, description="current page")
+    total_pages: Optional[int] = Field(None, description="maximum amount of pages")
 
 
 class QueryAppsResponse(BaseModel):
     result: Optional[List[Application]] = None
-    page: Optional[int] = Field(None, description='current page')
-    total_pages: Optional[int] = Field(None, description='maximum amount of pages')
+    page: Optional[int] = Field(None, description="current page")
+    total_pages: Optional[int] = Field(None, description="maximum amount of pages")
 
 
 class QueryRawTXRequest(BaseModel):
@@ -377,27 +377,27 @@ class QueryRawTXRequest(BaseModel):
 
 
 class QueryRawTXResponse(BaseModel):
-    height: Optional[int] = Field(None, description='Blockheight of the transaction')
-    txhash: Optional[str] = Field(None, description='Hash of the transaction')
+    height: Optional[int] = Field(None, description="Blockheight of the transaction")
+    txhash: Optional[str] = Field(None, description="Hash of the transaction")
     codespace: Optional[str] = None
     code: Optional[int] = Field(
-        None, description='Result code returned (0 is OK; everything else is error)'
+        None, description="Result code returned (0 is OK; everything else is error)"
     )
-    data: Optional[str] = Field(None, description='Raw transaction data')
-    raw_log: Optional[str] = Field(None, description='Raw transaction log')
+    data: Optional[str] = Field(None, description="Raw transaction data")
+    raw_log: Optional[str] = Field(None, description="Raw transaction log")
     logs: Optional[List[ABCIMessageLog]] = Field(
-        None, description='ABCI Tendermint Logs'
+        None, description="ABCI Tendermint Logs"
     )
     info: Optional[str] = None
     gas_wanted: Optional[int] = None
     gas_used: Optional[int] = None
     Tx: Optional[Dict[str, Any]] = None
-    timestamp: Optional[str] = Field(None, description='Timestamp of the transaction')
+    timestamp: Optional[str] = Field(None, description="Timestamp of the transaction")
 
 
 class QueryRelayResponse(BaseModel):
-    signature: Optional[str] = Field(None, description='Signature from the node in hex')
-    payload: Optional[str] = Field(None, description='string response to relay')
+    signature: Optional[str] = Field(None, description="Signature from the node in hex")
+    payload: Optional[str] = Field(None, description="string response to relay")
 
 
 class QueryChallengeRequest(BaseModel):
@@ -405,7 +405,7 @@ class QueryChallengeRequest(BaseModel):
         None, max_items=2, min_items=1
     )
     minority_response: Optional[QueryRelayResponse] = None
-    address: Optional[str] = Field(None, description='reporter address')
+    address: Optional[str] = Field(None, description="reporter address")
 
 
 class QueryChallengeResponse(BaseModel):
@@ -413,13 +413,13 @@ class QueryChallengeResponse(BaseModel):
 
 
 class StakingStatus(Enum):
-    field_1____unstaking = '1 // unstaking'
-    field_2____staked = '2 // staked'
+    field_1____unstaking = "1 // unstaking"
+    field_2____staked = "2 // staked"
 
 
 class JailedStatus(Enum):
-    field_1____jailed = '1 // jailed'
-    field_2____unjailed = '2 // unjailed'
+    field_1____jailed = "1 // jailed"
+    field_2____unjailed = "2 // unjailed"
 
 
 class QueryHeightAndValidatorsOpts(BaseModel):
@@ -432,8 +432,8 @@ class QueryHeightAndValidatorsOpts(BaseModel):
 
 
 class StakingStatus1(Enum):
-    field_1____unstaking = '1 // unstaking'
-    field_2____staked = '2 // staked'
+    field_1____unstaking = "1 // unstaking"
+    field_2____staked = "2 // staked"
 
 
 class QueryHeightAndApplicationsOpts(BaseModel):
@@ -446,29 +446,29 @@ class QueryHeightAndApplicationsOpts(BaseModel):
 
 class QuerySupplyResponse(BaseModel):
     node_staked: Optional[int] = Field(
-        None, description='Amount staked by the node in uPOKT'
+        None, description="Amount staked by the node in uPOKT"
     )
     app_staked: Optional[int] = Field(
-        None, description='Amount staked by the app in uPOKT'
+        None, description="Amount staked by the app in uPOKT"
     )
-    dao: Optional[int] = Field(None, description='DAO amount in uPOKT')
+    dao: Optional[int] = Field(None, description="DAO amount in uPOKT")
     total_staked: Optional[int] = Field(
-        None, description='Total amount staked in uPOKT'
+        None, description="Total amount staked in uPOKT"
     )
     total_unstaked: Optional[int] = Field(
-        None, description='Total amount unstaked in uPOKT'
+        None, description="Total amount unstaked in uPOKT"
     )
-    total: Optional[int] = Field(None, description='Total amount in uPOKT')
+    total: Optional[int] = Field(None, description="Total amount in uPOKT")
 
 
 class QuerySupportedChainsResponse(BaseModel):
     supported_chains: Optional[List[str]] = Field(
-        None, description='Supported blockchains'
+        None, description="Supported blockchains"
     )
 
 
 class QueryTX(BaseModel):
-    hash_: Optional[str] = Field(None, alias='hash')
+    hash_: Optional[str] = Field(None, alias="hash")
     prove: Optional[bool] = None
 
 
@@ -508,14 +508,14 @@ class Account(BaseModel):
 
 
 class BlockID(BaseModel):
-    hash_: Optional[str] = Field(None, alias='hash')
+    hash_: Optional[str] = Field(None, alias="hash")
     parts: Optional[PartSetHeader] = None
 
 
 class CommitSignature(BaseModel):
-    type_: Optional[str] = Field(None, alias='type')
+    type_: Optional[str] = Field(None, alias="type")
     height: Optional[int] = None
-    round_: Optional[int] = Field(None, alias='round')
+    round_: Optional[int] = Field(None, alias="round")
     block_id: Optional[BlockID] = None
     timestamp: Optional[str] = None
     validator_address: Optional[str] = None
@@ -532,24 +532,24 @@ class AllParams(BaseModel):
 
 
 class RelayProof(BaseModel):
-    request_hash: Optional[str] = Field(None, description='request hash identifier')
-    entropy: Optional[int] = Field(None, description='Entropy value to add uniqueness')
+    request_hash: Optional[str] = Field(None, description="request hash identifier")
+    entropy: Optional[int] = Field(None, description="Entropy value to add uniqueness")
     session_block_height: Optional[int] = Field(
-        None, description='Height of the session'
+        None, description="Height of the session"
     )
     servicer_pub_key: Optional[str] = Field(
-        None, description='Servicer public hex public key'
+        None, description="Servicer public hex public key"
     )
-    blockchain: Optional[str] = Field(None, description='Blockchain hex string')
+    blockchain: Optional[str] = Field(None, description="Blockchain hex string")
     aat: Optional[AAT] = None
     signature: Optional[str] = Field(None, description="client's signature in hex")
 
 
 class MsgClaim(BaseModel):
     expiration_height: Optional[int] = Field(
-        None, description='height when the claim expires'
+        None, description="height when the claim expires"
     )
-    evidence_type: Optional[int] = Field(None, description='Arbitrary Enum')
+    evidence_type: Optional[int] = Field(None, description="Arbitrary Enum")
     from_address: Optional[str] = None
     total_proofs: Optional[int] = None
     session_header: Optional[SessionHeader] = None
@@ -558,12 +558,12 @@ class MsgClaim(BaseModel):
 
 class Transaction(BaseModel):
     hash_: Optional[str] = Field(
-        None, alias='hash', description='Hash of the transaction'
+        None, alias="hash", description="Hash of the transaction"
     )
-    height: Optional[int] = Field(None, description='Blockheight of the transaction')
+    height: Optional[int] = Field(None, description="Blockheight of the transaction")
     index: Optional[int] = None
     tx_result: Optional[TxResult] = None
-    tx: Optional[str] = Field(None, description='Raw data of the transaction')
+    tx: Optional[str] = Field(None, description="Raw data of the transaction")
     proof: Optional[TXProof] = None
     stdTx: Optional[StdTx] = None
 
@@ -575,8 +575,8 @@ class QueryDispatchResponse(BaseModel):
 
 class QueryNodeClaimsResponse(BaseModel):
     result: Optional[List[MsgClaim]] = None
-    page: Optional[int] = Field(None, description='current page')
-    total_pages: Optional[int] = Field(None, description='maximum amount of pages')
+    page: Optional[int] = Field(None, description="current page")
+    total_pages: Optional[int] = Field(None, description="maximum amount of pages")
 
 
 class QueryRelayRequest(BaseModel):
@@ -593,7 +593,7 @@ class QuerySimRequest(BaseModel):
 
 
 class QueryErrorRelayResponse(BaseModel):
-    error: Optional[str] = Field(None, description='Amino JSON Error String')
+    error: Optional[str] = Field(None, description="Amino JSON Error String")
     dispatch: Optional[QueryDispatchResponse] = None
 
 
@@ -642,8 +642,8 @@ class Commit(BaseModel):
 
 class Block(BaseModel):
     header: Optional[BlockHeader] = None
-    data: Optional[str] = Field(None, description='Data hash of the block')
-    evidence: Optional[str] = Field(None, description='Evidence hash')
+    data: Optional[str] = Field(None, description="Data hash of the block")
+    evidence: Optional[str] = Field(None, description="Evidence hash")
     lastCommit: Optional[Commit] = None
 
 

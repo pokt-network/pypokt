@@ -11,7 +11,7 @@ from nacl.public import PrivateKey
 from nacl.exceptions import BadSignatureError
 
 if TYPE_CHECKING:
-    from ..models import PPK, UnlockedAccount
+    from .models import PPK, UnlockedAccount
 
 
 class ImplementedKDFs(str, Enum):
@@ -48,7 +48,7 @@ def create_new_ppk(
 def ppk_from_priv_key(
     priv_key: str, password: str, hint: Optional[str] = None, secparam: int = 12
 ) -> PPK:
-    from ..models.PPKModel import PPK
+    from .models.PPKModel import PPK
 
     salt_bytes = get_random_bytes(16)
     scrypt_hash_bytes = hashlib.scrypt(
@@ -74,7 +74,7 @@ def ppk_from_priv_key(
 
 
 def unlock_ppk(ppk: PPK, password: str) -> UnlockedAccount:
-    from ..models.AccountModel import UnlockedAccount
+    from .models.AccountModel import UnlockedAccount
 
     scrypt_hash = hashlib.scrypt(
         password.encode("utf-8"),
