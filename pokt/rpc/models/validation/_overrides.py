@@ -331,6 +331,10 @@ class AllParams(BaseModel):
         return None
 
     def get_param(self, param_name: str) -> ParamValueT:
+        if param_name == "MaximumChains":
+            raise ValueError(
+                "There are 2 available MaximumChains parameters. Either specify AppMaximumChains or NodeMaximumChains"
+            )
         if param_name == "AppMaximumChains":
             module = "application"
             param_name = "MaximumChains"
@@ -353,6 +357,17 @@ class AllParams(BaseModel):
             raise ValueError("Unsupported Parameter: {}".format(param_name))
         match = "{}/{}".format(module, param_name)
         return [item for item in group if item.param_key == match][0].param_value
+
+    def max_relays(self, app_stake: int) -> float:
+        paricipation_rate_on = self.get_param("ParticipationRateOn")
+        participation_rate = (
+            self.get_param("ParticipationRate") if paricipation_rate_on else 1
+        )
+        stability_adjustment = self.get_param("StabilityAdjustment")
+        base_relays = self.get_param("BaseRelaysPerPOKT")
+        return (
+            stability_adjustment + participation_rate * (base_relays / 100) * app_stake
+        )
 
     def __getattribute__(self, name: str) -> Any:
         try:
