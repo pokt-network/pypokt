@@ -278,7 +278,7 @@ param_keys = [
     "pos/MaxValidators",
     "pos/UnstakingTime",
     "pos/DowntimeJailDuration",
-    "pos/ProposerPercentage",
+    "pos/MinSignedPerWindow" "pos/ProposerPercentage",
     "pos/BlocksPerSession",
     "pos/MaxEvidenceAge",
     "pos/SignedBlocksWindow",
@@ -310,11 +310,11 @@ for key in param_keys:
 
 class AllParams(BaseModel):
 
-    app_params: Optional[List[SingleParamT]] = None
-    node_params: Optional[List[SingleParamT]] = None
-    pocket_params: Optional[List[SingleParamT]] = None
-    gov_params: Optional[List[SingleParamT]] = None
-    auth_params: Optional[List[SingleParamT]] = None
+    app_params: List[SingleParamT]
+    node_params: List[SingleParamT]
+    pocket_params: List[SingleParamT]
+    gov_params: List[SingleParamT]
+    auth_params: List[SingleParamT]
 
     def get_module_params(self, module_name: str) -> Optional[List[SingleParamT]]:
         check = module_name.lower()
