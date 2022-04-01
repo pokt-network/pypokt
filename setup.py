@@ -19,8 +19,13 @@ setup(
     keywords="pocket network sdk rpc",
     long_description=README,
     long_description_content_type="text/markdown",
-    install_requires=["requests>=2.27.1", "pydantic>=1.9.0", "PyNaCl>=1.5.0"],
+    install_requires=[
+        "requests>=2.27.1",
+        "pydantic>=1.9.0",
+        "PyNaCl>=1.5.0",
+        "pycryptodome>=3.14.1",
+    ],
     extras_require={"async": ["aiohttp[speedups]>=3.8.1"]},
-    tests_require=["pytest"],
+    tests_require=["pytest", "python-dotenv"],
     setup_requires=["black", "sphinx"],
 )

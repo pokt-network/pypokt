@@ -331,7 +331,14 @@ class AllParams(BaseModel):
         return None
 
     def get_param(self, param_name: str) -> ParamValueT:
-        module = key_map.get(param_name)
+        if param_name == "AppMaximumChains":
+            module = "application"
+            param_name = "MaximumChains"
+        elif param_name == "NodeMaximumChains":
+            module = "pos"
+            param_name = "MaximumChains"
+        else:
+            module = key_map.get(param_name)
         if module == "pos":
             group = self.node_params
         elif module == "application":
