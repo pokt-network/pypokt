@@ -1,4 +1,4 @@
-from urllib.parse import urljoin
+import json
 from typing import Optional
 import requests
 
@@ -6,7 +6,11 @@ from . import DEFAULT_GET_HEADERS, DEFAULT_POST_HEADERS
 
 
 def make_api_url(provider_url: str, route: str, version: str = "v1") -> str:
-    return urljoin(provider_url, urljoin(version, route))
+    if not provider_url.endswith("/"):
+        provider_url += "/"
+    if not route.startswith("/"):
+        route = "/" + route
+    return provider_url + version + route
 
 
 def get(route: str, session: Optional[requests.Session] = None, **params) -> str:
@@ -19,7 +23,11 @@ def get(route: str, session: Optional[requests.Session] = None, **params) -> str
 
 def post(route: str, session: Optional[requests.Session] = None, **payload) -> dict:
     if session is None:
-        resp = requests.post(route, headers=DEFAULT_POST_HEADERS, data=payload)
+        resp = requests.post(
+            route, headers=DEFAULT_POST_HEADERS, data=json.dumps(payload)
+        )
     else:
-        resp = session.post(route, data=payload, headers=DEFAULT_POST_HEADERS)
+        resp = session.post(
+            route, data=json.dumps(payload), headers=DEFAULT_POST_HEADERS
+        )
     return resp.json()

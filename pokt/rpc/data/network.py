@@ -1,13 +1,14 @@
 from typing import Any, Dict, AnyStr, Optional
 import requests
+from pydantic import parse_obj_as
 from ..models import (
     AllParams,
+    SingleParam,
     QueryHeight,
     QueryHeightAndKey,
     QueryHeightResponse,
     QuerySupplyResponse,
     QuerySupportedChainsResponse,
-    SingleParam,
     UpgradeResponse,
 )
 from ..utils import make_api_url, get, post
@@ -50,7 +51,7 @@ def get_supported_chains(
     request = QueryHeight(height=height)
     route = make_api_url(provider_url, "/query/supportedchains")
     resp_data = post(route, session, **request.dict())
-    return QuerySupportedChainsResponse(**resp_data)
+    return QuerySupportedChainsResponse(supported_chains=resp_data)
 
 
 def get_upgrade(
@@ -67,11 +68,11 @@ def get_param(
     param_key: str,
     height: int = 0,
     session: Optional[requests.Session] = None,
-) -> SingleParam:
+) -> Any:
     request = QueryHeightAndKey(height=height, key=param_key)
     route = make_api_url(provider_url, "/query/param")
     resp_data = post(route, session, **request.dict())
-    return SingleParam(**resp_data)
+    return parse_obj_as(SingleParam, resp_data).__root__
 
 
 def get_all_params(
