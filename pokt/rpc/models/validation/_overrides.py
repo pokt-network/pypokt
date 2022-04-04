@@ -4,6 +4,8 @@ from typing import Any, Callable, Dict, List, Literal, Optional, TypeVar, Union
 from typing_extensions import Annotated
 from pydantic import BaseModel, Field, conint, validator
 
+from ...utils import get_full_param
+
 
 class StakingStatus(int, Enum):
     unstaking = 1
@@ -263,50 +265,6 @@ ParamValueT = Union[
     int, str, float, bool, List[str], Upgrade, FeeMultiplier, List[ACLKey], Upgrade
 ]
 
-param_keys = [
-    "application/MaxApplications",
-    "application/AppUnstakingTime",
-    "application/MaximumChains",
-    "application/StabilityAdjustment",
-    "application/BaseRelaysPerPOKT",
-    "application/ApplicationStakeMinimum",
-    "pos/DAOAllocation",
-    "pos/StakeMinimum",
-    "pos/MaximumChains",
-    "pos/RelaysToTokensMultiplier",
-    "pos/MaxJailedBlocks",
-    "pos/MaxValidators",
-    "pos/UnstakingTime",
-    "pos/DowntimeJailDuration",
-    "pos/MinSignedPerWindow" "pos/ProposerPercentage",
-    "pos/BlocksPerSession",
-    "pos/MaxEvidenceAge",
-    "pos/SignedBlocksWindow",
-    "pocketcore/SessionNodeCount",
-    "pocketcore/ClaimSubmissionWindow",
-    "pocketcore/ReplayAttackBurnMultiplier",
-    "pocketcore/ClaimExpiration",
-    "pocketcore/MinimumNumberOfProofs",
-    "auth/MaxMemoCharacters",
-    "auth/TxSigLimit",
-    "pos/StakeDenom",
-    "gov/daoOwner",
-    "pos/SlashFractionDoubleSign",
-    "pos/SlashFractionDowntime",
-    "application/ParticipationRateOn",
-    "pos/MinSignedPerWindow",
-    "pocketcore/SupportedBlockchains",
-    "auth/FeeMultipliers",
-    "gov/acl",
-    "gov/upgrade",
-]
-
-key_map = {}
-
-for key in param_keys:
-    module, name = key.split("/")
-    key_map[name] = module
-
 
 class AllParams(BaseModel):
 
@@ -331,31 +289,8 @@ class AllParams(BaseModel):
         return None
 
     def get_param(self, param_name: str) -> ParamValueT:
-        if param_name == "MaximumChains":
-            raise ValueError(
-                "There are 2 available MaximumChains parameters. Either specify AppMaximumChains or NodeMaximumChains"
-            )
-        if param_name == "AppMaximumChains":
-            module = "application"
-            param_name = "MaximumChains"
-        elif param_name == "NodeMaximumChains":
-            module = "pos"
-            param_name = "MaximumChains"
-        else:
-            module = key_map.get(param_name)
-        if module == "pos":
-            group = self.node_params
-        elif module == "application":
-            group = self.app_params
-        elif module == "gov":
-            group = self.gov_params
-        elif module == "pocketcore":
-            group = self.pocket_params
-        elif module == "auth":
-            group = self.auth_params
-        else:
-            raise ValueError("Unsupported Parameter: {}".format(param_name))
-        match = "{}/{}".format(module, param_name)
+        module, match = get_full_param(param_name)
+        group = self.get_module_params(module)
         return [item for item in group if item.param_key == match][0].param_value
 
     def max_relays(self, app_stake: int) -> float:
@@ -381,3 +316,78 @@ class SingleParam(BaseModel):
         SingleParamT,
         Field(discriminator="param_key"),
     ]
+
+
+class Consensus(BaseModel):
+    block: Optional[int] = None
+    app: Optional[int] = None
+
+
+class PartSetHeader(BaseModel):
+    total: Optional[int] = None
+    hash_: Optional[str] = Field(None, alias="hash")
+
+
+class BlockID(BaseModel):
+    hash_: Optional[str] = Field(None, alias="hash")
+    parts: Optional[PartSetHeader] = None
+
+
+class BlockHeader(BaseModel):
+    version: Optional[Consensus] = None
+    chain_id: Optional[str] = None
+    height: Optional[int] = None
+    time: Optional[str] = None
+    num_txs: Optional[int] = None
+    total_txs: Optional[int] = None
+    last_block_id: Optional[BlockID] = None
+    last_commit_hash: Optional[str] = None
+    data_hash: Optional[str] = None
+    validators_hash: Optional[str] = None
+    next_validators_hash: Optional[str] = None
+    consensus_hash: Optional[str] = None
+    app_hash: Optional[str] = None
+    last_results_hash: Optional[str] = None
+    evidence_hash: Optional[str] = None
+    proposer_address: Optional[str] = None
+
+
+class BlockMeta(BaseModel):
+    block_id: Optional[BlockID] = None
+    blockHeader: Optional[BlockHeader] = None
+
+
+class CommitSignature(BaseModel):
+    type_: Optional[str] = Field(None, alias="type")
+    height: Optional[int] = None
+    round_: Optional[int] = Field(None, alias="round")
+    block_id: Optional[BlockID] = None
+    timestamp: Optional[str] = None
+    validator_address: Optional[str] = None
+    validator_index: Optional[int] = None
+    signature: Optional[str] = None
+
+
+class Commit(BaseModel):
+    block_id: Optional[BlockID] = None
+    commit_signature: Optional[CommitSignature] = None
+
+
+class BlockData(BaseModel):
+    txs: List[str]
+
+
+class BlockEvidence(BaseModel):
+    evidence: Optional[str] = None
+
+
+class Block(BaseModel):
+    header: Optional[BlockHeader] = None
+    data: Optional[BlockData] = Field(None, description="Data hash of the block")
+    evidence: Optional[BlockEvidence] = Field(None, description="Evidence hash")
+    lastCommit: Optional[Commit] = None
+
+
+class QueryBlockResponse(BaseModel):
+    block: Optional[Block] = None
+    block_meta: Optional[BlockMeta] = None

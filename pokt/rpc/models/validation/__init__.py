@@ -16,4 +16,5 @@ from ._overrides import (
     SingleParamT,
     SingleParam,
     AllParams,
+    QueryBlockResponse,
 )

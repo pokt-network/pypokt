@@ -6,12 +6,15 @@ from ..models import (
     QueryAddressHeight,
     QueryAppsResponse,
     QueryNodesResponse,
+    QueryNodeReceipt,
+    QueryNodeClaimsResponse,
+    StoredReceipt,
     ValidatorOpts,
     ApplicationOpts,
     QuerySigningInfoResponse,
     QueryPaginatedHeightAndAddrParams,
     QueryHeightAndApplicationsOpts,
-    QueryHeightAndValidatorOpts,
+    QueryHeightAndValidatorsOpts,
     StakingStatus,
     JailedStatus,
 )
@@ -86,7 +89,7 @@ def get_nodes(
         jailed_status=jailed_status,
         blockchain=blockchain,
     )
-    request = QueryHeightAndValidatorOpts(height=height, opts=opts)
+    request = QueryHeightAndValidatorsOpts(height=height, opts=opts)
     route = make_api_url(provider_url, "/query/nodes")
     resp_data = post(route, session, **request.dict())
     return QueryNodesResponse(**resp_data)
@@ -106,3 +109,40 @@ def get_signing_info(
     route = make_api_url(provider_url, "/query/signinginfo")
     resp_data = post(route, session, **request.dict())
     return QuerySigningInfoResponse(**resp_data)
+
+
+def get_node_claim(
+    provider_url: str,
+    address: str = "",
+    blockchain: Optional[str] = None,
+    app_pubkey: Optional[str] = None,
+    height: int = 0,
+    session_block_height: int = 0,
+    session: Optional[requests.Session] = None,
+) -> StoredReceipt:
+    request = QueryNodeReceipt(
+        address=address,
+        blockchain=blockchain,
+        app_pubkey=app_pubkey,
+        height=height,
+        session_block_height=session_block_height,
+    )
+    route = make_api_url(provider_url, "/query/nodeclaim")
+    resp_data = post(route, session, **request.dict())
+    return StoredReceipt(**resp_data)
+
+
+def get_node_claims(
+    provider_url: str,
+    address: str = "",
+    height: int = 0,
+    page: int = 1,
+    per_page: int = 1000,
+    session: Optional[requests.Session] = None,
+) -> QueryNodeClaimsResponse:
+    request = QueryPaginatedHeightAndAddrParams(
+        height=height, address=address, page=page, per_page=per_page
+    )
+    route = make_api_url(provider_url, "/query/nodeclaims")
+    resp_data = post(route, session, **request.dict())
+    return QueryNodeClaimsResponse(**resp_data)
