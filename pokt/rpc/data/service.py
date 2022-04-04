@@ -29,7 +29,7 @@ def get_app(
 ) -> Application:
     request = QueryAddressHeight(height=height, address=address)
     route = make_api_url(provider_url, "/query/app")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return Application(**resp_data)
 
 
@@ -38,12 +38,12 @@ def get_apps(
     height: int = 0,
     page: int = 0,
     per_page: int = 100,
-    staking_status: str = "",
+    staking_status: int = 2,
     blockchain: str = "",
     session: Optional[requests.Session] = None,
 ) -> QueryAppsResponse:
     if staking_status:
-        staking_status = getattr(StakingStatus, staking_status, "")
+        staking_status = StakingStatus(staking_status)
     opts = ApplicationOpts(
         page=page,
         per_page=per_page,
@@ -52,7 +52,7 @@ def get_apps(
     )
     request = QueryHeightAndApplicationsOpts(height=height, opts=opts)
     route = make_api_url(provider_url, "/query/apps")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return QueryAppsResponse(**resp_data)
 
 
@@ -64,7 +64,7 @@ def get_node(
 ) -> Node:
     request = QueryAddressHeight(height=height, address=address)
     route = make_api_url(provider_url, "/query/node")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return Node(**resp_data)
 
 
@@ -72,16 +72,16 @@ def get_nodes(
     provider_url: str,
     height: int = 0,
     page: int = 0,
-    per_page: int = 100,
-    staking_status: str = "",
-    jailed_status: str = "",
+    per_page: int = 10,
+    staking_status: int = 2,
+    jailed_status: int = 2,
     blockchain: str = "",
     session: Optional[requests.Session] = None,
 ) -> QueryNodesResponse:
     if staking_status:
-        staking_status = getattr(StakingStatus, staking_status, "")
+        staking_status = StakingStatus(staking_status)
     if jailed_status:
-        jailed_status = getattr(JailedStatus, jailed_status, "")
+        jailed_status = JailedStatus(jailed_status)
     opts = ValidatorOpts(
         page=page,
         per_page=per_page,
@@ -91,7 +91,7 @@ def get_nodes(
     )
     request = QueryHeightAndValidatorsOpts(height=height, opts=opts)
     route = make_api_url(provider_url, "/query/nodes")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return QueryNodesResponse(**resp_data)
 
 
@@ -107,7 +107,7 @@ def get_signing_info(
         height=height, address=address, page=page, per_page=per_page
     )
     route = make_api_url(provider_url, "/query/signinginfo")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return QuerySigningInfoResponse(**resp_data)
 
 
@@ -128,7 +128,7 @@ def get_node_claim(
         session_block_height=session_block_height,
     )
     route = make_api_url(provider_url, "/query/nodeclaim")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return StoredReceipt(**resp_data)
 
 
@@ -144,5 +144,5 @@ def get_node_claims(
         height=height, address=address, page=page, per_page=per_page
     )
     route = make_api_url(provider_url, "/query/nodeclaims")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return QueryNodeClaimsResponse(**resp_data)

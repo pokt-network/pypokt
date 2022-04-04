@@ -15,6 +15,7 @@ from ._overrides import (
     FeeMultiplier,
     SingleParamT,
     SingleParam,
+    ParamValueT,
     AllParams,
     QueryBlockResponse,
 )

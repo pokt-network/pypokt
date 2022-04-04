@@ -4,8 +4,6 @@ from typing import Any, Callable, Dict, List, Literal, Optional, TypeVar, Union
 from typing_extensions import Annotated
 from pydantic import BaseModel, Field, conint, validator
 
-from ...utils import get_full_param
-
 
 class StakingStatus(int, Enum):
     unstaking = 1
@@ -25,8 +23,8 @@ class ValidatorOpts(BaseModel):
     per_page: conint(gt=0, lt=10000) = Field(
         100, description="Number of applications per page"
     )
-    staking_status: Union[StakingStatus, str] = ""
-    jailed_status: Union[JailedStatus, str] = ""
+    staking_status: Optional[StakingStatus] = None
+    jailed_status: Optional[JailedStatus] = None
     blockchain: Optional[str] = None
 
 
@@ -43,7 +41,7 @@ class ApplicationOpts(BaseModel):
     per_page: conint(gt=0, lt=10000) = Field(
         100, description="Number of applications per page"
     )
-    staking_status: Union[StakingStatus, str] = ""
+    staking_status: Optional[StakingStatus] = None
     blockchain: Optional[str] = None
 
 
@@ -273,42 +271,6 @@ class AllParams(BaseModel):
     pocket_params: List[SingleParamT]
     gov_params: List[SingleParamT]
     auth_params: List[SingleParamT]
-
-    def get_module_params(self, module_name: str) -> Optional[List[SingleParamT]]:
-        check = module_name.lower()
-        if check in ("app", "application"):
-            return self.app_params
-        elif check in ("pos", "node"):
-            return self.node_params
-        elif check in ("pocket", "core", "pocketcore", "pocket_core", "pocket-core"):
-            return self.pocket_params
-        elif check in ("gov", "governance", "dao"):
-            return self.gov_params
-        elif check in ("auth", "authentication"):
-            return self.auth_params
-        return None
-
-    def get_param(self, param_name: str) -> ParamValueT:
-        module, match = get_full_param(param_name)
-        group = self.get_module_params(module)
-        return [item for item in group if item.param_key == match][0].param_value
-
-    def max_relays(self, app_stake: int) -> float:
-        paricipation_rate_on = self.get_param("ParticipationRateOn")
-        participation_rate = (
-            self.get_param("ParticipationRate") if paricipation_rate_on else 1
-        )
-        stability_adjustment = self.get_param("StabilityAdjustment")
-        base_relays = self.get_param("BaseRelaysPerPOKT")
-        return (
-            stability_adjustment + participation_rate * (base_relays / 100) * app_stake
-        )
-
-    def __getattribute__(self, name: str) -> Any:
-        try:
-            return self.get_param(name)
-        except:
-            return super().__getattribute__(name)
 
 
 class SingleParam(BaseModel):

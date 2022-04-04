@@ -15,7 +15,7 @@ def get_block(
 ) -> QueryBlockResponse:
     request = QueryBlock(height=height)
     route = make_api_url(provider_url, "/query/block")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return QueryBlockResponse(**resp_data)
 
 
@@ -33,5 +33,5 @@ def get_block_transactions(
         height=height, page=page, per_page=per_page, prove=prove, order=order
     )
     route = make_api_url(provider_url, "/query/blocktxs")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return QueryBlockTXsResponse(**resp_data)

@@ -24,6 +24,7 @@ setup(
         "pydantic>=1.9.0",
         "PyNaCl>=1.5.0",
         "pycryptodome>=3.14.1",
+        "tabulate>=0.8.9",
     ],
     extras_require={"async": ["aiohttp[speedups]>=3.8.1"]},
     tests_require=["pytest", "python-dotenv"],

@@ -32,7 +32,7 @@ def get_state(
 ) -> Dict[AnyStr, Any]:
     request = QueryHeight(height=height)
     route = make_api_url(provider_url, "/query/state")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return resp_data
 
 
@@ -41,7 +41,7 @@ def get_supply(
 ) -> QuerySupplyResponse:
     request = QueryHeight(height=height)
     route = make_api_url(provider_url, "/query/supply")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return QuerySupplyResponse(**resp_data)
 
 
@@ -50,7 +50,7 @@ def get_supported_chains(
 ) -> QuerySupportedChainsResponse:
     request = QueryHeight(height=height)
     route = make_api_url(provider_url, "/query/supportedchains")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return QuerySupportedChainsResponse(supported_chains=resp_data)
 
 
@@ -59,7 +59,7 @@ def get_upgrade(
 ) -> UpgradeResponse:
     request = QueryHeight(height=height)
     route = make_api_url(provider_url, "/query/upgrade")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return UpgradeResponse(**resp_data)
 
 
@@ -71,7 +71,7 @@ def get_param(
 ) -> Any:
     request = QueryHeightAndKey(height=height, key=param_key)
     route = make_api_url(provider_url, "/query/param")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return parse_obj_as(SingleParam, resp_data).__root__
 
 
@@ -80,5 +80,5 @@ def get_all_params(
 ) -> AllParams:
     request = QueryHeight(height=height)
     route = make_api_url(provider_url, "/query/allParams")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return AllParams(**resp_data)

@@ -13,10 +13,21 @@ from ..rpc.data import (
     get_supported_chains,
     get_upgrade,
     get_version,
+    get_account,
+    get_account_transactions,
+    get_transaction_by_hash,
+    get_app,
+    get_apps,
+    get_node,
+    get_nodes,
+    get_node_claim,
+    get_node_claims,
+    get_signing_info,
 )
 
 
-from ..rpc.utils import get_full_param
+from ..views.utils import get_full_param, chain_ids_to_details
+from ..views.interfaces import ProtocolParams
 
 
 class PoktRPCDataProvider(_BaseRPCProvider):
@@ -32,9 +43,18 @@ class PoktRPCDataProvider(_BaseRPCProvider):
     def get_block_transactions(self, *args, **kwargs):
         return self._make_rpc_call(get_block_transactions, *args, **kwargs)
 
+    @wraps(get_account)
+    def get_account(self, *args, **kwargs):
+        return self._make_rpc_call(get_account, *args, **kwargs)
+
+    @wraps(get_account_transactions)
+    def get_account_transactions(self, *args, **kwargs):
+        return self._make_rpc_call(get_account_transactions, *args, **kwargs)
+
     @wraps(get_all_params)
     def get_all_params(self, *args, **kwargs):
-        return self._make_rpc_call(get_all_params, *args, **kwargs)
+        all_params = self._make_rpc_call(get_all_params, *args, **kwargs)
+        return ProtocolParams.from_model(all_params)
 
     @wraps(get_param)
     def get_param(self, *args, **kwargs):
@@ -56,8 +76,8 @@ class PoktRPCDataProvider(_BaseRPCProvider):
 
     @wraps(get_supported_chains)
     def get_supported_chains(self, *args, **kwargs):
-        "TODO: Chain ID Map"
-        return self._make_rpc_call(get_supported_chains, *args, **kwargs)
+        chain_response = self._make_rpc_call(get_supported_chains, *args, **kwargs)
+        return chain_ids_to_details(chain_response.supported_chains)
 
     @wraps(get_upgrade)
     def get_upgrade(self, *args, **kwargs):
@@ -66,3 +86,35 @@ class PoktRPCDataProvider(_BaseRPCProvider):
     @wraps(get_version)
     def get_version(self, *args, **kwargs):
         return self._make_rpc_call(get_version, *args, **kwargs)
+
+    @wraps(get_transaction_by_hash)
+    def get_transaction_by_hash(self, *args, **kwargs):
+        return self._make_rpc_call(get_transaction_by_hash, *args, **kwargs)
+
+    @wraps(get_app)
+    def get_app(self, *args, **kwargs):
+        return self._make_rpc_call(get_app, *args, **kwargs)
+
+    @wraps(get_apps)
+    def get_apps(self, *args, **kwargs):
+        return self._make_rpc_call(get_apps, *args, **kwargs)
+
+    @wraps(get_node)
+    def get_node(self, *args, **kwargs):
+        return self._make_rpc_call(get_node, *args, **kwargs)
+
+    @wraps(get_nodes)
+    def get_nodes(self, *args, **kwargs):
+        return self._make_rpc_call(get_nodes, *args, **kwargs)
+
+    @wraps(get_node_claim)
+    def get_node_claim(self, *args, **kwargs):
+        return self._make_rpc_call(get_node_claim, *args, **kwargs)
+
+    @wraps(get_node_claims)
+    def get_node_claims(self, *args, **kwargs):
+        return self._make_rpc_call(get_node_claims, *args, **kwargs)
+
+    @wraps(get_signing_info)
+    def get_signing_info(self, *args, **kwargs):
+        return self._make_rpc_call(get_signing_info, *args, **kwargs)

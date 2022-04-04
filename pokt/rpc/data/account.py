@@ -19,7 +19,7 @@ def get_account(
 ) -> Account:
     request = QueryAddressHeight(height=height, address=address)
     route = make_api_url(provider_url, "/query/account")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return Account(**resp_data)
 
 
@@ -31,7 +31,7 @@ def get_balance(
 ) -> QueryBalanceResponse:
     request = QueryAddressHeight(height=height, address=address)
     route = make_api_url(provider_url, "/query/balance")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return QueryBalanceResponse(**resp_data)
 
 
@@ -55,5 +55,5 @@ def get_account_transactions(
         order=order,
     )
     route = make_api_url(provider_url, "/query/accounttxs")
-    resp_data = post(route, session, **request.dict())
+    resp_data = post(route, session, **request.dict(by_alias=True))
     return QueryAccountTXsResponse(**resp_data)
