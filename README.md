@@ -77,7 +77,7 @@ from pokt import PPK, unlock_ppk
 ppk = PPK.from_file("/path/to/keyfile.json")
 
 unlocked = unlock_ppk(ppk, "super-secret-password")
-signed = ulocked.sign("This message is from me!")
+signed = unlocked.sign("This message is from me!")
 ```
 
 ### Verify a Signature
