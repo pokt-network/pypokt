@@ -97,8 +97,8 @@ def get_nodes(
 
 def get_signing_info(
     provider_url: str,
-    height: int = 0,
     address: Optional[str] = None,
+    height: int = 0,
     page: int = 0,
     per_page: int = 100,
     session: Optional[requests.Session] = None,
