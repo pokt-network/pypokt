@@ -1,3 +1,5 @@
+import re
+
 from .interfaces import SupportedChains
 
 _param_keys = [
@@ -64,11 +66,42 @@ def get_full_param(param_name: str):
     return module, "{}/{}".format(module, param_name)
 
 
+def is_chain_id(val: str):
+    return re.fullmatch(r"^[0-9A-F]{4}$", val or "") is not None
+
+
 def chain_details_from_id(chain_id: str):
     matches = [chain for chain in SupportedChains if chain_id == chain.chainID]
     if not matches:
         raise ValueError("Unrecognized chain with ID {}".format(chain_id))
     return matches[0]
+
+
+def name_from_chain_id(chain_id: str):
+    return chain_details_from_id(chain_id).name
+
+
+def chain_id_from_name(name: str):
+    if is_chain_id(name):
+        return name
+    matches = [
+        chain
+        for chain in SupportedChains
+        if name.lower() in [alias.lower() for alias in chain.aliases]
+    ]
+    if len(matches) > 1:
+        raise ValueError(
+            "The name {} returned the following matched chains: {}".format(
+                name, ", ".join([match.name for match in matches])
+            )
+        )
+    if not matches:
+        raise ValueError(
+            "No chain found matching the name {}. Supported chains include: {}".format(
+                name, ", ".join([chain.name for chain in SupportedChains])
+            )
+        )
+    return matches[0].chainID
 
 
 def chain_ids_to_details(supported_chains: list[str]):

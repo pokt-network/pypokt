@@ -26,7 +26,21 @@ setup(
         "pycryptodome>=3.14.1",
         "tabulate>=0.8.9",
     ],
-    extras_require={"async": ["aiohttp[speedups]>=3.8.1"]},
-    tests_require=["pytest", "python-dotenv"],
-    setup_requires=["black", "sphinx"],
+    extras_require={
+        "indexer": ["duckdb", "pyarrow"],
+        "async": ["aiohttp[speedups]>=3.8.1"],
+        "qr": ["qrcode[pil]"],
+        "all": [
+            "duckdb",
+            "pyarrow",
+            "aiohttp[speedups]>=3.8.1",
+            "pandas",
+            "qrcode[pil]",
+        ],
+    },
+    tests_require=["pytest", "python-dotenv", "hypothesis"],
+    setup_requires=["black", "sphinx", "datamodel-code-generator"],
+    entry_points={
+        "console_scripts": ["pokt-index=pokt.index.main:main"],
+    },
 )

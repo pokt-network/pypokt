@@ -332,7 +332,7 @@ class QueryHeight(BaseModel):
 
 
 class QueryHeightResponse(BaseModel):
-    height: Optional[int] = None
+    height: int
 
 
 class QueryNodeReceipt(BaseModel):
@@ -603,11 +603,15 @@ class QueryTXResponse(BaseModel):
 
 class QueryAccountTXsResponse(BaseModel):
     txs: Optional[List[Transaction]] = None
+    total_txs: Optional[str] = None
+    page_total: Optional[str] = None
     total_count: Optional[str] = None
 
 
 class QueryBlockTXsResponse(BaseModel):
     txs: Optional[List[Transaction]] = None
+    total_txs: Optional[str] = None
+    page_total: Optional[str] = None
     total_count: Optional[int] = None
 
 

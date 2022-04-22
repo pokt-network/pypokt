@@ -336,11 +336,17 @@ class Commit(BaseModel):
 
 
 class BlockData(BaseModel):
-    txs: List[str]
+    txs: Optional[List[str]] = None
 
 
 class BlockEvidence(BaseModel):
     evidence: Optional[str] = None
+
+    @validator("evidence", pre=True)
+    def wtf(cls, v):
+        if not isinstance(v, str):
+            return str(v)
+        return v
 
 
 class Block(BaseModel):
@@ -349,7 +355,17 @@ class Block(BaseModel):
     evidence: Optional[BlockEvidence] = Field(None, description="Evidence hash")
     lastCommit: Optional[Commit] = None
 
+    @validator("evidence", pre=True)
+    def fix_evidence_issue(cls, v):
+        if isinstance(v, str):
+            return BlockEvidence(evidence=v)
+        return v
+
 
 class QueryBlockResponse(BaseModel):
     block: Optional[Block] = None
     block_meta: Optional[BlockMeta] = None
+
+
+class QueryHeightResponse(BaseModel):
+    height: int
