@@ -12,7 +12,7 @@ pip install -e .["all"]
 
 ## Requirements
 
-An Pocket RPC URL Can be acquired through either:
+A Pocket RPC URL Can be acquired through either:
 
 1. Access to a Pocket Node with RPC
 2. An app endpoint from [the Portal](https://portal.pokt.network/)
