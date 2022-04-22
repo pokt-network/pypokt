@@ -19,30 +19,6 @@ An Pocket RPC URL Can be acquired through either:
 
 ## Usage
 
-`[x]` -> Complete
-`[~]` -> Partial functionality
-
-**Pocket RPC:**
-
-- [x] Pocket RPC `/query`
-- [~] Pocket DB
-- [] Pocket RPC `/client`
-
-**Wallet:**
-
-- [x] Create Account (PPK file/Private Key)
-- [x] Import Account (from PPK/Private Key)
-- [x] Sign message with account
-- [x] Verify signed message
-- [] Create and sign transactions from account
-- [] Create and sign multisig transactions from account
-
-**Portal RPC:**
-
-- [~] pocket RPC provider
-- [] web3 providers
-- [] figure out other types
-
 ### Pocket RPC `/query`
 
 ```python
@@ -154,3 +130,29 @@ signed_message="signed message"
 
 isValid = verify_signature(pub_key, signed_message)
 ```
+
+## Current Functionality
+
+`[x]` -> Complete  
+`[~]` -> Partial functionality
+
+**Pocket RPC:**
+
+- [x] Pocket RPC `/query`
+- [~] Pocket DB
+- [] Pocket RPC `/client`
+
+**Wallet:**
+
+- [x] Create Account (PPK file/Private Key)
+- [x] Import Account (from PPK/Private Key)
+- [x] Sign message with account
+- [x] Verify signed message
+- [] Create and sign transactions from account
+- [] Create and sign multisig transactions from account
+
+**Portal RPC:**
+
+- [~] pocket RPC provider
+- [] web3 providers
+- [] figure out other types
