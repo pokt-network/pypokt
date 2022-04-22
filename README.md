@@ -21,6 +21,9 @@ An Pocket RPC URL Can be acquired through either:
 
 ### Pocket RPC `/query`
 
+All RPC methods that begin with `/query` are currently supported. These are
+all exposed under the `PoktRPCDataProvider`.
+
 ```python
 from pokt import PoktRPCDataProvider
 
@@ -34,7 +37,8 @@ supply = pokt_rpc.get_supply()
 
 ### Pocket DB
 
-CLI script available as `pokt-index`:
+CLI script available as `pokt-index` for pulling in transactions into a format
+that can be queried.
 
 ```sh
 $ pokt-index --help
