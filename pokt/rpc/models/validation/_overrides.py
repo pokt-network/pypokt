@@ -2,7 +2,7 @@ from enum import Enum
 import json
 from typing import Any, Callable, Dict, List, Literal, Optional, TypeVar, Union
 from typing_extensions import Annotated
-from pydantic import BaseModel, Field, conint, validator
+from pydantic import BaseModel, Field, conint, validator, root_validator
 
 
 class StakingStatus(int, Enum):
@@ -369,3 +369,306 @@ class QueryBlockResponse(BaseModel):
 
 class QueryHeightResponse(BaseModel):
     height: int
+
+
+class MsgChangeParamVal(BaseModel):
+    address: Optional[str] = None
+    param_key: Optional[str] = None
+    param_val: Optional[Any] = None
+    # param: SingleParamT
+
+
+class MsgDaoTransferVal(BaseModel):
+    from_address: Optional[str] = None
+    to_address: Optional[str] = None
+    amount: Optional[int] = None
+    action: Optional[str] = None
+
+
+class MsgUpgradeVal(BaseModel):
+    address: Optional[str] = None
+    upgrade: Optional[Upgrade] = None
+
+
+class PublicKey(BaseModel):
+    type_: str = Field(..., alias="type")
+    value: str
+
+
+class MsgAppStakeVal(BaseModel):
+    pubkey: Optional[PublicKey] = None
+    chains: Optional[list[str]] = None
+    value: Optional[int] = None
+
+
+class MsgBeginAppUnstakeVal(BaseModel):
+    application_address: Optional[str] = None
+
+
+class MsgAppUnjailVal(BaseModel):
+    address: Optional[str] = None
+
+
+class MsgValidatorStakeVal(BaseModel):
+    public_key: Optional[PublicKey] = None
+    chains: Optional[list[str]] = None
+    value: Optional[int] = None
+    service_url: Optional[str] = None
+    output_address: Optional[str] = None
+
+
+class MsgBeginValidatorUnstakeVal(BaseModel):
+    validator_address: Optional[str] = None
+    signer_address: Optional[str] = None
+
+
+class MsgValidatorUnjailVal(BaseModel):
+    address: Optional[str] = None
+    signer_address: Optional[str] = None
+
+
+class MsgSendVal(BaseModel):
+    from_address: Optional[str] = None
+    to_address: Optional[str] = None
+    amount: Optional[int] = None
+
+
+class Range(BaseModel):
+    lower: Optional[int] = None
+    upper: Optional[int] = None
+
+
+class HashRange(BaseModel):
+    merkleHash: Optional[str] = None
+    range_: Optional[Range] = Field(None, alias="range")
+
+
+class MerkleProof(BaseModel):
+    index: Optional[int] = None
+    hash_ranges: Optional[list[HashRange]] = None
+    target_range: Optional[HashRange] = None
+
+
+class AAT(BaseModel):
+    version: Optional[str] = None
+    app_pub_key: Optional[str] = Field(None, description="Application hex public key")
+    client_pub_key: Optional[str] = Field(
+        None, description="Application hex public key associated with a client"
+    )
+    signature: Optional[str] = Field(None, description="Application's signature in hex")
+
+
+class RelayProof(BaseModel):
+    request_hash: Optional[str] = Field(None, description="request hash identifier")
+    entropy: Optional[int] = Field(None, description="Entropy value to add uniqueness")
+    session_block_height: Optional[int] = Field(
+        None, description="Height of the session"
+    )
+    servicer_pub_key: Optional[str] = Field(
+        None, description="Servicer public hex public key"
+    )
+    blockchain: Optional[str] = Field(None, description="Blockchain hex string")
+    aat: Optional[AAT] = None
+    signature: Optional[str] = Field(None, description="client's signature in hex")
+
+
+class RelayResponse(BaseModel):
+    signature: Optional[str] = None
+    payload: Optional[str] = None
+    proof: Optional[RelayProof] = None
+
+
+class ChallengeProofInvalidData(BaseModel):
+    majority_responses: Optional[list[RelayResponse]] = None
+    minority_response: Optional[RelayResponse] = None
+    reporters_address: Optional[str] = None
+
+
+Proof = Union[RelayProof, ChallengeProofInvalidData]
+
+
+class EvidenceType(BaseModel):
+    pass
+
+
+class MsgProofVal(BaseModel):
+    merkle_proofs: Optional[MerkleProof] = None
+    leaf: Optional[Proof] = None
+    evidence_type: Optional[int] = None  # EvidenceType = None
+
+
+class SessionHeader(BaseModel):
+    app_public_key: Optional[str] = Field(
+        None, description="Application hex public key associated with a client"
+    )
+    chain: Optional[str] = Field(None, description="Network Identified in hex")
+    session_height: Optional[int] = Field(None, description="Height of the session")
+
+
+class MsgClaimVal(BaseModel):
+    header: SessionHeader
+    merkle_root: Optional[HashRange] = None
+    total_proofs: Optional[int] = None
+    from_address: Optional[str] = None
+    evidence_type: Optional[int] = None  # EvidenceType = None
+    expiration_height: Optional[int] = None
+
+
+class Msg(BaseModel):
+    type_: str = Field(..., alias="type")
+    value: Any
+
+
+class MsgClaim(Msg):
+    type_: Literal["pocketcore/claim"] = Field(alias="type")
+    value: MsgClaimVal
+
+
+class MsgProof(Msg):
+    type_: Literal["pocketcore/proof"] = Field(alias="type")
+    value: MsgProofVal
+
+
+class MsgValidatorStake(Msg):
+    type_: Literal["pos/MsgStake"] = Field(alias="type")
+    value: MsgValidatorStakeVal
+
+
+class MsgBeginValidatorUnstake(Msg):
+    type_: Literal["pos/MsgBeginUnstake"] = Field(alias="type")
+    value: MsgBeginValidatorUnstakeVal
+
+
+class MsgValidatorUnjail(Msg):
+    type_: Literal["pos/MsgUnjail"] = Field(alias="type")
+    value: MsgValidatorUnjailVal
+
+
+class MsgSend(Msg):
+    type_: Literal["pos/Send"] = Field(alias="type")
+    value: MsgSendVal
+
+
+class MsgAppStake(Msg):
+    type_: Literal["apps/MsgAppStake"] = Field(alias="type")
+    value: MsgAppStakeVal
+
+
+class MsgBeginAppUnstake(Msg):
+    type_: Literal["apps/MsgAppBeginUnstake"] = Field(alias="type")
+    value: MsgBeginAppUnstakeVal
+
+
+class MsgAppUnjail(Msg):
+    type_: Literal["apps/MsgAppUnjail"] = Field(alias="type")
+    value: MsgAppUnjailVal
+
+
+class MsgDaoTransfer(Msg):
+    type_: Literal["gov/msg_dao_transfer"] = Field(alias="type")
+    value: MsgDaoTransferVal
+
+
+class MsgChangeParam(Msg):
+    type_: Literal["gov/msg_change_param"] = Field(alias="type")
+    value: MsgChangeParamVal
+
+
+class MsgUpgrade(Msg):
+    type_: Literal["gov/msg_upgrade"] = Field(alias="type")
+    value: MsgUpgradeVal
+
+
+MsgT = Union[
+    MsgClaim,
+    MsgProof,
+    MsgSend,
+    MsgValidatorStake,
+    MsgValidatorUnjail,
+    MsgSend,
+    MsgBeginValidatorUnstake,
+    MsgUpgrade,
+    MsgDaoTransfer,
+    MsgChangeParam,
+    MsgAppStake,
+    MsgBeginAppUnstake,
+    MsgAppUnjail,
+]
+
+
+class TxResult(BaseModel):
+    code: Optional[int] = None
+    data: Optional[str] = None
+    log: Optional[str] = None
+    info: Optional[str] = None
+    events: Optional[List[str]] = None
+    codespace: Optional[str] = None
+    signer: Optional[str] = None
+    recipient: Optional[str] = Field(
+        None, description="The receiver of the transaction, will be null if no receiver"
+    )
+    message_type: Optional[str] = Field(
+        None,
+        description='The type of the transaction, can be "app_stake", "app_begin_unstake", "stake_validator", "begin_unstake_validator", "unjail_validator", "send", "upgrade", "change_param", "dao_tranfer", "claim", or "proof"',
+    )
+
+
+class SimpleProof(BaseModel):
+    total: Optional[int] = None
+    index: Optional[int] = None
+    leaf_hash: Optional[str] = None
+    aunts: Optional[List[str]] = None
+
+
+class TXProof(BaseModel):
+    root_hash: Optional[str] = None
+    data: Optional[str] = None
+    proof: Optional[SimpleProof] = None
+
+
+class Coin(BaseModel):
+    amount: Optional[str] = None
+    denom: Optional[str] = None
+
+
+class Signature(BaseModel):
+    pub_key: Optional[str] = None
+    signature: Optional[str] = None
+
+
+class StdTx(BaseModel):
+    entropy: Optional[int] = None
+    fee: Optional[Coin] = None
+    memo: Optional[str] = None
+    msg: Annotated[MsgT, Field(discriminator="type_")]
+    signature: Optional[Signature] = None
+
+
+class Transaction(BaseModel):
+    hash_: Optional[str] = Field(
+        None, alias="hash", description="Hash of the transaction"
+    )
+    height: Optional[int] = Field(None, description="Blockheight of the transaction")
+    index: Optional[int] = None
+    tx_result: Optional[TxResult] = None
+    tx: Optional[str] = Field(None, description="Raw data of the transaction")
+    proof: Optional[TXProof] = None
+    stdTx: Optional[StdTx] = None
+
+
+class QueryBlockTXsResponse(BaseModel):
+    txs: Optional[List[Transaction]] = None
+    total_txs: Optional[str] = None
+    page_total: Optional[str] = None
+    total_count: Optional[int] = None
+
+
+class QueryAccountTXsResponse(BaseModel):
+    txs: Optional[List[Transaction]] = None
+    total_txs: Optional[str] = None
+    page_total: Optional[str] = None
+    total_count: Optional[str] = None
+
+
+class QueryTXResponse(BaseModel):
+    transaction: Optional[Transaction] = None

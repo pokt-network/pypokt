@@ -180,7 +180,28 @@ def main():
     args = parser.parse_args()
     headers = os.path.join(args.index_dir, "headers")
     txs = os.path.join(args.index_dir, "txs")
-    for d in (headers, txs):
+    msgs = os.path.join(args.index_dir, "tx_msgs")
+    pos = os.path.join(msgs, "pos")
+    pos_msgs = [
+        os.path.join(pos, t)
+        for t in ("MsgStake", "MsgBeginUnstake", "MsgUnjail", "Send")
+    ]
+    gov = os.path.join(msgs, "gov")
+    gov_msgs = [
+        os.path.join(gov, t)
+        for t in ("msg_dao_transfer", "msg_change_param", "msg_upgrade")
+    ]
+    apps = os.path.join(msgs, "apps")
+    apps_msgs = [
+        os.path.join(apps, t)
+        for t in ("MsgAppStake", "MsgAppUnjail", "MsgAppBeginUnstake")
+    ]
+    core = os.path.join(msgs, "pocketcore")
+    core_msgs = [os.path.join(core, t) for t in ("proof", "claim")]
+    dirs = [headers, txs]
+    for group in (pos_msgs, gov_msgs, apps_msgs, core_msgs):
+        dirs.extend(group)
+    for d in dirs:
         if not os.path.exists(d):
             os.makedirs(d)
     start = get_last_indexed(headers, txs) if args.start is None else args.start

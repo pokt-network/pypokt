@@ -1,6 +1,6 @@
 import re
 
-from .interfaces import SupportedChains
+from .interfaces import SupportedChain, SupportedChains
 
 _param_keys = [
     "application/MaxApplications",
@@ -73,7 +73,9 @@ def is_chain_id(val: str):
 def chain_details_from_id(chain_id: str):
     matches = [chain for chain in SupportedChains if chain_id == chain.chainID]
     if not matches:
-        raise ValueError("Unrecognized chain with ID {}".format(chain_id))
+        return SupportedChain(
+            chain_id, "unknown name", "unknown prefix", revenue_generating=True
+        )
     return matches[0]
 
 

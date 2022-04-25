@@ -27,4 +27,8 @@ from ._overrides import (
     FeeMultiplierParam,
     UpgradeParam,
     ACLParam,
+    QueryAccountTXsResponse,
+    QueryTXResponse,
+    QueryBlockTXsResponse,
+    Transaction,
 )
