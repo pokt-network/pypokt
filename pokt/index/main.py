@@ -57,6 +57,7 @@ def ingest_chunk(
     rpc_url: str,
     headers: str,
     txs: str,
+    msgs: str,
 ):
     global total_errors
     try:
@@ -66,6 +67,7 @@ def ingest_chunk(
             rpc_url,
             headers,
             txs,
+            msgs,
             batch_size=batch_size,
             progress_queue=queue,
         )
@@ -110,6 +112,7 @@ def run_indexer(
     rpc_url: str,
     headers: str,
     txs: str,
+    msgs: str,
     batch_size: int = 500,
     n_cores: Optional[int] = None,
 ):
@@ -117,7 +120,12 @@ def run_indexer(
     progress = man.Queue()
     bounds = chunks_bounds(start_block, end_block, batch_size)
     worker = partial(
-        ingest_chunk, queue=progress, rpc_url=rpc_url, headers=headers, txs=txs
+        ingest_chunk,
+        queue=progress,
+        rpc_url=rpc_url,
+        headers=headers,
+        txs=txs,
+        msgs=msgs,
     )
     pool = Pool(n_cores)
     for bound in bounds:
@@ -213,7 +221,7 @@ def main():
             start + 1, end, args.url, n_cores
         )
     )
-    run_indexer(start + 1, end, args.url, headers, txs, args.batch_size, n_cores)
+    run_indexer(start + 1, end, args.url, headers, txs, msgs, args.batch_size, n_cores)
 
 
 if __name__ == "__main__":

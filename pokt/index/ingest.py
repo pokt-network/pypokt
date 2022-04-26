@@ -4,6 +4,7 @@ Ingestion of blocks and their contained transactions from RPC.
 from collections import defaultdict
 from dataclasses import dataclass
 import multiprocessing as mp
+import os
 import queue
 from typing import Union, Optional
 
@@ -15,7 +16,14 @@ from requests import Session
 from ..rpc.utils import PoktRPCError, PortalRPCError
 from ..rpc.models import BlockHeader, Transaction
 from ..rpc.data.block import get_block_transactions, get_block
-from .schema import block_header_schema, tx_schema, flatten_header, flatten_tx
+from .schema import (
+    block_header_schema,
+    tx_schema,
+    flatten_header,
+    flatten_tx,
+    flatten_tx_message,
+    schema_for_msg,
+)
 
 QueueT = Union[queue.Queue, mp.Queue]
 
@@ -132,6 +140,45 @@ def _txs_to_table(txs):
     return pa.Table.from_pydict(record_dict).cast(tx_schema)
 
 
+def flatten_tx_messages(txs):
+    msgs = {
+        "apps": defaultdict(list),
+        "gov": defaultdict(list),
+        "pos": defaultdict(list),
+        "pocketcore": defaultdict(list),
+    }
+    for tx in txs:
+        record, module, type_ = flatten_tx_message(tx)
+        msgs[module][type_].append(record)
+    return msgs
+
+
+def _msgs_to_tables(msgs):
+    tables = {
+        "apps": {},
+        "gov": {},
+        "pos": {},
+        "pocketcore": {},
+    }
+    for module, items in msgs.items():
+        for type_, msgs in items.items():
+            record_dict = defaultdict(list)
+            for msg in msgs:
+                for k, v in msg.items():
+                    record_dict[k].append(v)
+            tables[module][type_] = pa.Table.from_pydict(record_dict).cast(
+                schema_for_msg(module, type_)
+            )
+    return tables
+
+
+def _append_msg_tables(msgs_dir, tables, start_block, end_block):
+    for module, items in tables.items():
+        for type_, table in items.items():
+            parquet_dir = os.path.join(msgs_dir, module, type_)
+            _parquet_append(parquet_dir, table, start_block, end_block)
+
+
 def _parquet_append(parquet_dir, table, start_block, end_block):
     def _parquet_name_callback(*args, **kwargs):
         return "block_{}-{}.parquet".format(start_block, end_block)
@@ -149,11 +196,12 @@ def ingest_block(
 ):
     txs = ingest_txs_by_block(block_no, rpc_url, session, progress_queue=progress_queue)
     flat_txs = [flatten_tx(tx) for tx in txs]
+    msgs = flatten_tx_messages(txs)
     header = ingest_block_header(
         block_no, rpc_url, session, progress_queue=progress_queue
     )
     flat_header = flatten_header(header)
-    return flat_txs, flat_header
+    return flat_txs, flat_header, msgs
 
 
 def ingest_block_range(
@@ -162,6 +210,7 @@ def ingest_block_range(
     rpc_url: str,
     block_parquet,
     tx_parquet,
+    msgs_parquet,
     batch_size=1000,
     session: Optional[Session] = None,
     progress_queue: Optional[QueueT] = None,
@@ -170,22 +219,28 @@ def ingest_block_range(
         session = Session()
     txs = []
     headers = []
+    msgs = {}
     group_start = block_no = starting_block
     for i, block_no in enumerate(range(starting_block, ending_block + 1)):
         if i != 0 and i % batch_size == 0:
             header_table = _block_headers_to_table(headers)
             txs_table = _txs_to_table(txs)
+            msgs_tables = _msgs_to_tables(msgs)
             _parquet_append(block_parquet, header_table, group_start, block_no)
             _parquet_append(tx_parquet, txs_table, group_start, block_no)
+            _append_msg_tables(msgs_parquet, msgs_tables, group_start, block_no)
             if progress_queue:
                 progress_queue.put(("block", len(headers)))
                 progress_queue.put(("txs", len(txs)))
             group_start = block_no
             txs = []
             headers = []
-        block_txs, block_header = ingest_block(block_no, rpc_url, session=session)
+        block_txs, block_header, block_msgs = ingest_block(
+            block_no, rpc_url, session=session
+        )
         txs.extend(block_txs)
         headers.append(block_header)
+        msgs.update(block_msgs)
 
     if headers:
         header_table = _block_headers_to_table(headers)
@@ -193,6 +248,9 @@ def ingest_block_range(
     if txs:
         txs_table = _txs_to_table(txs)
         _parquet_append(tx_parquet, txs_table, group_start, block_no)
+    if msgs:
+        msgs_tables = _msgs_to_tables(msgs)
+        _append_msg_tables(msgs_parquet, msgs_tables, group_start, block_no)
     if progress_queue:
         progress_queue.put(("block", len(headers)))
         progress_queue.put(("txs", len(txs)))

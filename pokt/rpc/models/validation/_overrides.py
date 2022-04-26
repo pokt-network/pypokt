@@ -374,7 +374,7 @@ class QueryHeightResponse(BaseModel):
 class MsgChangeParamVal(BaseModel):
     address: Optional[str] = None
     param_key: Optional[str] = None
-    param_val: Optional[Any] = None
+    param_value: Optional[Any] = None
     # param: SingleParamT
 
 
@@ -434,8 +434,8 @@ class MsgSendVal(BaseModel):
 
 
 class Range(BaseModel):
-    lower: Optional[int] = None
-    upper: Optional[int] = None
+    lower: Optional[str] = None
+    upper: Optional[str] = None
 
 
 class HashRange(BaseModel):

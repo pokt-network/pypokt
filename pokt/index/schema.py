@@ -50,45 +50,48 @@ tx_schema = pa.schema(
         pa.field("height", pa.int64()),
         pa.field("hash_", pa.string()),
         pa.field("index", pa.int64()),
-        pa.field("result_code", pa.int32()),
+        pa.field("result_code", pa.int64()),
         pa.field("codespace", pa.string()),
         pa.field("signer", pa.string()),
         pa.field("recipient", pa.string()),
         pa.field("msg_type", pa.string()),
         pa.field("entropy", pa.int64()),
-        pa.field("fee_amount", pa.int64()),
+        pa.field("fee_amount", pa.string()),
         pa.field("fee_denom", pa.string()),
         pa.field("signer_pubkey", pa.string()),
     ]
 )
 
 
-def flatten_tx_message(tx: Transaction) -> dict:
+def flatten_tx_message(tx: Transaction) -> tuple[dict, str, str]:
     msg_type = tx.stdTx.msg.type_
+    flat = {}
     if msg_type == "pocketcore/proof":
-        return _flatten_proof_msg(tx)
+        flat = _flatten_proof_msg(tx)
     elif msg_type == "pocketcore/claim":
-        return _flatten_claim_msg(tx)
+        flat = _flatten_claim_msg(tx)
     elif msg_type == "pos/MsgStake":
-        return _flatten_node_stake_msg(tx)
+        flat = _flatten_node_stake_msg(tx)
     elif msg_type == "pos/MsgBeginUnstake":
-        return _flatten_node_begin_unstake_msg(tx)
+        flat = _flatten_node_begin_unstake_msg(tx)
     elif msg_type == "pos/MsgUnjail":
-        return _flatten_node_unjail_msg(tx)
+        flat = _flatten_node_unjail_msg(tx)
     elif msg_type == "pos/Send":
-        return _flatten_send_msg(tx)
+        flat = _flatten_send_msg(tx)
     elif msg_type == "apps/MsgAppStake":
-        return _flatten_app_stake_msg(tx)
+        flat = _flatten_app_stake_msg(tx)
     elif msg_type == "apps/MsgAppBeginUnstake":
-        return _flatten_app_begin_unstake_msg(tx)
+        flat = _flatten_app_begin_unstake_msg(tx)
     elif msg_type == "apps/MsgAppUnjail":
-        return _flatten_app_unjail_msg(tx)
+        flat = _flatten_app_unjail_msg(tx)
     elif msg_type == "gov/msg_dao_transfer":
-        return _flatten_dao_transfer_msg(tx)
+        flat = _flatten_dao_transfer_msg(tx)
     elif msg_type == "gov/msg_change_param":
-        return _flatten_change_param_msg(tx)
+        flat = _flatten_change_param_msg(tx)
     elif msg_type == "gov/msg_upgrade":
-        return _flatten_upgrade_msg(tx)
+        flat = _flatten_upgrade_msg(tx)
+    module, t = msg_type.split("/")
+    return flat, module, t
 
 
 dao_change_param_msg_schema = pa.schema(
@@ -247,8 +250,8 @@ def _flatten_node_stake_msg(tx: Transaction) -> dict:
         "height": tx.height,
         "hash_": tx.hash_,
         "index": tx.index,
-        "public_key": tx.stdTx.msg.value.pubkey.value,
-        "public_key_type": tx.stdTx.msg.value.pubkey.type_,
+        "public_key": tx.stdTx.msg.value.public_key.value,
+        "public_key_type": tx.stdTx.msg.value.public_key.type_,
         "chains": str(tx.stdTx.msg.value.chains),
         "value": tx.stdTx.msg.value.value,
         "service_url": tx.stdTx.msg.value.service_url,
@@ -334,8 +337,8 @@ claim_msg_schema = pa.schema(
         pa.field("chain", pa.string()),
         pa.field("session_height", pa.int64()),
         pa.field("merkle_hash", pa.string()),
-        pa.field("merkle_root_lower", pa.int64()),
-        pa.field("merkle_root_upper", pa.int64()),
+        pa.field("merkle_root_lower", pa.string()),
+        pa.field("merkle_root_upper", pa.string()),
     ]
 )
 
@@ -363,7 +366,6 @@ proof_msg_schema = pa.schema(
         pa.field("height", pa.int64()),
         pa.field("hash_", pa.string()),
         pa.field("index", pa.int64()),
-        pa.field("n_proofs", pa.int64()),
         pa.field("evidence_type", pa.int64()),
     ]
 )
@@ -374,6 +376,36 @@ def _flatten_proof_msg(tx: Transaction) -> dict:
         "height": tx.height,
         "hash_": tx.hash_,
         "index": tx.index,
-        "n_proofs": len(tx.stdTx.msg.value.merkle_proofs),
         "evidence_type": tx.stdTx.msg.value.evidence_type,
     }
+
+
+def schema_for_msg(module, type_):
+    if module == "pos":
+        if type_ == "Send":
+            return send_msg_schema
+        elif type_ == "MsgStake":
+            return node_stake_msg_schema
+        elif type_ == "MsgBeginUnstake":
+            return node_begin_unstake_msg_schema
+        elif type_ == "MsgUnjail":
+            return node_unjail_msg_schema
+    elif module == "pocketcore":
+        if type_ == "proof":
+            return proof_msg_schema
+        elif type_ == "claim":
+            return claim_msg_schema
+    elif module == "apps":
+        if type_ == "MsgAppStake":
+            return app_stake_msg_schema
+        elif type_ == "MsgAppUnjail":
+            return app_unjail_msg_schema
+        elif type_ == "MsgAppBeginUnstake":
+            return app_begin_unstake_msg_schema
+    elif module == "gov":
+        if type_ == "msg_upgrade":
+            return dao_upgrade_msg_schema
+        elif type_ == "msg_change_param":
+            return dao_change_param_msg_schema
+        elif type_ == "msg_dao_transfer":
+            return dao_transfer_msg_schema
