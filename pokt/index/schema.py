@@ -1,3 +1,4 @@
+from typing import Optional
 import pyarrow as pa
 
 from ..rpc.models.validation import BlockHeader, Transaction
@@ -42,6 +43,7 @@ def flatten_tx(tx: Transaction) -> dict:  # TODO dataclass/typedict the flat mod
         "fee_amount": tx.stdTx.fee.amount,
         "fee_denom": tx.stdTx.fee.denom,
         "signer_pubkey": tx.stdTx.signature.pub_key,
+        "empty_msg": tx.stdTx.msg is None,
     }
 
 
@@ -59,11 +61,14 @@ tx_schema = pa.schema(
         pa.field("fee_amount", pa.string()),
         pa.field("fee_denom", pa.string()),
         pa.field("signer_pubkey", pa.string()),
+        pa.field("empty_msg", pa.bool_()),
     ]
 )
 
 
-def flatten_tx_message(tx: Transaction) -> tuple[dict, str, str]:
+def flatten_tx_message(tx: Transaction) -> tuple[Optional[dict], str, str]:
+    if tx.stdTx.msg is None:
+        return None, "Unknown", "Unknown"
     msg_type = tx.stdTx.msg.type_
     flat = {}
     if msg_type == "pocketcore/proof":
@@ -174,7 +179,7 @@ app_stake_msg_schema = pa.schema(
         pa.field("index", pa.int64()),
         pa.field("pubkey", pa.string()),
         pa.field("pubkey_type", pa.string()),
-        pa.field("chains", pa.string()),
+        pa.field("chains", pa.list_(pa.string())),
         pa.field("value", pa.int64()),
     ]
 )
@@ -187,7 +192,7 @@ def _flatten_app_stake_msg(tx: Transaction) -> dict:
         "index": tx.index,
         "pubkey": tx.stdTx.msg.value.pubkey.value,
         "pubkey_type": tx.stdTx.msg.value.pubkey.type_,
-        "chains": str(tx.stdTx.msg.value.chains),
+        "chains": tx.stdTx.msg.value.chains,
         "value": tx.stdTx.msg.value.value,
     }
 
@@ -237,7 +242,7 @@ node_stake_msg_schema = pa.schema(
         pa.field("index", pa.int64()),
         pa.field("public_key", pa.string()),
         pa.field("public_key_type", pa.string()),
-        pa.field("chains", pa.string()),
+        pa.field("chains", pa.list_(pa.string())),
         pa.field("value", pa.int64()),
         pa.field("service_url", pa.string()),
         pa.field("output_address", pa.string()),
@@ -252,7 +257,7 @@ def _flatten_node_stake_msg(tx: Transaction) -> dict:
         "index": tx.index,
         "public_key": tx.stdTx.msg.value.public_key.value,
         "public_key_type": tx.stdTx.msg.value.public_key.type_,
-        "chains": str(tx.stdTx.msg.value.chains),
+        "chains": tx.stdTx.msg.value.chains,
         "value": tx.stdTx.msg.value.value,
         "service_url": tx.stdTx.msg.value.service_url,
         "output_address": tx.stdTx.msg.value.output_address,

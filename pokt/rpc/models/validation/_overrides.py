@@ -109,7 +109,7 @@ class Upgrade(BaseModel):
 
     height: int = Field(..., alias="Height")
     version: str = Field(..., alias="Version")
-    old_upgrade_height: int = Field(..., alias="OldUpgradeHeight")
+    old_upgrade_height: int = Field(1, alias="OldUpgradeHeight")
 
 
 class UpgradeParamObject(ObjectParamValue):
@@ -640,7 +640,7 @@ class StdTx(BaseModel):
     entropy: Optional[int] = None
     fee: Optional[Coin] = None
     memo: Optional[str] = None
-    msg: Annotated[MsgT, Field(discriminator="type_")]
+    msg: Optional[MsgT] = Field(None, discriminator="type_")
     signature: Optional[Signature] = None
 
 

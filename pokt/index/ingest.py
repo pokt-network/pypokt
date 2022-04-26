@@ -149,7 +149,8 @@ def flatten_tx_messages(txs):
     }
     for tx in txs:
         record, module, type_ = flatten_tx_message(tx)
-        msgs[module][type_].append(record)
+        if record is not None:
+            msgs[module][type_].append(record)
     return msgs
 
 
@@ -219,7 +220,12 @@ def ingest_block_range(
         session = Session()
     txs = []
     headers = []
-    msgs = {}
+    msgs = {
+        "apps": defaultdict(list),
+        "gov": defaultdict(list),
+        "pos": defaultdict(list),
+        "pocketcore": defaultdict(list),
+    }
     group_start = block_no = starting_block
     for i, block_no in enumerate(range(starting_block, ending_block + 1)):
         if i != 0 and i % batch_size == 0:
@@ -235,13 +241,20 @@ def ingest_block_range(
             group_start = block_no
             txs = []
             headers = []
+            msgs = {
+                "apps": defaultdict(list),
+                "gov": defaultdict(list),
+                "pos": defaultdict(list),
+                "pocketcore": defaultdict(list),
+            }
         block_txs, block_header, block_msgs = ingest_block(
             block_no, rpc_url, session=session
         )
         txs.extend(block_txs)
         headers.append(block_header)
-        msgs.update(block_msgs)
-
+        for mod, items in block_msgs.items():
+            for t, ms in items.items():
+                msgs[mod][t].extend(ms)
     if headers:
         header_table = _block_headers_to_table(headers)
         _parquet_append(block_parquet, header_table, group_start, block_no)
