@@ -27,6 +27,24 @@ def get_app(
     height: int = 0,
     session: Optional[requests.Session] = None,
 ) -> Application:
+    """
+    Get the application by address at a specified height
+
+    Parameters
+    ----------
+    provider_url
+        The URL to make the RPC call to.
+    address
+        The address of the app
+    height: optional
+        The height to get the state at, if none is provided, defaults to the latest height.
+    session: optional
+        The optional requests session, if none is provided, the request will be handled by calling requests.post directly.
+
+    Returns
+    -------
+    Application
+    """
     request = QueryAddressHeight(height=height, address=address)
     route = make_api_url(provider_url, "/query/app")
     resp_data = post(route, session, **request.dict(by_alias=True))
@@ -62,6 +80,24 @@ def get_node(
     height: int = 0,
     session: Optional[requests.Session] = None,
 ) -> Node:
+    """
+    Get the node by address at a specified height
+
+    Parameters
+    ----------
+    provider_url
+        The URL to make the RPC call to.
+    address
+        The address of the node
+    height: optional
+        The height to get the state at, if none is provided, defaults to the latest height.
+    session: optional
+        The optional requests session, if none is provided, the request will be handled by calling requests.post directly.
+
+    Returns
+    -------
+    Node
+    """
     request = QueryAddressHeight(height=height, address=address)
     route = make_api_url(provider_url, "/query/node")
     resp_data = post(route, session, **request.dict(by_alias=True))

@@ -31,6 +31,9 @@ from ..views.interfaces import ProtocolParams
 
 
 class PoktRPCDataProvider(_BaseRPCProvider):
+    """
+    Handles all methods for querying data from the Pocket Network mainnet, these are handled via the /query/ routes.
+    """
     @wraps(get_height)
     def get_height(self):
         return self._make_rpc_call(get_height).height
