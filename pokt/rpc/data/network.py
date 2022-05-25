@@ -1,3 +1,4 @@
+from pokt.rpc.models.state import StateResponse
 from typing import Any, Dict, AnyStr, Optional
 import requests
 from pydantic import parse_obj_as
@@ -16,18 +17,18 @@ from ..utils import make_api_url, get, post
 
 def get_version(provider_url: str, session: Optional[requests.Session] = None) -> str:
     """
-    Get the current version.
+     Get the current version.
 
-   Parameters
-    ----------
-    provider_url
-        The URL to make the RPC call to.
-    session: optional
-        The optional requests session, if none is provided, the request will be handled by calling requests.post directly.
+    Parameters
+     ----------
+     provider_url
+         The URL to make the RPC call to.
+     session: optional
+         The optional requests session, if none is provided, the request will be handled by calling requests.post directly.
 
-    Returns
-    -------
-    str
+     Returns
+     -------
+     str
     """
     route = make_api_url(provider_url, "/")
     return get(route, session)
@@ -57,7 +58,7 @@ def get_height(
 
 def get_state(
     provider_url: str, height: int = 0, session: Optional[requests.Session] = None
-) -> Dict[AnyStr, Any]:
+) -> StateResponse:  # Dict[AnyStr, Any]:
     """
     Get the network state at a specified height.
 
@@ -72,12 +73,12 @@ def get_state(
 
     Returns
     -------
-    Dict[AnyStr, Any]
+    StateResponse
     """
     request = QueryHeight(height=height)
     route = make_api_url(provider_url, "/query/state")
     resp_data = post(route, session, **request.dict(by_alias=True))
-    return resp_data
+    return StateResponse(**resp_data)
 
 
 def get_supply(

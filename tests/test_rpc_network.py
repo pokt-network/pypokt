@@ -1,5 +1,4 @@
 import os
-from typing import Mapping
 
 from dotenv import load_dotenv
 import pytest
@@ -18,11 +17,12 @@ from pokt.rpc.data.network import (
 from pokt.rpc.models import (
     QuerySupplyResponse,
     AllParams,
-    SingleParam,
     QueryHeightResponse,
     QuerySupplyResponse,
     QuerySupportedChainsResponse,
     UpgradeResponse,
+    StateResponse,
+    SingleParam,
     IntParam,
     FloatParam,
     BoolParam,
@@ -34,13 +34,34 @@ from pokt.rpc.models import (
 )
 
 
-@pytest.fixture
-def rpc_url():
+def node_url():
+    load_dotenv()
+    url = os.environ.get("POCKET_NODE_URL")
+    if url is None:
+        raise ValueError("No RPC_URL variable configured for testing.")
+    return url
+
+
+def portal_url():
     load_dotenv()
     url = os.environ.get("PORTAL_URL")
     if url is None:
         raise ValueError("No RPC_URL variable configured for testing.")
     return url
+
+
+@pytest.fixture(
+    params=[
+        pytest.param(0, marks=pytest.mark.node),
+        pytest.param(1, marks=pytest.mark.portal),
+    ],
+    ids=["node", "portal"],
+)
+def rpc_url(request):
+    if request.param == 0:
+        return node_url()
+    elif request.param == 1:
+        return portal_url()
 
 
 @pytest.fixture(params=[lambda: Session(), lambda: None])
@@ -56,6 +77,13 @@ def current_height(rpc_url, session):
     return get_height(rpc_url, session).height
 
 
+@pytest.mark.parametrize(
+    "rpc_url",
+    [
+        pytest.param(node_url, marks=pytest.mark.node),
+        pytest.param(portal_url, marks=pytest.mark.portal),
+    ],
+)
 def test_get_height_returns_nonzero_int(rpc_url, session):
     height_resp = get_height(rpc_url, session)
     assert isinstance(height_resp, QueryHeightResponse)
@@ -97,4 +125,4 @@ class TestNetworkWithHeights:
         state_resp = get_state(
             rpc_url, height=current_height - height_diff, session=session
         )
-        assert isinstance(state_resp, Mapping)
+        assert isinstance(state_resp, StateResponse)

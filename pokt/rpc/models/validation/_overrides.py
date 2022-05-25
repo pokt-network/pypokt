@@ -137,6 +137,7 @@ class Upgrade(BaseModel):
     height: int = Field(..., alias="Height")
     version: str = Field(..., alias="Version")
     old_upgrade_height: int = Field(1, alias="OldUpgradeHeight")
+    features: Optional[list[str]] = Field(None, alias="Features")
 
 
 class UpgradeParamObject(ObjectParamValue):
