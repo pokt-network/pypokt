@@ -1,10 +1,13 @@
 from contextlib import contextmanager
+import glob
 import os
 import threading
 from typing import Sequence, Optional
 
 import duckdb
 import pandas as pd
+
+from .schema import table_dir_map
 
 
 class DuckDB:
@@ -14,6 +17,19 @@ class DuckDB:
             "SELECT table_name FROM information_schema.tables"
         ).fetchall()
         return [r[0] for r in records]
+
+    @classmethod
+    def from_index_dir(cls, index_dir: str, db_fname: str = "duck.db"):
+        if not os.path.isdir(index_dir):
+            raise ValueError(
+                "The provided index directory, {}, does not appear to be a directory"
+            )
+        db = cls(db_fname)
+        tables = table_dir_map(index_dir)
+        for name, parquets in tables.items():
+            if glob.glob(parquets):
+                db.add_parquets_to_table(parquets, name)
+        return db
 
     def __init__(self, database: str = None, config: Optional[dict] = None):
         self._database = database if database is not None else ":memory:"
@@ -30,8 +46,8 @@ class DuckDB:
 
         self.n_readers = 0
         self.n_writers = 0
-        self._connection = self._connect(read_only=True)
-        self.is_reader.set()
+        self._connection = self._connect(read_only=False)
+        self.is_writer.set()
 
     def multiprocessing_setup(self):
         with self.read_only_cursor() as c:

@@ -1,9 +1,26 @@
 from dataclasses import dataclass
+import os
 from typing import TypedDict, Optional, Union
 import pyarrow as pa
 
 from ..rpc.models.validation import BlockHeader, Transaction
 
+
+def camel_to_snake(s):
+    return "".join(["_" + c.lower() if c.isupper() else c for c in s]).lstrip("_")
+
+
+def table_dir_map(index_dir):
+    dir_map = {
+        "headers": os.path.join(index_dir, "headers", "*.parquet"),
+        "txs": os.path.join(index_dir, "txs", "*.parquet"),
+    }
+    for module in ("apps", "gov", "pocketcore", "pos"):
+        mod_dir = os.path.join(index_dir, "tx_msgs", module)
+        for msg_dir in [f.name for f in os.scandir(mod_dir) if f.is_dir()]:
+            table_name = camel_to_snake(msg_dir).replace("msg", "").lstrip("_")
+            dir_map[table_name] = os.path.join(mod_dir, msg_dir, "*.parquet")
+    return dir_map
 
 
 class HeaderRecord(TypedDict):
@@ -13,7 +30,6 @@ class HeaderRecord(TypedDict):
     num_txs: Optional[int]
     total_txs: Optional[int]
     proposer_address: Optional[str]
-
 
 
 def flatten_header(
@@ -94,7 +110,6 @@ tx_schema = pa.schema(
 )
 
 
-
 dao_change_param_msg_schema = pa.schema(
     [
         pa.field("height", pa.int64()),
@@ -106,10 +121,12 @@ dao_change_param_msg_schema = pa.schema(
     ]
 )
 
+
 class ChangeParamMsgRecord(TypedDict):
     height: Optional[int]
     hash_: Optional[str]
     index: Optional[int]
+
 
 def _flatten_change_param_msg(tx: Transaction) -> dict:
     return {
@@ -143,6 +160,7 @@ class DAOTransferMsgRecord(TypedDict):
     to_address: Optional[str]
     amount: Optional[int]
     action: Optional[str]
+
 
 def _flatten_dao_transfer_msg(tx: Transaction) -> DAOTransferMsgRecord:
     return {
@@ -178,6 +196,7 @@ class UpgradeMsgRecord(TypedDict):
     version: Optional[str]
     old_upgrade_height: Optional[int]
 
+
 def _flatten_upgrade_msg(tx: Transaction) -> UpgradeMsgRecord:
     return {
         "height": tx.height,
@@ -202,6 +221,7 @@ app_stake_msg_schema = pa.schema(
     ]
 )
 
+
 class AppStakeMsgRecord(TypedDict):
     height: Optional[int]
     hash_: Optional[str]
@@ -210,6 +230,7 @@ class AppStakeMsgRecord(TypedDict):
     pubkey_type: Optional[str]
     chains: Optional[list[str]]
     value: Optional[int]
+
 
 def _flatten_app_stake_msg(tx: Transaction) -> AppStakeMsgRecord:
     return {
@@ -232,11 +253,13 @@ app_begin_unstake_msg_schema = pa.schema(
     ]
 )
 
+
 class AppBeginUnstakeMsgRecord(TypedDict):
     height: Optional[int]
     hash_: Optional[str]
     index: Optional[int]
     application_address: Optional[str]
+
 
 def _flatten_app_begin_unstake_msg(tx: Transaction) -> AppBeginUnstakeMsgRecord:
     return {
@@ -262,6 +285,7 @@ class AppUnjailMsgRecord(TypedDict):
     hash_: Optional[str]
     index: Optional[int]
     address: Optional[str]
+
 
 def _flatten_app_unjail_msg(tx: Transaction) -> AppUnjailMsgRecord:
     return {
@@ -331,6 +355,7 @@ class NodeBeginUnstakeMsgRecord(TypedDict):
     validator_address: Optional[str]
     signer_address: Optional[str]
 
+
 def _flatten_node_begin_unstake_msg(tx: Transaction) -> NodeBeginUnstakeMsgRecord:
     return {
         "height": tx.height,
@@ -358,6 +383,7 @@ class NodeUnjailMsgRecord(TypedDict):
     index: Optional[int]
     address: Optional[str]
     signer_address: Optional[str]
+
 
 def _flatten_node_unjail_msg(tx: Transaction) -> NodeUnjailMsgRecord:
     return {
@@ -388,6 +414,7 @@ class SendMsgRecord(TypedDict):
     from_address: Optional[str]
     to_address: Optional[str]
     amount: Optional[int]
+
 
 def _flatten_send_msg(tx: Transaction) -> SendMsgRecord:
     return {
@@ -434,6 +461,7 @@ class ClaimMsgRecord(TypedDict):
     merkle_root_lower: Optional[str]
     merkle_root_upper: Optional[str]
 
+
 def _flatten_claim_msg(tx: Transaction) -> ClaimMsgRecord:
     return {
         "height": tx.height,
@@ -468,6 +496,7 @@ class ProofMsgRecord(TypedDict):
     index: Optional[int]
     evidence_type: Optional[int]
 
+
 def _flatten_proof_msg(tx: Transaction) -> ProofMsgRecord:
     return {
         "height": tx.height,
@@ -477,7 +506,24 @@ def _flatten_proof_msg(tx: Transaction) -> ProofMsgRecord:
     }
 
 
-RecordT = Union[HeaderRecord, TxRecord, ChangeParamMsgRecord, DAOTransferMsgRecord, UpgradeMsgRecord, AppStakeMsgRecord, AppBeginUnstakeMsgRecord, AppUnjailMsgRecord, NodeStakeMsgRecord, NodeBeginUnstakeMsgRecord, NodeUnjailMsgRecord, SendMsgRecord, ClaimMsgRecord, ProofMsgRecord, dict]
+RecordT = Union[
+    HeaderRecord,
+    TxRecord,
+    ChangeParamMsgRecord,
+    DAOTransferMsgRecord,
+    UpgradeMsgRecord,
+    AppStakeMsgRecord,
+    AppBeginUnstakeMsgRecord,
+    AppUnjailMsgRecord,
+    NodeStakeMsgRecord,
+    NodeBeginUnstakeMsgRecord,
+    NodeUnjailMsgRecord,
+    SendMsgRecord,
+    ClaimMsgRecord,
+    ProofMsgRecord,
+    dict,
+]
+
 
 def flatten_tx_message(tx: Transaction) -> tuple[Optional[RecordT], str, str]:
     if tx.stdTx.msg is None:

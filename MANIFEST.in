@@ -1,1 +1,4 @@
 include pokt/assets/POKT_symbol_bg.png
+include tests/reference/passphrase.txt
+include tests/reference/ppk.json
+include tests/reference/raw.json

@@ -133,4 +133,6 @@ SupportedChains = (
     SupportedChain(
         "0A45", "Algorand Testnet Archival", "algorand-testnet-archival", False
     ),
+    SupportedChain("0A43", "Harmony Shard 3 Archival", "harmony-3-archival", False),
+    SupportedChain("03CB", "Swimmer Network Mainnet", "avax-cra", False),
 )
