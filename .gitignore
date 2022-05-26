@@ -146,6 +146,7 @@ cython_debug/
 
 # vimspector debug configuration
 .vimspector.json
+*.sw*
 
 # PyCharm
 #  JetBrains specific template is maintainted in a separate JetBrains.gitignore that can

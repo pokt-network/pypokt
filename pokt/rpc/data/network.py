@@ -1,4 +1,4 @@
-from pokt.rpc.models.state import StateResponse
+import json
 from typing import Any, Dict, AnyStr, Optional
 import requests
 from pydantic import parse_obj_as
@@ -10,7 +10,8 @@ from ..models import (
     QueryHeightResponse,
     QuerySupplyResponse,
     QuerySupportedChainsResponse,
-    UpgradeResponse,
+    StateResponse,
+    Upgrade,
 )
 from ..utils import make_api_url, get, post
 
@@ -129,12 +130,12 @@ def get_supported_chains(
     request = QueryHeight(height=height)
     route = make_api_url(provider_url, "/query/supportedchains")
     resp_data = post(route, session, **request.dict(by_alias=True))
-    return QuerySupportedChainsResponse(supported_chains=resp_data)
+    return QuerySupportedChainsResponse(supported_chains=json.loads(resp_data))
 
 
 def get_upgrade(
     provider_url: str, height: int = 0, session: Optional[requests.Session] = None
-) -> UpgradeResponse:
+) -> Upgrade:
     """
     Get the upgrade information at a specified height.
 
@@ -150,12 +151,13 @@ def get_upgrade(
 
     Returns
     -------
-    UpgradeResponse
+    Upgrade
     """
     request = QueryHeight(height=height)
     route = make_api_url(provider_url, "/query/upgrade")
     resp_data = post(route, session, **request.dict(by_alias=True))
-    return UpgradeResponse(**resp_data)
+    print(resp_data)
+    return Upgrade(**json.loads(resp_data))
 
 
 def get_param(

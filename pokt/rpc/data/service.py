@@ -2,21 +2,23 @@ from typing import Optional
 import requests
 from ..models import (
     Application,
+    ApplicationOpts,
+    JailedStatus,
     Node,
     QueryAddressHeight,
     QueryAppsResponse,
-    QueryNodesResponse,
-    QueryNodeReceipt,
-    QueryNodeClaimsResponse,
-    StoredReceipt,
-    ValidatorOpts,
-    ApplicationOpts,
-    QuerySigningInfoResponse,
-    QueryPaginatedHeightAndAddrParams,
     QueryHeightAndApplicationsOpts,
     QueryHeightAndValidatorsOpts,
+    QueryNodeClaimResponse,
+    QueryNodeClaimsResponse,
+    QueryNodeReceipt,
+    QueryNodesResponse,
+    QueryPaginatedHeightAndAddrParams,
+    QuerySigningInfoResponse,
+    ReceiptType,
     StakingStatus,
-    JailedStatus,
+    ValidatorOpts,
+    MsgClaim,
 )
 from ..utils import make_api_url, post
 
@@ -149,23 +151,27 @@ def get_signing_info(
 
 def get_node_claim(
     provider_url: str,
-    address: str = "",
-    blockchain: Optional[str] = None,
-    app_pubkey: Optional[str] = None,
-    height: int = 0,
-    session_block_height: int = 0,
+    address: str,
+    blockchain: str,
+    app_pubkey: str,
+    height: int,
+    session_block_height: int,
+    receipt_type: str,
     session: Optional[requests.Session] = None,
-) -> StoredReceipt:
+) -> MsgClaim:
+    receipt_type = ReceiptType(receipt_type)
     request = QueryNodeReceipt(
         address=address,
         blockchain=blockchain,
         app_pubkey=app_pubkey,
         height=height,
         session_block_height=session_block_height,
+        receipt_type=receipt_type,
     )
     route = make_api_url(provider_url, "/query/nodeclaim")
     resp_data = post(route, session, **request.dict(by_alias=True))
-    return StoredReceipt(**resp_data)
+    print(resp_data)
+    return QueryNodeClaimResponse(**resp_data)
 
 
 def get_node_claims(

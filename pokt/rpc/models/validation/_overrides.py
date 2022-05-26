@@ -700,3 +700,34 @@ class QueryAccountTXsResponse(BaseModel):
 
 class QueryTXResponse(BaseModel):
     transaction: Optional[Transaction] = None
+
+
+class QueryNodeClaimsResponse(BaseModel):
+    result: Optional[list[MsgClaimVal]] = None
+    page: int
+    total_pages: int
+
+
+class ReceiptType(str, Enum):
+    realy = "relay"
+    challenge = "challenge"
+
+
+class QueryNodeReceipt(BaseModel):
+    class Config:
+        use_enum_values = True
+
+    address: str
+    blockchain: str
+    app_pubkey: str
+    session_block_height: int
+    height: int
+    receipt_type: ReceiptType
+
+
+class QueryNodeClaimResponse(BaseModel):
+    class Config:
+        allow_population_by_field_name = True
+
+    type_: str = Field(..., alias="type")
+    value: MsgClaimVal

@@ -1,6 +1,7 @@
 """
 Handles the functionality for handling keybase operations.
 """
+from __future__ import annotations
 import base64
 from enum import Enum
 import hashlib

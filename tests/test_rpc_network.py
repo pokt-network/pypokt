@@ -1,8 +1,4 @@
-import os
-
-from dotenv import load_dotenv
 import pytest
-from requests import Session
 
 from pokt.rpc.data.network import (
     get_height,
@@ -20,9 +16,8 @@ from pokt.rpc.models import (
     QueryHeightResponse,
     QuerySupplyResponse,
     QuerySupportedChainsResponse,
-    UpgradeResponse,
+    Upgrade,
     StateResponse,
-    SingleParam,
     IntParam,
     FloatParam,
     BoolParam,
@@ -34,95 +29,84 @@ from pokt.rpc.models import (
 )
 
 
-def node_url():
-    load_dotenv()
-    url = os.environ.get("POCKET_NODE_URL")
-    if url is None:
-        raise ValueError("No RPC_URL variable configured for testing.")
-    return url
-
-
-def portal_url():
-    load_dotenv()
-    url = os.environ.get("PORTAL_URL")
-    if url is None:
-        raise ValueError("No RPC_URL variable configured for testing.")
-    return url
-
-
-@pytest.fixture(
-    params=[
-        pytest.param(0, marks=pytest.mark.node),
-        pytest.param(1, marks=pytest.mark.portal),
-    ],
-    ids=["node", "portal"],
-)
-def rpc_url(request):
-    if request.param == 0:
-        return node_url()
-    elif request.param == 1:
-        return portal_url()
-
-
-@pytest.fixture(params=[lambda: Session(), lambda: None])
-def session(request):
-    session = request.param()
-    yield session
-    if session:
-        session.close()
-
-
-@pytest.fixture
-def current_height(rpc_url, session):
-    return get_height(rpc_url, session).height
-
-
-@pytest.mark.parametrize(
-    "rpc_url",
-    [
-        pytest.param(node_url, marks=pytest.mark.node),
-        pytest.param(portal_url, marks=pytest.mark.portal),
-    ],
-)
 def test_get_height_returns_nonzero_int(rpc_url, session):
-    height_resp = get_height(rpc_url, session)
-    assert isinstance(height_resp, QueryHeightResponse)
-    assert isinstance(height_resp.height, int)
-    assert height_resp.height > 0
+    height = get_height(rpc_url, session)
+    assert isinstance(height, QueryHeightResponse)
+    assert height.height > 0
 
 
 def test_get_version(rpc_url, session):
     version_resp = get_version(rpc_url, session)
+    assert isinstance(version_resp, str)
 
 
-@pytest.mark.parametrize("height_diff", (1, 10, 100, 1000))
-class TestNetworkWithHeights:
-    def test_get_supply(self, rpc_url, session, current_height, height_diff):
-        supply_resp = get_supply(
-            rpc_url, height=current_height - height_diff, session=session
-        )
-        assert isinstance(supply_resp, QuerySupplyResponse)
+def test_get_supply(rpc_url, session, height):
+    supply_resp = get_supply(rpc_url, height=height, session=session)
+    assert isinstance(supply_resp, QuerySupplyResponse)
 
-    def test_get_all_params(self, rpc_url, session, current_height, height_diff):
-        params_resp = get_all_params(
-            rpc_url, height=current_height - height_diff, session=session
-        )
-        assert isinstance(params_resp, AllParams)
 
-    def test_get_upgrade(self, rpc_url, session, current_height, height_diff):
-        upgrade_resp = get_upgrade(
-            rpc_url, height=current_height - height_diff, session=session
-        )
-        assert isinstance(upgrade_resp, UpgradeResponse)
+def test_get_all_params(rpc_url, session, height):
+    params_resp = get_all_params(rpc_url, height=height, session=session)
+    assert isinstance(params_resp, AllParams)
 
-    def test_get_supported_chains(self, rpc_url, session, current_height, height_diff):
-        supported_chains_resp = get_supported_chains(
-            rpc_url, height=current_height - height_diff, session=session
-        )
-        assert isinstance(supported_chains_resp, QuerySupportedChainsResponse)
 
-    def test_get_state(self, rpc_url, session, current_height, height_diff):
-        state_resp = get_state(
-            rpc_url, height=current_height - height_diff, session=session
-        )
-        assert isinstance(state_resp, StateResponse)
+def test_get_upgrade(rpc_url, session, height):
+    upgrade_resp = get_upgrade(rpc_url, height=height, session=session)
+    assert isinstance(upgrade_resp, Upgrade)
+
+
+def test_get_supported_chains(rpc_url, session, height):
+    supported_chains_resp = get_supported_chains(
+        rpc_url, height=height, session=session
+    )
+    assert isinstance(supported_chains_resp, QuerySupportedChainsResponse)
+
+
+def test_get_state(rpc_url, session, height):
+    state_resp = get_state(rpc_url, height=height, session=session)
+    assert isinstance(state_resp, StateResponse)
+
+
+@pytest.mark.parametrize(
+    ("param_name", "param_type"),
+    [
+        ("application/MaxApplications", IntParam),
+        ("application/AppUnstakingTime", IntParam),
+        ("application/MaximumChains", IntParam),
+        ("application/StabilityAdjustment", IntParam),
+        ("application/BaseRelaysPerPOKT", IntParam),
+        ("application/ApplicationStakeMinimum", IntParam),
+        ("pos/DAOAllocation", IntParam),
+        ("pos/StakeMinimum", IntParam),
+        ("pos/MaximumChains", IntParam),
+        ("pos/RelaysToTokensMultiplier", IntParam),
+        ("pos/MaxJailedBlocks", IntParam),
+        ("pos/MaxValidators", IntParam),
+        ("pos/UnstakingTime", IntParam),
+        ("pos/DowntimeJailDuration", IntParam),
+        ("pos/ProposerPercentage", IntParam),
+        ("pos/BlocksPerSession", IntParam),
+        ("pos/MaxEvidenceAge", IntParam),
+        ("pos/SignedBlocksWindow", IntParam),
+        ("pocketcore/SessionNodeCount", IntParam),
+        ("pocketcore/ClaimSubmissionWindow", IntParam),
+        ("pocketcore/ReplayAttackBurnMultiplier", IntParam),
+        ("pocketcore/ClaimExpiration", IntParam),
+        ("pocketcore/MinimumNumberOfProofs", IntParam),
+        ("auth/MaxMemoCharacters", IntParam),
+        ("auth/TxSigLimit", IntParam),
+        ("pos/StakeDenom", StrParam),
+        ("gov/daoOwner", StrParam),
+        ("pos/SlashFractionDoubleSign", FloatParam),
+        ("pos/SlashFractionDowntime", FloatParam),
+        ("pos/MinSignedPerWindow", FloatParam),
+        ("application/ParticipationRateOn", BoolParam),
+        ("pocketcore/SupportedBlockchains", SupportedBlockchainsParam),
+        ("auth/FeeMultipliers", FeeMultiplierParam),
+        ("gov/acl", ACLParam),
+        ("gov/upgrade", UpgradeParam),
+    ],
+)
+def test_get_params(rpc_url, session, height, param_name, param_type):
+    param_resp = get_param(rpc_url, param_name, height=height, session=session)
+    assert isinstance(param_resp, param_type)
