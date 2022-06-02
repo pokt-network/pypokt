@@ -31,6 +31,7 @@ class Coin(BaseModel):
     amount: str
     denom: str
 
+
 class Signature(BaseModel):
     pub_key: str
     signature: str

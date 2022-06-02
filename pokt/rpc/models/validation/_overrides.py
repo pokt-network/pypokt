@@ -653,9 +653,11 @@ class TXProof(BaseModel):
     data: Optional[str] = None
     proof: Optional[SimpleProof] = None
 
+
 class Coin(BaseModel):
     amount: Optional[str] = None
     denom: Optional[str] = None
+
 
 class Signature(BaseModel):
     pub_key: Optional[str] = None
