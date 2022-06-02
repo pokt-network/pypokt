@@ -653,11 +653,9 @@ class TXProof(BaseModel):
     data: Optional[str] = None
     proof: Optional[SimpleProof] = None
 
-
 class Coin(BaseModel):
     amount: Optional[str] = None
     denom: Optional[str] = None
-
 
 class Signature(BaseModel):
     pub_key: Optional[str] = None
@@ -666,7 +664,7 @@ class Signature(BaseModel):
 
 class StdTx(BaseModel):
     entropy: Optional[int] = None
-    fee: Optional[Coin] = None
+    fee: Optional[List[Coin]] = None
     memo: Optional[str] = None
     msg: Optional[MsgT] = Field(None, discriminator="type_")
     signature: Optional[Signature] = None

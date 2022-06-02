@@ -31,7 +31,6 @@ class Coin(BaseModel):
     amount: str
     denom: str
 
-
 class Signature(BaseModel):
     pub_key: str
     signature: str
@@ -39,7 +38,7 @@ class Signature(BaseModel):
 
 class StdTx(BaseModel):
     entropy: int
-    fee: Coin
+    fee: List[Coin]
     memo: str
     msg: Json
     signautre: Signature
