@@ -666,7 +666,7 @@ class Signature(BaseModel):
 
 class StdTx(BaseModel):
     entropy: Optional[int] = None
-    fee: Optional[Coin] = None
+    fee: Optional[List[Coin]] = None
     memo: Optional[str] = None
     msg: Optional[MsgT] = Field(None, discriminator="type_")
     signature: Optional[Signature] = None

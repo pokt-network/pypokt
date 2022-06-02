@@ -39,7 +39,7 @@ class Signature(BaseModel):
 
 class StdTx(BaseModel):
     entropy: int
-    fee: Coin
+    fee: List[Coin]
     memo: str
     msg: Json
     signautre: Signature
