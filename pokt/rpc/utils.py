@@ -36,6 +36,22 @@ def get(route: str, session: Optional[requests.Session] = None, **params) -> str
         resp = requests.get(route, headers=DEFAULT_GET_HEADERS, params=params)
     else:
         resp = session.get(route, params=params, headers=DEFAULT_GET_HEADERS)
+    try:
+        data = resp.json()
+    except:
+        pass
+    else:
+        if isinstance(data, dict):
+            error_obj = data.get("error")
+            if error_obj:
+                error_code = error_obj.get("code", None)
+                if error_code is None:
+                    error_code = error_obj.get("statusCode", None)
+                raise PortalRPCError(error_code, error_obj.get("message"))
+
+            error_code = data.get("code", None)
+            if error_code:
+                raise PoktRPCError(error_code, data.get("message"))
     return resp.text
 
 

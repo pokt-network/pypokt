@@ -130,7 +130,9 @@ def get_supported_chains(
     request = QueryHeight(height=height)
     route = make_api_url(provider_url, "/query/supportedchains")
     resp_data = post(route, session, **request.dict(by_alias=True))
-    return QuerySupportedChainsResponse(supported_chains=json.loads(resp_data))
+    if isinstance(resp_data, str):
+        resp_data = json.loads(resp_data)
+    return QuerySupportedChainsResponse(supported_chains=resp_data)
 
 
 def get_upgrade(
@@ -156,8 +158,9 @@ def get_upgrade(
     request = QueryHeight(height=height)
     route = make_api_url(provider_url, "/query/upgrade")
     resp_data = post(route, session, **request.dict(by_alias=True))
-    print(resp_data)
-    return Upgrade(**json.loads(resp_data))
+    if isinstance(resp_data, str):
+        resp_data = json.loads(resp_data)
+    return Upgrade(**resp_data)
 
 
 def get_param(

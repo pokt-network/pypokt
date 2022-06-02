@@ -107,12 +107,12 @@ def session(request):
     scope="session",
     params=[
         pytest.param(None, marks=pytest.mark.latest),
-        pytest.param(1, marks=[pytest.mark.one_behind, pytest.mark.behind]),
-        pytest.param(10, marks=pytest.mark.behind),
-        pytest.param(100, marks=pytest.mark.behind),
-        pytest.param(1000, marks=pytest.mark.behind),
-        pytest.param(10000, marks=pytest.mark.behind),
-        pytest.param(25000, marks=pytest.mark.behind),
+        pytest.param(1, marks=pytest.mark.one_behind),
+        pytest.param(10, marks=pytest.mark.many_behind),
+        pytest.param(100, marks=pytest.mark.many_behind),
+        pytest.param(1000, marks=pytest.mark.many_behind),
+        pytest.param(10000, marks=pytest.mark.many_behind),
+        pytest.param(25000, marks=pytest.mark.many_behind),
     ],
     ids=[
         "latest block",
