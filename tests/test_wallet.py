@@ -4,26 +4,26 @@ from pokt.wallet import (
     ppk_from_priv_key,
     sign_with_priv_key,
     verify_signature,
-    unlock_ppk,
 )
 
 
 def test_unlock_ppk(ppk, passphrase, unlocked):
-    result = unlock_ppk(ppk, passphrase)
-    assert result.pubKey == unlocked.pubKey
-    assert result.privKey == unlocked.privKey
+    result = ppk.unlock(passphrase)
+    assert result.pub_key == unlocked.pub_key
+    assert result.priv_key == unlocked.priv_key
+    assert result.private_key == unlocked.private_key
     assert result.address == unlocked.address
 
 
 def test_create_new_ppk_unlocks_with_passphrase():
     result = create_new_ppk("ThisIsAPassphrase")
-    _ = unlock_ppk(result, "ThisIsAPassphrase")
+    _ = result.unlock("ThisIsAPassphrase")
 
 
 def test_ppk_from_priv_key_unlocks_with_passphrase(private_key):
     result = ppk_from_priv_key(private_key, "ThisIsAPassphrase")
-    unlocked_result = unlock_ppk(result, "ThisIsAPassphrase")
-    assert unlocked_result.privKey.get_secret_value() == private_key
+    unlocked_result = result.unlock("ThisIsAPassphrase")
+    assert unlocked_result.priv_key.get_secret_value() == private_key
 
 
 def test_address_from_pubkey(public_key, address):

@@ -31,6 +31,8 @@ from typing import Any, Callable, Dict, List, Literal, Optional, TypeVar, Union
 from typing_extensions import Annotated
 from pydantic import BaseModel, Field, conint, validator, root_validator
 
+import pokt.transactions.messages.proto.tx_signer_pb2 as proto
+
 
 class StakingStatus(int, Enum):
     unstaking = 1
@@ -314,11 +316,17 @@ class Consensus(BaseModel):
 
 
 class PartSetHeader(BaseModel):
+    class Config:
+        allow_population_by_field_name = True
+
     total: Optional[int] = None
     hash_: Optional[str] = Field(None, alias="hash")
 
 
 class BlockID(BaseModel):
+    class Config:
+        allow_population_by_field_name = True
+
     hash_: Optional[str] = Field(None, alias="hash")
     parts: Optional[PartSetHeader] = None
 
@@ -348,6 +356,9 @@ class BlockMeta(BaseModel):
 
 
 class CommitSignature(BaseModel):
+    class Config:
+        allow_population_by_field_name = True
+
     type_: Optional[str] = Field(None, alias="type")
     height: Optional[int] = None
     round_: Optional[int] = Field(None, alias="round")
@@ -419,6 +430,9 @@ class MsgUpgradeVal(BaseModel):
 
 
 class PublicKey(BaseModel):
+    class Config:
+        allow_population_by_field_name = True
+
     type_: str = Field(..., alias="type")
     value: str
 
@@ -455,10 +469,102 @@ class MsgValidatorUnjailVal(BaseModel):
     signer_address: Optional[str] = None
 
 
-class MsgSendVal(BaseModel):
-    from_address: Optional[str] = None
-    to_address: Optional[str] = None
-    amount: Optional[int] = None
+class ProtobufTypes(int, Enum):
+    DOUBLE = 1
+    FLOAT = 2
+    INT64 = 3
+    UINT64 = 4
+    INT32 = 5
+    FIXED64 = 6
+    FIXED32 = 7
+    BOOL = 8
+    STRING = 9
+    GROUP = 10
+    MESSAGE = 11
+    BYTES = 12
+    UINT32 = 13
+    ENUM = 14
+    SFIXED32 = 15
+    SFIXED64 = 16
+    SINT32 = 17
+    SINT64 = 18
+
+
+def encode_proto_type(value: Any, proto_type: Optional[ProtobufTypes] = None):
+    if issubclass(value, ProtobufEncodable):
+        return value
+    elif proto_type in (
+        None,
+        ProtobufTypes.FIXED32,
+        ProtobufTypes.FIXED64,
+        ProtobufTypes.SFIXED32,
+        ProtobufTypes.SFIXED64,
+        ProtobufTypes.MESSAGE,
+        ProtobufTypes.GROUP,
+    ):
+        return value
+    elif proto_type in (ProtobufTypes.DOUBLE, ProtobufTypes.FLOAT):
+        return float(value)
+    elif proto_type in (
+        ProtobufTypes.INT64,
+        ProtobufTypes.UINT64,
+        ProtobufTypes.INT32,
+        ProtobufTypes.UINT32,
+        ProtobufTypes.SINT32,
+        ProtobufTypes.SINT64,
+    ):
+        return int(value)
+    elif proto_type in (ProtobufTypes.BYTES,):
+        return bytes(value, "utf-8")
+    elif proto_type in (ProtobufTypes.BOOL,):
+        return bool(value)
+    elif proto_type in (ProtobufTypes.STRING, ProtobufTypes.ENUM):
+        return str(value)
+
+
+class ProtobufEncodable(BaseModel):
+
+    __protobuf_model__: Any = None
+
+    @classmethod
+    def __proto_fields__(cls):
+        proto_fields = {}
+        for name, val in cls.__fields__.items():
+            proto_name = val.field_info.extra.get("proto_name", name)
+            proto_type = val.field_info.extra.get("proto_type")
+            proto_fields[name] = (proto_name, proto_type)
+
+        return proto_fields
+
+    def protobuf_payload(self):
+        if self.__protobuf_model__ is None:
+            raise ValueError("The protobuf model was never defined.")
+        msg = self.__protobuf_model__()
+        proto_fields = self.__proto_fields__()
+        for name, (proto_name, field_type) in proto_fields.items():
+            value = getattr(self, name)
+            try:
+                setattr(msg, proto_name, encode_proto_type(value, field_type))
+            except TypeError:
+                ft = field_type.value if field_type is not None else "None"
+                raise TypeError(
+                    "Type error occurred when encoding {} to {} for field {}".format(
+                        value, ft, proto_name
+                    )
+                )
+        return msg.SerializeToString()
+
+
+class MsgSendVal(ProtobufEncodable):
+    __protobuf_model__ = proto.MsgSend
+
+    from_address: Optional[str] = Field(
+        None, proto_name="FromAddress", proto_type=ProtobufTypes.BYTES
+    )
+    to_address: Optional[str] = Field(
+        None, proto_name="ToAddress", proto_type=ProtobufTypes.BYTES
+    )
+    amount: Optional[int] = Field(None, proto_type=ProtobufTypes.STRING)
 
 
 class Range(BaseModel):
@@ -467,6 +573,9 @@ class Range(BaseModel):
 
 
 class HashRange(BaseModel):
+    class Config:
+        allow_population_by_field_name = True
+
     merkleHash: Optional[str] = None
     range_: Optional[Range] = Field(None, alias="range")
 
@@ -542,7 +651,21 @@ class MsgClaimVal(BaseModel):
     expiration_height: Optional[int] = None
 
 
+MsgValT = Union[
+    MsgSendVal,
+    MsgValidatorStakeVal,
+    MsgAppStakeVal,
+    MsgValidatorUnjailVal,
+    MsgAppUnjailVal,
+    MsgBeginValidatorUnstakeVal,
+    MsgBeginAppUnstakeVal,
+]
+
+
 class Msg(BaseModel):
+    class Config:
+        allow_population_by_field_name = True
+
     type_: str = Field(..., alias="type")
     value: Any
 
@@ -654,14 +777,31 @@ class TXProof(BaseModel):
     proof: Optional[SimpleProof] = None
 
 
-class Coin(BaseModel):
+class CoinDenom(str, Enum):
+    upokt = "Upokt"
+    pokt = "Pokt"
+
+
+class Coin(ProtobufEncodable):
+    class Confg:
+        use_enum_values = True
+
     amount: Optional[str] = None
-    denom: Optional[str] = None
+    denom: Optional[CoinDenom] = CoinDenom.upokt
+
+    __protobuf_model__ = proto.Coin
 
 
-class Signature(BaseModel):
-    pub_key: Optional[str] = None
-    signature: Optional[str] = None
+class Signature(ProtobufEncodable):
+
+    pub_key: Optional[str] = Field(
+        None, proto_name="publicKey", proto_type=ProtobufTypes.BYTES
+    )
+    signature: Optional[str] = Field(
+        None, proto_name="Signature", proto_type=ProtobufTypes.BYTES
+    )
+
+    __protobuf_model__ = proto.ProtoStdSignature
 
 
 class StdTx(BaseModel):

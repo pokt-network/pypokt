@@ -3,7 +3,6 @@ Handles the functionality for handling keybase operations.
 """
 from __future__ import annotations
 import base64
-from enum import Enum
 import hashlib
 from typing import Optional, Union, TYPE_CHECKING
 
@@ -14,11 +13,7 @@ from nacl.public import PrivateKey
 from nacl.exceptions import BadSignatureError
 
 if TYPE_CHECKING:
-    from .models import PPK, UnlockedAccount
-
-
-class ImplementedKDFs(str, Enum):
-    scrypt = "scrypt"
+    from .models import PPK
 
 
 class _ScryptConfig:
@@ -27,10 +22,6 @@ class _ScryptConfig:
     p: int = 1
     maxmem: int = 2147483647
     keylen: int = 32
-
-
-def _address_from_privkey(privKey: bytes) -> str:
-    return address_from_pubkey(privKey[64:])
 
 
 def address_from_pubkey(pubKey: Union[str, bytes]) -> str:
@@ -99,7 +90,7 @@ def ppk_from_priv_key(
     -------
     ppk: pokt.models.PPK
     """
-    from .models.PPKModel import PPK
+    from .models import PPK, ImplementedKDFs
 
     salt_bytes = get_random_bytes(16)
     scrypt_hash_bytes = hashlib.scrypt(
@@ -121,12 +112,13 @@ def ppk_from_priv_key(
         secparam=secparam,
         hint=hint,
         ciphertext=base64.b64encode(ciphertext_bytes + tag).decode("utf-8"),
+        pub_key=priv_key[64:],
     )
 
 
-def unlock_ppk(ppk: PPK, password: str) -> UnlockedAccount:
+def priv_key_from_ppk(ppk: PPK, password: str) -> str:
     """
-    Unlock a PPK for use in signing transactions.
+    Get a private key give a ppk and password
 
     Parameters
     ----------
@@ -136,12 +128,9 @@ def unlock_ppk(ppk: PPK, password: str) -> UnlockedAccount:
 
     Returns
     -------
-    pokt.models.UnlockedAccount
-        An object that exposes the private key to allow for operations
-        that requrie it.
+    str
+        The decoded private key.
     """
-    from .models.AccountModel import UnlockedAccount
-
     scrypt_hash = hashlib.scrypt(
         password.encode("utf-8"),
         salt=ppk.salt_bytes,
@@ -155,15 +144,7 @@ def unlock_ppk(ppk: PPK, password: str) -> UnlockedAccount:
     nonce = scrypt_hash[: ppk.secparam]
     data = ppk.ciphertext_bytes[:-16]
     cipher = AES.new(scrypt_hash, AES.MODE_GCM, nonce)
-    priv_bytes = cipher.decrypt(data)
-
-    address = _address_from_privkey(priv_bytes)
-    pub_bytes = priv_bytes[64:]
-    return UnlockedAccount(
-        pubKey=pub_bytes.decode("utf-8"),
-        address=address,
-        privKey=priv_bytes.decode("utf-8"),
-    )
+    return cipher.decrypt(data).decode("utf-8")
 
 
 def verify_signature(

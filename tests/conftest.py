@@ -6,7 +6,7 @@ import requests
 import pytest
 
 from pokt.rpc.data import get_height
-from pokt import PPK, UnlockedAccount
+from pokt.wallet import PPK, UnlockedPPK
 
 
 def node_url():
@@ -133,28 +133,26 @@ def height(rpc_url, session, request):
 def ppk() -> PPK:
     _dir = os.path.abspath(os.path.dirname(__file__))
     ppk_path = os.path.join(_dir, "reference", "ppk.json")
-    with open(ppk_path, "r") as f:
-        data = json.load(f)
-    return PPK(**data)
+    return PPK.from_file(ppk_path)
 
 
 @pytest.fixture
-def unlocked() -> UnlockedAccount:
+def unlocked() -> UnlockedPPK:
     _dir = os.path.abspath(os.path.dirname(__file__))
     unlocked_path = os.path.join(_dir, "reference", "raw.json")
     with open(unlocked_path, "r") as f:
         data = json.load(f)
-    return UnlockedAccount(**data)
+    return UnlockedPPK(**data)
 
 
 @pytest.fixture
 def public_key(unlocked) -> str:
-    return unlocked.pubKey
+    return unlocked.pub_key
 
 
 @pytest.fixture
 def private_key(unlocked) -> str:
-    return unlocked.privKey.get_secret_value()
+    return unlocked.priv_key.get_secret_value()
 
 
 @pytest.fixture
