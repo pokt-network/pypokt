@@ -3,7 +3,7 @@ import os
 from typing import TypedDict, Optional, Union
 import pyarrow as pa
 
-from ..rpc.models.validation import BlockHeader, Transaction
+from ..rpc.models.validation import BlockHeader, Transaction, HashRange
 
 
 def camel_to_snake(s):
@@ -74,6 +74,9 @@ class TxRecord(TypedDict):
 
 
 def flatten_tx(tx: Transaction) -> TxRecord:
+    fee = tx.stdTx.fee
+    fee_amount = fee[0].amount if fee else None
+    fee_denom = fee[0].denom if fee else None
     return {
         "height": tx.height,
         "hash_": tx.hash_,
@@ -84,8 +87,8 @@ def flatten_tx(tx: Transaction) -> TxRecord:
         "recipient": tx.tx_result.recipient,
         "msg_type": tx.tx_result.message_type,
         "entropy": tx.stdTx.entropy,
-        "fee_amount": tx.stdTx.fee.amount,
-        "fee_denom": tx.stdTx.fee.denom,
+        "fee_amount": fee_amount,
+        "fee_denom": fee_denom,
         "signer_pubkey": tx.stdTx.signature.pub_key,
         "empty_msg": tx.stdTx.msg is None,
     }
@@ -480,28 +483,102 @@ def _flatten_claim_msg(tx: Transaction) -> ClaimMsgRecord:
     }
 
 
+HashRangeStruct = pa.struct(
+    [
+        pa.field("merkle_hash", pa.string()),
+        pa.field("range_lower", pa.string()),
+        pa.field("range_upper", pa.string()),
+    ]
+)
+
 proof_msg_schema = pa.schema(
     [
         pa.field("height", pa.int64()),
         pa.field("hash_", pa.string()),
         pa.field("index", pa.int64()),
+        pa.field("merkle_proof_index", pa.int64()),
+        pa.field("target_merkle_hash", pa.string()),
+        pa.field("target_merkle_lower", pa.string()),
+        pa.field("target_merkle_upper", pa.string()),
+        pa.field("hash_ranges", pa.list_(HashRangeStruct)),
+        pa.field("request_hash", pa.string()),
+        pa.field("entropy", pa.int64()),
+        pa.field("session_block_height", pa.int64()),
+        pa.field("servicer_pub_key", pa.string()),
+        pa.field("blockchain", pa.string()),
+        pa.field("aat_version", pa.string()),
+        pa.field("aat_app_pub_key", pa.string()),
+        pa.field("aat_client_pub_key", pa.string()),
+        pa.field("aat_signature", pa.string()),
+        pa.field("signature", pa.string()),
         pa.field("evidence_type", pa.int64()),
     ]
 )
 
 
-class ProofMsgRecord(TypedDict):
+class HashRangeItem(TypedDict):
+    merkle_hash: Optional[str]
+    range_lower: Optional[str]
+    range_upper: Optional[str]
+
+
+class RelayProofMsgRecord(TypedDict):
     height: Optional[int]
     hash_: Optional[str]
     index: Optional[int]
+    merkle_proof_index: Optional[int]
+    target_merkle_hash: Optional[str]
+    target_merkle_lower: Optional[str]
+    target_merkle_upper: Optional[str]
+    hash_ranges: Optional[list[HashRangeItem]]
+    request_hash: Optional[str]
+    entropy: Optional[int]
+    session_block_height: Optional[int]
+    servicer_pub_key: Optional[str]
+    blockchain: Optional[str]
+    aat_version: Optional[str]
+    aat_app_pub_key: Optional[str]
+    aat_client_pub_key: Optional[str]
+    aat_signature: Optional[str]
+    signature: Optional[str]
     evidence_type: Optional[int]
 
 
-def _flatten_proof_msg(tx: Transaction) -> ProofMsgRecord:
+def _flatten_relay_proof_msg(tx: Transaction) -> RelayProofMsgRecord:
     return {
         "height": tx.height,
         "hash_": tx.hash_,
         "index": tx.index,
+        "merkle_proof_index": tx.stdTx.msg.value.merkle_proofs.index,
+        "target_merkle_hash": tx.stdTx.msg.value.merkle_proofs.target_range.merkleHash,
+        "target_merkle_lower": tx.stdTx.msg.value.merkle_proofs.target_range.range_.lower,
+        "target_merkle_upper": tx.stdTx.msg.value.merkle_proofs.target_range.range_.upper,
+        "hash_ranges": [
+            {
+                "merkle_hash": hr.merkleHash,
+                "range_lower": hr.range_.lower,
+                "range_upper": hr.range_.upper,
+            }
+            for hr in tx.stdTx.msg.value.merkle_proofs.hash_ranges
+        ],
+        "request_hash": tx.stdTx.msg.value.leaf.value.request_hash,
+        "entropy": tx.stdTx.msg.value.leaf.value.entropy,
+        "session_block_height": tx.stdTx.msg.value.leaf.value.session_block_height,
+        "servicer_pub_key": tx.stdTx.msg.value.leaf.value.servicer_pub_key,
+        "blockchain": tx.stdTx.msg.value.leaf.value.blockchain,
+        "aat_version": "Empty"
+        if tx.stdTx.msg.value.leaf.value.aat is None
+        else tx.stdTx.msg.value.leaf.value.aat.version,
+        "aat_app_pub_key": "Empty"
+        if tx.stdTx.msg.value.leaf.value.aat is None
+        else tx.stdTx.msg.value.leaf.value.aat.app_pub_key,
+        "aat_client_pub_key": "Empty"
+        if tx.stdTx.msg.value.leaf.value.aat is None
+        else tx.stdTx.msg.value.leaf.value.aat.client_pub_key,
+        "aat_signature": "Empty"
+        if tx.stdTx.msg.value.leaf.value.aat is None
+        else tx.stdTx.msg.value.leaf.value.aat.signature,
+        "signature": tx.stdTx.msg.value.leaf.value.signature,
         "evidence_type": tx.stdTx.msg.value.evidence_type,
     }
 
@@ -520,7 +597,7 @@ RecordT = Union[
     NodeUnjailMsgRecord,
     SendMsgRecord,
     ClaimMsgRecord,
-    ProofMsgRecord,
+    RelayProofMsgRecord,
     dict,
 ]
 
@@ -531,7 +608,7 @@ def flatten_tx_message(tx: Transaction) -> tuple[Optional[RecordT], str, str]:
     msg_type = tx.stdTx.msg.type_
     flat = {}
     if msg_type == "pocketcore/proof":
-        flat = _flatten_proof_msg(tx)
+        flat = _flatten_relay_proof_msg(tx)
     elif msg_type == "pocketcore/claim":
         flat = _flatten_claim_msg(tx)
     elif msg_type == "pos/MsgStake":

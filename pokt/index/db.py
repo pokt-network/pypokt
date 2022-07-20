@@ -2,7 +2,7 @@ from contextlib import contextmanager
 import glob
 import os
 import threading
-from typing import Sequence, Optional
+from typing import Optional
 
 import duckdb
 import pandas as pd
@@ -19,7 +19,9 @@ class DuckDB:
         return [r[0] for r in records]
 
     @classmethod
-    def from_index_dir(cls, index_dir: str, db_fname: str = "duck.db"):
+    def from_index_dir(
+        cls, index_dir: str, db_fname: str = "duck.db", max_batch_size_gb: float = 2
+    ):
         if not os.path.isdir(index_dir):
             raise ValueError(
                 "The provided index directory, {}, does not appear to be a directory"
@@ -28,8 +30,21 @@ class DuckDB:
         tables = table_dir_map(index_dir)
         for name, parquets in tables.items():
             if glob.glob(parquets):
-                db.add_parquets_to_table(parquets, name)
+                for parquet_batch, start, end in cls._batch_parquet_inserts(
+                    parquets, max_batch_size_gb
+                ):
+                    start = os.path.relpath(start, index_dir)
+                    end = os.path.relpath(end, index_dir)
+                    print("Inserting {} to {} into {}".format(start, end, name))
+                    db.add_parquets_to_table(parquet_batch, name)
+                    db = DuckDB.force_gc(db)
         return db
+
+    @classmethod
+    def force_gc(cls, db):
+        db_name = db._database
+        db.close()
+        return cls(db_name)
 
     def __init__(self, database: str = None, config: Optional[dict] = None):
         self._database = database if database is not None else ":memory:"
@@ -48,6 +63,31 @@ class DuckDB:
         self.n_writers = 0
         self._connection = self._connect(read_only=False)
         self.is_writer.set()
+
+    def close(self):
+        self._connection.close()
+
+    @staticmethod
+    def _batch_parquet_inserts(glob_str: str, gb_per_batch: float = 4):
+        batch = []
+        batch_size = 0
+        max_size = gb_per_batch * 1000000000
+        for parquet_file in glob.glob(glob_str):
+            size = os.path.getsize(parquet_file)
+            if size > max_size:
+                yield "['{}']".format(parquet_file), parquet_file, parquet_file
+            elif size + batch_size > max_size:
+                yield "[{}]".format(
+                    ", ".join(["'{}'".format(f) for f in batch])
+                ), batch[0], batch[-1]
+                batch = [parquet_file]
+                batch_size = size
+            else:
+                batch.append(parquet_file)
+                batch_size += size
+        yield "[{}]".format(", ".join(["'{}'".format(f) for f in batch])), batch[
+            0
+        ], batch[-1]
 
     def multiprocessing_setup(self):
         with self.read_only_cursor() as c:
@@ -185,7 +225,7 @@ class DuckDB:
     @staticmethod
     def _create_table_from_parquets(con, parquets: str, table_name: str):
         con.execute(
-            "CREATE TABLE {} AS SELECT * FROM read_parquet('{}');".format(
+            "CREATE TABLE {} AS SELECT * FROM read_parquet({});".format(
                 table_name, parquets
             ),
         )
@@ -198,7 +238,7 @@ class DuckDB:
     @staticmethod
     def _insert_parquets_to_table(con, parquets: str, table_name: str):
         con.execute(
-            "INSERT INTO {} SELECT * FROM read_parquet('{}');".format(
+            "INSERT INTO {} SELECT * FROM read_parquet({});".format(
                 table_name, parquets
             ),
         )

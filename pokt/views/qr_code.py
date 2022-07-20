@@ -24,3 +24,14 @@ def make_pokt_qr(address: str) -> Image.Image:
         module_drawer=CircleModuleDrawer(),
         color_mask=qr_color,
     ).convert("RGBA")
+
+
+if __name__ == "__main__":
+    qr = make_pokt_qr(
+        "https://docs.google.com/forms/d/e/1FAIpQLSf6o6vrEDQ-QUQz5M1tQ76XGOOP47aInzM7dhKTMCuTmThF1w/viewform"
+    )
+    qr.save("triforce-1.png")
+    qr = make_pokt_qr(
+        "https://docs.google.com/forms/d/e/1FAIpQLSfYOK1xe4QBMBHWJjT7k2V0Ki-UvFsxOtZgaa4V2CuejVwlXQ/viewform"
+    )
+    qr.save("triforce-2.png")

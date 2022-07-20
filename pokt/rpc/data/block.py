@@ -39,7 +39,7 @@ def get_block(
 def get_block_transactions(
     provider_url: str,
     height: int = 0,
-    page: int = 0,
+    page: int = 1,
     per_page: int = 100,
     prove: bool = False,
     order: str = "desc",
@@ -61,7 +61,8 @@ def get_block_transactions(
     received: optional
         Whether to include only received transactions, defaults to True.
     prove: optional
-        Whether to include only proof transactions, defaults to False.
+        If you want to be certain that the transaction is from the block, it's inherited from TM.
+        If this is true, txs.proof = null.
     order: optional
         The order that the results should be sorted in, either 'desc' or 'asc', defaults to 'desc'
     height: optional

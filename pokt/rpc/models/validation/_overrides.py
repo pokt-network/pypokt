@@ -27,9 +27,9 @@ stdTx field.
 """
 from enum import Enum
 import json
-from typing import Any, Callable, Dict, List, Literal, Optional, TypeVar, Union
+from typing import Any, List, Literal, Optional, Union
 from typing_extensions import Annotated
-from pydantic import BaseModel, Field, conint, validator, root_validator
+from pydantic import BaseModel, Field, conint, validator
 
 import pokt.transactions.messages.proto.tx_signer_pb2 as proto
 
@@ -83,7 +83,7 @@ class QueryPaginatedHeightAndAddrParams(BaseModel):
     height: int
     address: Optional[str] = None
     page: Optional[int] = None
-    per_page: conint(gt=0, le=1000) = Field(
+    per_page: conint(gt=0, le=10000) = Field(
         100, description="Number of transactions per page. Max of 1000"
     )
 
@@ -99,7 +99,7 @@ class QueryBlockTXs(BaseModel):
 
     height: int
     page: Optional[int] = None
-    per_page: conint(gt=0, le=1000) = Field(
+    per_page: conint(gt=0, le=10000) = Field(
         100, description="Number of transactions per page. Max of 1000"
     )
     prove: Optional[bool] = None
@@ -114,7 +114,7 @@ class QueryAccountTXs(BaseModel):
 
     address: str
     page: Optional[int] = None
-    per_page: conint(gt=0, le=1000) = Field(
+    per_page: conint(gt=0, le=10000) = Field(
         100, description="Number of transactions per page. Max of 1000"
     )
     received: Optional[bool] = None
@@ -290,7 +290,7 @@ SingleParamT = Union[
 ]
 
 ParamValueT = Union[
-    int, str, float, bool, List[str], Upgrade, FeeMultiplier, List[ACLKey], Upgrade
+    int, str, float, bool, List[str], Upgrade, FeeMultiplier, List[ACLKey]
 ]
 
 
@@ -595,7 +595,7 @@ class AAT(BaseModel):
     signature: Optional[str] = Field(None, description="Application's signature in hex")
 
 
-class RelayProof(BaseModel):
+class RelayProofVal(BaseModel):
     request_hash: Optional[str] = Field(None, description="request hash identifier")
     entropy: Optional[int] = Field(None, description="Entropy value to add uniqueness")
     session_block_height: Optional[int] = Field(
@@ -612,16 +612,34 @@ class RelayProof(BaseModel):
 class RelayResponse(BaseModel):
     signature: Optional[str] = None
     payload: Optional[str] = None
-    proof: Optional[RelayProof] = None
+    proof: Optional[RelayProofVal] = None
 
 
-class ChallengeProofInvalidData(BaseModel):
+class ChallengeProofInvalidDataVal(BaseModel):
     majority_responses: Optional[list[RelayResponse]] = None
     minority_response: Optional[RelayResponse] = None
     reporters_address: Optional[str] = None
 
 
-Proof = Union[RelayProof, ChallengeProofInvalidData]
+class Proof(BaseModel):
+    class Config:
+        allow_population_by_field_name = True
+
+    type_: str = Field(..., alias="type")
+    value: Any
+
+
+class RelayProof(Proof):
+    type_: Literal["pocketcore/relay_proof"] = Field(alias="type")
+    value: RelayProofVal
+
+
+class ChallengeProofInvalidData(Proof):
+    type_: Literal["pocketcore/challenge_proof"] = Field(alias="type")
+    value: ChallengeProofInvalidDataVal
+
+
+ProofT = Union[RelayProof, ChallengeProofInvalidData]
 
 
 class EvidenceType(BaseModel):
@@ -630,7 +648,7 @@ class EvidenceType(BaseModel):
 
 class MsgProofVal(BaseModel):
     merkle_proofs: Optional[MerkleProof] = None
-    leaf: Optional[Proof] = None
+    leaf: Optional[ProofT] = Field(None, discriminator="type_")
     evidence_type: Optional[int] = None  # EvidenceType = None
 
 
@@ -731,19 +749,18 @@ class MsgUpgrade(Msg):
 
 
 MsgT = Union[
+    MsgAppStake,
+    MsgAppUnjail,
+    MsgBeginAppUnstake,
+    MsgBeginValidatorUnstake,
+    MsgChangeParam,
     MsgClaim,
+    MsgDaoTransfer,
     MsgProof,
     MsgSend,
+    MsgUpgrade,
     MsgValidatorStake,
     MsgValidatorUnjail,
-    MsgSend,
-    MsgBeginValidatorUnstake,
-    MsgUpgrade,
-    MsgDaoTransfer,
-    MsgChangeParam,
-    MsgAppStake,
-    MsgBeginAppUnstake,
-    MsgAppUnjail,
 ]
 
 
@@ -778,8 +795,8 @@ class TXProof(BaseModel):
 
 
 class CoinDenom(str, Enum):
-    upokt = "Upokt"
-    pokt = "Pokt"
+    upokt = "upokt"
+    pokt = "pokt"
 
 
 class Coin(ProtobufEncodable):

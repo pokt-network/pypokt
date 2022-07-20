@@ -1,3 +1,4 @@
+import enum
 import json
 from typing import Any, Literal, Optional, Union
 from typing_extensions import Annotated
@@ -33,10 +34,18 @@ class BaseAccountVal(BaseModel):
     public_key: Optional[Union[str, PubKey]] = Field(None)
 
 
+class ModuleAccountPermissions(str, enum.Enum):
+    # https://github.com/pokt-network/pocket-core/blob/3c40b817a5358393b274728c6679b89720f65250/x/auth/alias.go#L21
+    # https://github.com/pokt-network/pocket-core/blob/3c40b817a5358393b274728c6679b89720f65250/app/pocket.go#L198
+    burning = "burning"
+    minting = "minting"
+    staking = "staking"
+
+
 class ModuleAccountVal(BaseModel):
     base_account: Optional[BaseAccountVal] = Field(None, alias="BaseAccount")
     name: Optional[str]
-    permissions: Optional[list[str]]
+    permissions: Optional[list[str]]  #
 
 
 class BaseAccount(BaseModel):

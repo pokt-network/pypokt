@@ -19,6 +19,7 @@ from ._overrides import (
     FeeMultiplier,
     FeeMultiplierParam,
     FloatParam,
+    HashRange,
     IntParam,
     JailedStatus,
     MsgSendVal,
