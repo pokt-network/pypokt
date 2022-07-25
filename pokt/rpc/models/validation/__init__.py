@@ -12,6 +12,7 @@ from ._overrides import (
     ACLKey,
     ACLParam,
     AllParams,
+    Application,
     ApplicationOpts,
     BoolParam,
     Coin,

@@ -142,7 +142,7 @@ class PocketCoreParams(BaseModel):
 
 
 class PocketCoreState(BaseModel):
-    claims: list[Claim]
+    claims: Optional[list[Claim]] = None
     params: PocketCoreParams
 
 

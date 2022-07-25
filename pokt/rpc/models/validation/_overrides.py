@@ -888,3 +888,27 @@ class QueryNodeClaimResponse(BaseModel):
 
     type_: str = Field(..., alias="type")
     value: MsgClaimVal
+
+
+class Application(BaseModel):
+    address: Optional[str] = Field(
+        None, description="The hex address of the application"
+    )
+    public_key: Optional[str] = Field(
+        None, description="The hex public key of the application"
+    )
+    jailed: Optional[bool] = Field(
+        False, description="Has the application been jailed from staked status"
+    )
+    status: Optional[int] = Field(None, description="Application status")
+    chains: Optional[List[str]] = Field(None, description="Blockchains supported")
+    staked_tokens: Optional[str] = Field(
+        None, description="How many tokens has this node staked in uPOKT"
+    )
+    max_relays: Optional[int] = Field(
+        None, description="Maximum number of relays supported"
+    )
+    unstaking_time: Optional[str] = Field(
+        None,
+        description="If unstaking, the minimum time for the validator to complete unstaking",
+    )
