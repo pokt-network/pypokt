@@ -2,25 +2,7 @@ import json
 from typing import Optional
 import requests
 
-from . import DEFAULT_GET_HEADERS, DEFAULT_POST_HEADERS
-
-
-class PortalRPCError(RuntimeError):
-    def __init__(self, code, message):
-        msg = "The following error was returned from the Portal:\n Code: {} – Message: {}".format(
-            code, message
-        )
-        super().__init__(msg)
-
-
-class PoktRPCError(RuntimeError):
-    def __init__(self, code, message):
-        msg = (
-            "The following RPC error was encountered:\n Code: {} – Message: {}".format(
-                code, message
-            )
-        )
-        super().__init__(msg)
+from . import DEFAULT_GET_HEADERS, DEFAULT_POST_HEADERS, PoktRPCError, PortalRPCError
 
 
 def make_api_url(provider_url: str, route: str, version: str = "v1") -> str:

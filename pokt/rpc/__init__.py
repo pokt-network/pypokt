@@ -3,3 +3,4 @@ DEFAULT_POST_HEADERS = {
     "accept": "application/json",
     "Content-Type": "application/json",
 }
+from .errors import *
