@@ -2,7 +2,6 @@
 Ingestion of blocks and their contained transactions from RPC.
 """
 from collections import defaultdict
-from dataclasses import dataclass
 import multiprocessing as mp
 import os
 import queue

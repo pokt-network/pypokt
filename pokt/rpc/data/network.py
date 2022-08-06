@@ -1,9 +1,10 @@
 import json
-from typing import Any, Dict, AnyStr, Optional
+from typing import Optional
 import requests
 from pydantic import parse_obj_as
 from ..models import (
     AllParams,
+    ParamT,
     SingleParam,
     QueryHeight,
     QueryHeightAndKey,
@@ -168,7 +169,7 @@ def get_param(
     param_key: str,
     height: int = 0,
     session: Optional[requests.Session] = None,
-) -> Any:
+) -> ParamT:
     """
     Get the value of the desired protocol parameter at a specified height
 

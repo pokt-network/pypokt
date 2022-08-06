@@ -18,7 +18,6 @@ from ..models import (
     ReceiptType,
     StakingStatus,
     ValidatorOpts,
-    MsgClaim,
 )
 from ..utils import make_api_url
 from ..async_utils import post_async
@@ -159,7 +158,7 @@ async def async_get_node_claim(
     session_block_height: int,
     receipt_type: str,
     session: Optional[aiohttp.ClientSession] = None,
-) -> MsgClaim:
+) -> QueryNodeClaimResponse:
     receipt_type = ReceiptType(receipt_type)
     request = QueryNodeReceipt(
         address=address,
@@ -171,7 +170,6 @@ async def async_get_node_claim(
     )
     route = make_api_url(provider_url, "/query/nodeclaim")
     resp_data = await post_async(route, session, **request.dict(by_alias=True))
-    print(resp_data)
     return QueryNodeClaimResponse(**resp_data)
 
 

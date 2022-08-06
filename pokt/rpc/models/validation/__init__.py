@@ -7,8 +7,9 @@ from the provided rpc.yaml and the actual behavior are handled in
 the _overrides module, and are individually imported here to
 override the models imported from the * import from _generated.
 """
-from ._generated import *
+# from ._generated import
 from ._overrides import (
+    Account,
     ACLKey,
     ACLParam,
     AllParams,
@@ -28,9 +29,12 @@ from ._overrides import (
     ProtobufTypes,
     QueryAccountTXs,
     QueryAccountTXsResponse,
+    QueryAddressHeight,
+    QueryAppsResponse,
     QueryBlockResponse,
     QueryBlockTXs,
     QueryBlockTXsResponse,
+    QueryHeightAndKey,
     QueryHeightAndApplicationsOpts,
     QueryHeightAndValidatorsOpts,
     QueryHeightResponse,
@@ -38,16 +42,26 @@ from ._overrides import (
     QueryNodeClaimResponse,
     QueryNodeClaimsResponse,
     QueryPaginatedHeightAndAddrParams,
+    QueryTX,
     QueryTXResponse,
     ReceiptType,
+    ParamT,
     SingleParam,
-    SingleParamT,
     SortOrder,
     StakingStatus,
+    StateResponse,
     StrParam,
     SupportedBlockchainsParam,
     Transaction,
     Upgrade,
     UpgradeParam,
     ValidatorOpts,
+    QueryBalanceResponse,
+    QueryBlock,
+    QueryHeight,
+    QuerySupplyResponse,
+    QuerySupportedChainsResponse,
+    Node,
+    QueryNodesResponse,
+    QuerySigningInfoResponse,
 )

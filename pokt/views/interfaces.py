@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
-from ..rpc.models.validation import AllParams, SingleParamT, ParamValueT
+from ..rpc.models.validation import AllParams, ParamT, ParamValueT
 
 
 class ProtocolParams(AllParams):
@@ -9,7 +9,7 @@ class ProtocolParams(AllParams):
     def from_model(cls, model):
         return cls(**model.dict())
 
-    def get_module_params(self, module_name: str) -> Optional[List[SingleParamT]]:
+    def get_module_params(self, module_name: str) -> Optional[List[ParamT]]:
         check = module_name.lower()
         if check in ("app", "application"):
             return self.app_params
@@ -53,7 +53,6 @@ class SupportedChain:
     chainID: str
     name: str
     portal_prefix: str
-    revenue_generating: bool = False
     aliases: Optional[list[str]] = None
 
     def __post_init__(self):
@@ -64,75 +63,182 @@ class SupportedChain:
             self.aliases = [self.name, self.portal_prefix]
 
     def __str__(self):
-        return "{} | {} | {} | {}".format(
+        return "{} | {} | {} ".format(
             self.name,
             self.portal_prefix,
             self.chainID,
-            "Y" if self.revenue_generating else "-",
         )
 
 
 SupportedChains = (
+    SupportedChain("0001", "Pocket Network", "mainnet", aliases=["pocket", "pokt"]),
     SupportedChain(
-        "0001", "Pocket Network", "mainnet", True, aliases=["pocket", "pokt"]
+        "0002",
+        "Pocket Network Testnet",
+        "testnet",
     ),
-    SupportedChain("0002", "Pocket Network Testnet", "testnet", False),
-    SupportedChain("0002", "Bitcoin", "btc-mainnet", False),
-    SupportedChain("0003", "Avalanche", "avax-mainnet", True, aliases=["avax"]),
     SupportedChain(
-        "0004", "Binance Smart Chain", "bsc-mainnet", True, aliases=["bsc", "binance"]
+        "0002",
+        "Bitcoin",
+        "btc-mainnet",
     ),
-    SupportedChain("0005", "FUSE", "fuse-mainnet", True),
-    SupportedChain("0006", "Solana", "sol-mainnet", True, aliases=["sol"]),
-    SupportedChain("0009", "Polygon", "poly-mainnet", True, aliases=["poly, matic"]),
-    SupportedChain("000A", "FUSE Archival", "fuse-archival", True),
-    SupportedChain("000B", "Polygon Archival", "poly-archival", True),
-    SupportedChain("000C", "Gnosis Chain Archival", "gnosischain-archival", True),
-    SupportedChain("000D", "Algorand Archival", "algorand-archival", False),
-    SupportedChain("000E", "Avalanche Fuji", "avax-fuji", False),
-    SupportedChain("000F", "Polygon Mumbai", "poly-mumbai", False),
-    SupportedChain("0010", "Binance Smart Chain Archival", "bsc-archival", True),
-    SupportedChain("0011", "Binance Smart Chain Testnet", "bsc-testnet", False),
+    SupportedChain("0003", "Avalanche", "avax-mainnet", aliases=["avax"]),
     SupportedChain(
-        "0012", "Binance Smart Chain Testnet Archival", "bsc-testnet-arhival", False
+        "0004", "Binance Smart Chain", "bsc-mainnet", aliases=["bsc", "binance"]
     ),
-    SupportedChain("0021", "Ethereum", "eth-mainnet", True, aliases=["eth"]),
-    SupportedChain("0022", "Ethereum Archival", "eth-archival", True),
     SupportedChain(
-        "0023", "Ethereum Ropsten", "eth-ropsten", True, aliases=["ropsten"]
+        "0005",
+        "FUSE",
+        "fuse-mainnet",
     ),
-    SupportedChain("0024", "Ethereum Kovan", "poa-kovan", True, aliases=["kovan"]),
+    SupportedChain("0006", "Solana", "sol-mainnet", aliases=["sol"]),
+    SupportedChain("0009", "Polygon", "poly-mainnet", aliases=["poly, matic"]),
     SupportedChain(
-        "0025", "Ethereum Rinkeby", "eth-rinkeby", True, aliases=["rinkeby"]
+        "000A",
+        "FUSE Archival",
+        "fuse-archival",
     ),
-    SupportedChain("0026", "Ethereum Goerli", "eth-goerli", True, aliases=["goerli"]),
     SupportedChain(
-        "0027", "Gnosis Chain", "gnosischain-mainnet", True, aliases=["gnosis", "xdai"]
+        "000B",
+        "Polygon Archival",
+        "poly-archival",
     ),
-    SupportedChain("0028", "Ethereum Archival Trace", "eth-archival-trace", True),
-    SupportedChain("0029", "Algorand", "algorand-mainnet", True, aliases=["algo"]),
-    SupportedChain("0030", "Arweave", "arweave-mainnet", False, aliases=["arweave"]),
     SupportedChain(
-        "0040", "Harmony Shard 0", "harmony-0", True, aliases=["harmony", "hmy"]
+        "000C",
+        "Gnosis Chain Archival",
+        "gnosischain-archival",
     ),
-    SupportedChain("0041", "Harmony Shard 1", "harmony-1", False),
-    SupportedChain("0042", "Harmony Shard 2", "harmony-2", False),
-    SupportedChain("0043", "Harmony Shard 3", "harmony-3", False),
-    SupportedChain("0044", "IoTeX", "iotex-mainnet", True),
-    SupportedChain("0045", "Algorand Testnet", "algorand-testnet", False),
-    SupportedChain("0046", "Evmos", "evmos-mainnet", False),
-    SupportedChain("0047", "OKExChain", "oec-mainnet", True, aliases=["okex"]),
-    SupportedChain("0048", "Boba", "boba-mainnet", True),
-    SupportedChain("00A3", "Avalanche Archival", "avax-archival", False),
-    SupportedChain("00AF", "Polygon Mumbai Archival", "poly-mumbai-archival", False),
-    SupportedChain("03DF", "DFKchain Subnet", "dfk-mainnet", True, aliases=["dfk"]),
-    SupportedChain("0A40", "Harmony Shard 0 Archival", "harmony-0-archival", False),
-    SupportedChain("0A41", "Harmony Shard 1 Archival", "harmony-1-archival", False),
-    SupportedChain("0A42", "Harmony Shard 2 Archival", "harmony-2-archival", False),
-    SupportedChain("0A43", "Harmony Shard 3 Archival", "harmony-3-archival", False),
     SupportedChain(
-        "0A45", "Algorand Testnet Archival", "algorand-testnet-archival", False
+        "000D",
+        "Algorand Archival",
+        "algorand-archival",
     ),
-    SupportedChain("0A43", "Harmony Shard 3 Archival", "harmony-3-archival", False),
-    SupportedChain("03CB", "Swimmer Network Mainnet", "avax-cra", False),
+    SupportedChain(
+        "000E",
+        "Avalanche Fuji",
+        "avax-fuji",
+    ),
+    SupportedChain(
+        "000F",
+        "Polygon Mumbai",
+        "poly-mumbai",
+    ),
+    SupportedChain(
+        "0010",
+        "Binance Smart Chain Archival",
+        "bsc-archival",
+    ),
+    SupportedChain(
+        "0011",
+        "Binance Smart Chain Testnet",
+        "bsc-testnet",
+    ),
+    SupportedChain(
+        "0012",
+        "Binance Smart Chain Testnet Archival",
+        "bsc-testnet-arhival",
+    ),
+    SupportedChain("0021", "Ethereum", "eth-mainnet", aliases=["eth"]),
+    SupportedChain(
+        "0022",
+        "Ethereum Archival",
+        "eth-archival",
+    ),
+    SupportedChain("0023", "Ethereum Ropsten", "eth-ropsten", aliases=["ropsten"]),
+    SupportedChain("0024", "Ethereum Kovan", "poa-kovan", aliases=["kovan"]),
+    SupportedChain("0025", "Ethereum Rinkeby", "eth-rinkeby", aliases=["rinkeby"]),
+    SupportedChain("0026", "Ethereum Goerli", "eth-goerli", aliases=["goerli"]),
+    SupportedChain(
+        "0027", "Gnosis Chain", "gnosischain-mainnet", aliases=["gnosis", "xdai"]
+    ),
+    SupportedChain(
+        "0028",
+        "Ethereum Archival Trace",
+        "eth-archival-trace",
+    ),
+    SupportedChain("0029", "Algorand", "algorand-mainnet", aliases=["algo"]),
+    SupportedChain("0030", "Arweave", "arweave-mainnet", aliases=["arweave"]),
+    SupportedChain("0040", "Harmony Shard 0", "harmony-0", aliases=["harmony", "hmy"]),
+    SupportedChain(
+        "0041",
+        "Harmony Shard 1",
+        "harmony-1",
+    ),
+    SupportedChain(
+        "0042",
+        "Harmony Shard 2",
+        "harmony-2",
+    ),
+    SupportedChain(
+        "0043",
+        "Harmony Shard 3",
+        "harmony-3",
+    ),
+    SupportedChain(
+        "0044",
+        "IoTeX",
+        "iotex-mainnet",
+    ),
+    SupportedChain(
+        "0045",
+        "Algorand Testnet",
+        "algorand-testnet",
+    ),
+    SupportedChain(
+        "0046",
+        "Evmos",
+        "evmos-mainnet",
+    ),
+    SupportedChain("0047", "OKExChain", "oec-mainnet", aliases=["okex"]),
+    SupportedChain(
+        "0048",
+        "Boba",
+        "boba-mainnet",
+    ),
+    SupportedChain(
+        "00A3",
+        "Avalanche Archival",
+        "avax-archival",
+    ),
+    SupportedChain(
+        "00AF",
+        "Polygon Mumbai Archival",
+        "poly-mumbai-archival",
+    ),
+    SupportedChain("03DF", "DFKchain Subnet", "dfk-mainnet", aliases=["dfk"]),
+    SupportedChain(
+        "0A40",
+        "Harmony Shard 0 Archival",
+        "harmony-0-archival",
+    ),
+    SupportedChain(
+        "0A41",
+        "Harmony Shard 1 Archival",
+        "harmony-1-archival",
+    ),
+    SupportedChain(
+        "0A42",
+        "Harmony Shard 2 Archival",
+        "harmony-2-archival",
+    ),
+    SupportedChain(
+        "0A43",
+        "Harmony Shard 3 Archival",
+        "harmony-3-archival",
+    ),
+    SupportedChain(
+        "0A45",
+        "Algorand Testnet Archival",
+        "algorand-testnet-archival",
+    ),
+    SupportedChain(
+        "0A43",
+        "Harmony Shard 3 Archival",
+        "harmony-3-archival",
+    ),
+    SupportedChain(
+        "03CB",
+        "Swimmer Network Mainnet",
+        "avax-cra",
+    ),
 )

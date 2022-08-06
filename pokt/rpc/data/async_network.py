@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, AnyStr, Optional
+from typing import Optional
 import aiohttp
 from pydantic import parse_obj_as
 from ..models import (
@@ -10,13 +10,18 @@ from ..models import (
     QueryHeightResponse,
     QuerySupplyResponse,
     QuerySupportedChainsResponse,
+    SingleParam,
+    ParamT,
     StateResponse,
     Upgrade,
 )
-from ..utils import make_api_url, get, post
+from ..utils import make_api_url
+from ..async_utils import post_async, get_async
 
 
-async def async_get_version(provider_url: str, session: Optional[aiohttp.ClientSession] = None) -> str:
+async def async_get_version(
+    provider_url: str, session: Optional[aiohttp.ClientSession] = None
+) -> str:
     """
      Get the current version.
 
@@ -32,7 +37,7 @@ async def async_get_version(provider_url: str, session: Optional[aiohttp.ClientS
      str
     """
     route = make_api_url(provider_url, "/")
-    return get(route, session)
+    return await get_async(route, session)
 
 
 async def async_get_height(
@@ -168,7 +173,7 @@ async def async_get_param(
     param_key: str,
     height: int = 0,
     session: Optional[aiohttp.ClientSession] = None,
-) -> Any:
+) -> ParamT:
     """
     Get the value of the desired protocol parameter at a specified height
 
