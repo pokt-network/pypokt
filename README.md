@@ -29,7 +29,7 @@ all exposed under the `PoktRPCDataProvider`.
 ```python
 from pokt import PoktRPCDataProvider
 
-rpc_url = "https://mainnet.pokt.network/v1/lb/<PortalID>"
+rpc_url = "https://mainnet.gateway.pokt.network/v1/lb/<PortalID>"
 pokt_rpc = PoktRPCDataProvider(rpc_url)
 
 height = pokt_rpc.get_height()
