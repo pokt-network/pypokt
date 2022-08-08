@@ -136,6 +136,10 @@ def run_indexer(
     man.shutdown()
 
 
+def async_main():
+    pass
+
+
 def main():
     default_base = os.getcwd()
     index_default = os.path.join(default_base, "index")

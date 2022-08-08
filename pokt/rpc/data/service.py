@@ -18,7 +18,6 @@ from ..models import (
     ReceiptType,
     StakingStatus,
     ValidatorOpts,
-    MsgClaim,
 )
 from ..utils import make_api_url, post
 
@@ -158,7 +157,7 @@ def get_node_claim(
     session_block_height: int,
     receipt_type: str,
     session: Optional[requests.Session] = None,
-) -> MsgClaim:
+) -> QueryNodeClaimResponse:
     receipt_type = ReceiptType(receipt_type)
     request = QueryNodeReceipt(
         address=address,

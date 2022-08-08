@@ -73,9 +73,7 @@ def is_chain_id(val: str):
 def chain_details_from_id(chain_id: str):
     matches = [chain for chain in SupportedChains if chain_id == chain.chainID]
     if not matches:
-        return SupportedChain(
-            chain_id, "unknown name", "unknown prefix", revenue_generating=True
-        )
+        return SupportedChain(chain_id, "unknown name", "unknown prefix")
     return matches[0]
 
 

@@ -108,6 +108,11 @@ class QueryBlockTXs(BaseModel):
     )
 
 
+class QueryAddressHeight(BaseModel):
+    height: Optional[int] = None
+    address: str
+
+
 class QueryAccountTXs(BaseModel):
     class Config:
         use_enum_values = True
@@ -160,9 +165,14 @@ class FeeMultiplier(BaseModel):
     default: int
 
 
+ParamValueT = Union[
+    int, str, float, bool, List[str], UpgradeParamObject, FeeMultiplier, ACLKeysObject
+]
+
+
 class Param(BaseModel):
     param_key: str
-    param_value: Any
+    param_value: ParamValueT
 
     @property
     def name(self):
@@ -278,7 +288,7 @@ class UpgradeParam(Param):
         return v
 
 
-SingleParamT = Union[
+Params = Union[
     IntParam,
     StrParam,
     FloatParam,
@@ -289,25 +299,23 @@ SingleParamT = Union[
     UpgradeParam,
 ]
 
-ParamValueT = Union[
-    int, str, float, bool, List[str], Upgrade, FeeMultiplier, List[ACLKey]
+ParamT = Annotated[
+    Params,
+    Field(discriminator="param_key"),
 ]
 
 
 class AllParams(BaseModel):
 
-    app_params: List[SingleParamT]
-    node_params: List[SingleParamT]
-    pocket_params: List[SingleParamT]
-    gov_params: List[SingleParamT]
-    auth_params: List[SingleParamT]
+    app_params: List[Annotated[Params, Field(discriminator="param_key")]]
+    node_params: List[Annotated[Params, Field(discriminator="param_key")]]
+    pocket_params: List[Annotated[Params, Field(discriminator="param_key")]]
+    gov_params: List[Annotated[Params, Field(discriminator="param_key")]]
+    auth_params: List[Annotated[Params, Field(discriminator="param_key")]]
 
 
 class SingleParam(BaseModel):
-    __root__: Annotated[
-        SingleParamT,
-        Field(discriminator="param_key"),
-    ]
+    __root__: ParamT
 
 
 class Consensus(BaseModel):
@@ -404,6 +412,11 @@ class Block(BaseModel):
 class QueryBlockResponse(BaseModel):
     block: Optional[Block] = None
     block_meta: Optional[BlockMeta] = None
+
+
+class QueryHeightAndKey(BaseModel):
+    height: Optional[int] = None
+    key: str
 
 
 class QueryHeightResponse(BaseModel):
@@ -829,6 +842,11 @@ class StdTx(BaseModel):
     signature: Optional[Signature] = None
 
 
+class QueryTX(BaseModel):
+    hash_: str = Field(..., alias="hash")
+    prove: Optional[bool] = None
+
+
 class Transaction(BaseModel):
     hash_: Optional[str] = Field(
         None, alias="hash", description="Hash of the transaction"
@@ -912,3 +930,330 @@ class Application(BaseModel):
         None,
         description="If unstaking, the minimum time for the validator to complete unstaking",
     )
+
+
+class QueryAppsResponse(BaseModel):
+    result: Optional[List[Application]] = None
+    page: Optional[int] = Field(None, description="current page")
+    total_pages: Optional[int] = Field(None, description="maximum amount of pages")
+
+
+class ApplicationParams(BaseModel):
+    unstaking_time: Optional[str] = Field(None, description="duration of unstaking")
+    max_applications: Optional[int] = Field(
+        None, description="maximum number of applications"
+    )
+    app_stake_minimum: Optional[int] = Field(
+        None, description="minimum amount needed to stake as an application"
+    )
+    base_relays_per_pokt: Optional[int] = Field(
+        None, description="base relays per POKT coin staked"
+    )
+    stability_adjustment: Optional[int] = Field(
+        None, description="the stability adjustment from the governance"
+    )
+    participation_rate_on: Optional[bool] = Field(
+        None,
+        description="the participation rate affects the amount minted based on staked ratio",
+    )
+
+
+class ApplicationState(BaseModel):
+    applications: list[Application]
+    exported: bool
+    params: ApplicationParams
+
+
+class PubKey(BaseModel):
+    class Config:
+        allow_population_by_field_name = True
+
+    type_: str = Field(..., alias="type")
+    value: str
+
+
+class BaseAccountVal(BaseModel):
+    address: str
+    coins: list[Coin]
+    public_key: Optional[Union[str, PubKey]] = Field(None)
+
+
+class ModuleAccountPermissions(str, Enum):
+    # https://github.com/pokt-network/pocket-core/blob/3c40b817a5358393b274728c6679b89720f65250/x/auth/alias.go#L21
+    # https://github.com/pokt-network/pocket-core/blob/3c40b817a5358393b274728c6679b89720f65250/app/pocket.go#L198
+    burning = "burning"
+    minting = "minting"
+    staking = "staking"
+
+
+class ModuleAccountVal(BaseModel):
+    base_account: Optional[BaseAccountVal] = Field(None, alias="BaseAccount")
+    name: Optional[str]
+    permissions: Optional[list[str]]  #
+
+
+class BaseAccount(BaseModel):
+    class Config:
+        allow_population_by_field_name = True
+
+    type_: Literal["posmint/Account"] = Field(..., alias="type")
+    value: BaseAccountVal
+
+    @validator("value", pre=True)
+    def parse_json(cls, v):
+        if isinstance(v, str):
+            return json.loads(v)
+        return v
+
+
+class ModuleAccount(BaseModel):
+    class Config:
+        allow_population_by_field_name = True
+
+    type_: Literal["posmint/ModuleAccount"] = Field(..., alias="type")
+    value: ModuleAccountVal
+
+    @validator("value", pre=True)
+    def parse_json(cls, v):
+        if isinstance(v, str):
+            return json.loads(v)
+        return v
+
+
+AccountT = Annotated[Union[BaseAccount, ModuleAccount], Field(discriminator="type_")]
+
+
+class Account(BaseModel):
+    __root__: Annotated[Union[BaseAccount, ModuleAccount], Field(discriminator="type_")]
+
+    @property
+    def type_(self):
+        return self.__root__.type_
+
+    @property
+    def value(self):
+        return self.__root__.value
+
+
+class AuthParams(BaseModel):
+    fee_multipliers: FeeMultiplier
+    max_memo_characters: str
+    tx_sig_limit: str
+
+
+class SupplyItem(BaseModel):
+    amount: str
+    denom: str
+
+
+class AuthState(BaseModel):
+    accounts: list[Account]
+    params: AuthParams
+    supply: list[SupplyItem]
+
+
+class GovParams(BaseModel):
+
+    acl: list[ACLKey]
+    dao_owner: str
+    upgrade: Upgrade
+
+
+class GovState(BaseModel):
+    DAO_Tokens: str
+    params: GovParams
+
+
+class ClaimHeader(BaseModel):
+    app_public_key: str
+    chain: str
+    session_height: int
+
+
+class Claim(BaseModel):
+    evidence_type: str
+    expiration_height: int
+    from_address: str
+
+
+class PocketCoreParams(BaseModel):
+    claim_expiration: str
+    minimum_number_of_proofs: int
+    proof_waiting_period: str
+    replay_attack_burn_multiplier: str
+    session_node_count: int
+    supported_blockchains: list[str]
+
+
+class PocketCoreState(BaseModel):
+    claims: Optional[list[Claim]] = None
+    params: PocketCoreParams
+
+
+class PosParams(BaseModel):
+    dao_allocation: str
+    downtime_jail_duration: str
+    max_evidence_age: str
+    max_jailed_blocks: int
+    max_validators: int
+    min_signed_per_window: str
+    proposer_allocation: str
+    relays_to_tokens_multiplier: str
+    session_block_frequency: str
+    signed_blocks_window: str
+    slash_fraction_double_sign: str
+    slash_fraction_downtime: str
+    stake_denom: str
+    stake_minimum: int
+    unstaking_time: int
+
+
+class ValidatorPowers(BaseModel):
+    address: str = Field(..., alias="Address")
+    power: str = Field(..., alias="Power")
+
+
+class Validator(BaseModel):
+    address: str
+    chains: list[str]
+    jailed: bool
+    output_address: str
+    public_key: str
+    service_url: str
+    status: int
+    tokens: str
+    unstaking_time: str
+
+
+class SigningInfo(BaseModel):
+    address: Optional[str] = Field(
+        None, description="operator address of the signing info"
+    )
+    index_offset: Optional[int] = Field(
+        None,
+        description="The counter for the signing info (reset to 0 after SignedBlocksWindow elapses)",
+    )
+    jailed_blocks_counter: Optional[int] = Field(
+        None, description="The number of blocks jailed (reset to 0 after unjail)"
+    )
+    jailed_until: Optional[str] = Field(
+        None, description="The time the node can be unjailed"
+    )
+    missed_blocks_counter: Optional[int] = Field(
+        None,
+        description="The number of blocks missed within SignedBlocksWindow (can be decremented after the fact if new signature information/evidence is found)",
+    )
+    start_height: Optional[int] = Field(
+        None,
+        description="The origin height of the node (when it first joined the network)",
+    )
+
+
+class PosState(BaseModel):
+    exported: bool
+    missed_blocks: dict[str, Any]
+    params: PosParams
+    prevState_total_power: str
+    prevState_validator_powers: list[ValidatorPowers]
+    previous_proposer: str
+    signing_infos: dict[str, SigningInfo]
+    validators: list[Validator]
+
+
+class AppState(BaseModel):
+    application: ApplicationState
+    auth: AuthState
+    gov: GovState
+    pocketcore: PocketCoreState
+    pos: PosState
+
+
+class ConsensusBlockParams(BaseModel):
+    max_bytes: str
+    max_gas: str
+    time_iota_ms: str
+
+
+class ConsensusEvidenceParams(BaseModel):
+    max_age: str
+
+
+class ConsensusValidatorParams(BaseModel):
+    pub_key_types: list[str]
+
+
+class ConsensusParams(BaseModel):
+    block: ConsensusBlockParams
+    evidence: ConsensusEvidenceParams
+    validator: ConsensusValidatorParams
+
+
+class StateResponse(BaseModel):
+    app_hash: str
+    app_state: AppState
+    chain_id: str
+    consensus_params: ConsensusParams
+    genesis_time: str
+
+
+class QueryBalanceResponse(BaseModel):
+    balance: Optional[int] = None
+
+
+class QueryBlock(BaseModel):
+    height: Optional[int] = None
+
+
+class QueryHeight(BaseModel):
+    height: Optional[int] = None
+
+
+class QuerySupplyResponse(BaseModel):
+    node_staked: Optional[int] = Field(
+        None, description="Amount staked by the node in uPOKT"
+    )
+    app_staked: Optional[int] = Field(
+        None, description="Amount staked by the app in uPOKT"
+    )
+    dao: Optional[int] = Field(None, description="DAO amount in uPOKT")
+    total_staked: Optional[int] = Field(
+        None, description="Total amount staked in uPOKT"
+    )
+    total_unstaked: Optional[int] = Field(
+        None, description="Total amount unstaked in uPOKT"
+    )
+    total: Optional[int] = Field(None, description="Total amount in uPOKT")
+
+
+class QuerySupportedChainsResponse(BaseModel):
+    supported_chains: List[str] = Field(None, description="Supported blockchains")
+
+
+class Node(BaseModel):
+    address: Optional[str] = Field(None, description="The hex address of the validator")
+    chains: Optional[List[str]] = Field(None, description="Blockchains supported")
+    jailed: Optional[bool] = Field(
+        False, description="Has the validator been jailed from staked status"
+    )
+    public_key: Optional[str] = Field(None, description="The validator public hex key")
+    service_url: Optional[str] = Field(None, description="The validator service url")
+    status: Optional[int] = Field(None, description="Validator status")
+    tokens: Optional[str] = Field(
+        None, description="How many tokens has this node staked in uPOKT"
+    )
+    unstaking_time: Optional[str] = Field(
+        None,
+        description="If unstaking, the minimum time for the validator to complete unstaking",
+    )
+
+
+class QueryNodesResponse(BaseModel):
+    result: Optional[List[Node]] = None
+    page: Optional[int] = Field(None, description="current page")
+    total_pages: Optional[int] = Field(None, description="maximum amount of pages")
+
+
+class QuerySigningInfoResponse(BaseModel):
+    result: Optional[List[SigningInfo]] = None
+    page: Optional[int] = Field(None, description="current page")
+    total_pages: Optional[int] = Field(None, description="maximum amount of pages")
