@@ -12,7 +12,7 @@ This is the API definition Pocket Network core RPC calls. Pocket is a distribute
 app = FastAPI(
     title="Pocket Network",
     description=api_description,
-    version="RC-0.8.3",
+    version="RC-0.9.0",
     terms_of_service="https://pokt.network/terms/",
     contact={
         "name": "Pocket Network",
