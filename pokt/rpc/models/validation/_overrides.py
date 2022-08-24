@@ -1257,3 +1257,17 @@ class QuerySigningInfoResponse(BaseModel):
     result: Optional[List[SigningInfo]] = None
     page: Optional[int] = Field(None, description="current page")
     total_pages: Optional[int] = Field(None, description="maximum amount of pages")
+
+
+class QueryPaginatedHeightParams(BaseModel):
+    height: Optional[int] = None
+    page: Optional[int] = None
+    per_page: conint(gt=0, le=10000) = Field(
+        100, description="Number of transactions per page. Max of 1000"
+    )
+
+
+class QueryAccountsResponse(BaseModel):
+    result: Optional[List[BaseAccountVal]] = None
+    page: Optional[int] = Field(None, description="current page")
+    total_pages: Optional[int] = Field(None, description="maximum amount of pages")

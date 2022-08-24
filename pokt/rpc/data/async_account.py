@@ -1,11 +1,13 @@
 from typing import Optional
 import aiohttp
 from ..models import (
-    Account,
+    BaseAccountVal,
+    QueryAccountsResponse,
     QueryAccountTXs,
     QueryAccountTXsResponse,
     QueryAddressHeight,
     QueryBalanceResponse,
+    QueryPaginatedHeightParams,
     SortOrder,
 )
 from ..utils import make_api_url
@@ -17,7 +19,7 @@ async def async_get_account(
     address: str,
     height: int = 0,
     session: Optional[aiohttp.ClientSession] = None,
-) -> Account:
+) -> BaseAccountVal:
     """
     Get the account with the given address at a specified height.
 
@@ -40,6 +42,19 @@ async def async_get_account(
     route = make_api_url(provider_url, "/query/account")
     resp_data = await post_async(route, session, **request.dict(by_alias=True))
     return Account(**resp_data)
+
+
+async def async_get_accounts(
+    provider_url: str,
+    height: int = 0,
+    page: int = 0,
+    per_page: int = 100,
+    session: Optional[aiohttp.ClientSession] = None,
+) -> QueryAccountsResponse:
+    request = QueryPaginatedHeightParams(height=height, page=page, per_page=per_page)
+    route = make_api_url(provider_url, "/query/accounts")
+    resp_data = await post_async(route, session, **request.dict(by_alias=True))
+    return QueryAccountsResponse(**resp_data)
 
 
 async def async_get_balance(

@@ -14,6 +14,7 @@ from ..rpc.data import (
     get_upgrade,
     get_version,
     get_account,
+    get_accounts,
     get_account_transactions,
     get_transaction_by_hash,
     get_app,
@@ -50,6 +51,10 @@ class PoktRPCDataProvider(_BaseRPCProvider):
     @wraps(get_account)
     def get_account(self, *args, **kwargs):
         return self._make_rpc_call(get_account, *args, **kwargs)
+
+    @wraps(get_accounts)
+    def get_accounts(self, *args, **kwargs):
+        return self._make_rpc_call(get_accounts, *args, **kwargs)
 
     @wraps(get_account_transactions)
     def get_account_transactions(self, *args, **kwargs):

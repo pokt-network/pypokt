@@ -4,10 +4,13 @@ from .conf import ProxySettings, settings
 
 from ..data.async_account import (
     async_get_account,
+    async_get_accounts,
     async_get_account_transactions,
     async_get_balance,
-    Account,
+    BaseAccountVal,
+    QueryPaginatedHeightParams,
     QueryAddressHeight,
+    QueryAccountsResponse,
     QueryAccountTXs,
     QueryAccountTXsResponse,
     QueryBalanceResponse,
@@ -65,11 +68,18 @@ from ..data.async_transaction import async_get_transaction_by_hash, QueryTX, Tra
 router = APIRouter(prefix="/v1/query")
 
 
-@router.post("/account", response_model=Account, tags=["account"])
+@router.post("/account", response_model=BaseAccountVal, tags=["account"])
 async def account(
     req: QueryAddressHeight, conf: ProxySettings = Depends(settings)
-) -> Account:
+) -> BaseAccountVal:
     return await async_get_account(conf.url, **req.dict(exclude_unset=True))
+
+
+@router.post("/accounts", response_model=QueryAccountsResponse, tags=["account"])
+async def accounts(
+    req: QueryPaginatedHeightParams, conf: ProxySettings = Depends(settings)
+) -> QueryAccountsResponse:
+    return await async_get_accounts(conf.url, **req.dict(exclude_unset=True))
 
 
 @router.post("/balance", response_model=QueryBalanceResponse, tags=["account"])

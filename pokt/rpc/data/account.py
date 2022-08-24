@@ -1,11 +1,13 @@
 from typing import Optional
 import requests
 from ..models import (
-    Account,
+    BaseAccountVal,
     QueryAccountTXs,
     QueryAccountTXsResponse,
     QueryAddressHeight,
     QueryBalanceResponse,
+    QueryPaginatedHeightParams,
+    QueryAccountsResponse,
     SortOrder,
 )
 from ..utils import make_api_url, post
@@ -16,7 +18,7 @@ def get_account(
     address: str,
     height: int = 0,
     session: Optional[requests.Session] = None,
-) -> Account:
+) -> BaseAccountVal:
     """
     Get the account with the given address at a specified height.
 
@@ -33,12 +35,25 @@ def get_account(
 
     Returns
     -------
-    Account
+    BaseAccountVal
     """
     request = QueryAddressHeight(height=height, address=address)
     route = make_api_url(provider_url, "/query/account")
     resp_data = post(route, session, **request.dict(by_alias=True))
-    return Account(**resp_data)
+    return BaseAccountVal(**resp_data)
+
+
+def get_accounts(
+    provider_url: str,
+    height: int = 0,
+    page: int = 0,
+    per_page: int = 100,
+    session: Optional[requests.Session] = None,
+) -> QueryAccountsResponse:
+    request = QueryPaginatedHeightParams(height=height, page=page, per_page=per_page)
+    route = make_api_url(provider_url, "/query/accounts")
+    resp_data = post(route, session, **request.dict(by_alias=True))
+    return QueryAccountsResponse(**resp_data)
 
 
 def get_balance(

@@ -1,4 +1,4 @@
-from .account import get_account, get_account_transactions, get_balance
+from .account import get_account, get_accounts, get_account_transactions, get_balance
 from .block import get_block, get_block_transactions
 from .network import (
     get_all_params,
