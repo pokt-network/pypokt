@@ -42,6 +42,9 @@ setup(
     tests_require=["pytest", "python-dotenv"],
     setup_requires=["black", "sphinx", "datamodel-code-generator"],
     entry_points={
-        "console_scripts": ["pokt-index=pokt.index.main:main"],
+        "console_scripts": [
+            "pokt-index=pokt.index.main:main",
+            "oas-proxy=pokt.rpc.proxy.main:main",
+        ],
     },
 )

@@ -214,6 +214,8 @@ class IntParam(Param):
         "pos/BlocksPerSession",
         "pos/MaxEvidenceAge",
         "pos/SignedBlocksWindow",
+        "pos/ServicerStakeFloorMultiplier",
+        "pos/ServicerStakeWeightCeiling",
         "pocketcore/SessionNodeCount",
         "pocketcore/ClaimSubmissionWindow",
         "pocketcore/ReplayAttackBurnMultiplier",
@@ -235,6 +237,8 @@ class FloatParam(Param):
         "pos/SlashFractionDoubleSign",
         "pos/SlashFractionDowntime",
         "pos/MinSignedPerWindow",
+        "pos/ServicerStakeFloorMultiplierExponent",
+        "pos/ServicerStakeWeightMultiplier",
     ]
     param_value: float
 
