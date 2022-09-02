@@ -716,7 +716,7 @@ class MsgProof(Msg):
 
 
 class MsgValidatorStake(Msg):
-    type_: Literal["pos/MsgStake"] = Field(alias="type")
+    type_: Literal["pos/8.0MsgStake"] = Field(alias="type")
     value: MsgValidatorStakeVal
 
 
