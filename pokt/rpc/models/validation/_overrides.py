@@ -714,27 +714,17 @@ class MsgProof(Msg):
     type_: Literal["pocketcore/proof"] = Field(alias="type")
     value: MsgProofVal
 
-
-class MsgValidatorStakeOld(Msg):
-    type_: Literal["pos/MsgStake"] = Field(alias="type")
-    value: MsgValidatorStakeVal
-        
 class MsgValidatorStake(Msg):
-    type_: Literal["pos/8.0MsgStake"] = Field(alias="type")
+    type_: Literal["pos/8.0MsgStake", "pos/MsgStake"] = Field(alias="type")
     value: MsgValidatorStakeVal
-
-
-class MsgBeginValidatorUnstakeOld(Msg):
-    type_: Literal["pos/MsgBeginUnstake"] = Field(alias="type")
-    value: MsgBeginValidatorUnstakeVal
         
 class MsgBeginValidatorUnstake(Msg):
-    type_: Literal["pos/8.0MsgBeginUnstake"] = Field(alias="type")
+    type_: Literal["pos/8.0MsgBeginUnstake", "pos/MsgBeginUnstake] = Field(alias="type")
     value: MsgBeginValidatorUnstakeVal
 
 
 class MsgValidatorUnjail(Msg):
-    type_: Literal["pos/MsgUnjail"] = Field(alias="type")
+    type_: Literal["pos/MsgUnjail", "pos/8.0MsgUnjail"] = Field(alias="type")
     value: MsgValidatorUnjailVal
 
 
@@ -778,7 +768,6 @@ MsgT = Union[
     MsgAppUnjail,
     MsgBeginAppUnstake,
     MsgBeginValidatorUnstake,
-    MsgBeginValidatorUnstakeOld,
     MsgChangeParam,
     MsgClaim,
     MsgDaoTransfer,
@@ -786,7 +775,6 @@ MsgT = Union[
     MsgSend,
     MsgUpgrade,
     MsgValidatorStake,
-    MsgValidatorStakeOld,
     MsgValidatorUnjail,
 ]
 
