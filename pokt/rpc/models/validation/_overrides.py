@@ -724,8 +724,12 @@ class MsgValidatorStake(Msg):
     value: MsgValidatorStakeVal
 
 
-class MsgBeginValidatorUnstake(Msg):
+class MsgBeginValidatorUnstakeOld(Msg):
     type_: Literal["pos/MsgBeginUnstake"] = Field(alias="type")
+    value: MsgBeginValidatorUnstakeVal
+        
+class MsgBeginValidatorUnstake(Msg):
+    type_: Literal["pos/8.0MsgBeginUnstake"] = Field(alias="type")
     value: MsgBeginValidatorUnstakeVal
 
 
@@ -774,6 +778,7 @@ MsgT = Union[
     MsgAppUnjail,
     MsgBeginAppUnstake,
     MsgBeginValidatorUnstake,
+    MsgBeginValidatorUnstakeOld,
     MsgChangeParam,
     MsgClaim,
     MsgDaoTransfer,
