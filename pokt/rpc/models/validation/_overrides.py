@@ -781,6 +781,7 @@ MsgT = Union[
     MsgSend,
     MsgUpgrade,
     MsgValidatorStake,
+    MsgValidatorStakeOld,
     MsgValidatorUnjail,
 ]
 
