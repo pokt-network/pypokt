@@ -719,7 +719,7 @@ class MsgValidatorStake(Msg):
     value: MsgValidatorStakeVal
         
 class MsgBeginValidatorUnstake(Msg):
-    type_: Literal["pos/8.0MsgBeginUnstake", "pos/MsgBeginUnstake] = Field(alias="type")
+    type_: Literal["pos/8.0MsgBeginUnstake", "pos/MsgBeginUnstake"] = Field(alias="type")
     value: MsgBeginValidatorUnstakeVal
 
 
