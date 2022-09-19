@@ -714,12 +714,16 @@ class MsgProof(Msg):
     type_: Literal["pocketcore/proof"] = Field(alias="type")
     value: MsgProofVal
 
+
 class MsgValidatorStake(Msg):
     type_: Literal["pos/8.0MsgStake", "pos/MsgStake"] = Field(alias="type")
     value: MsgValidatorStakeVal
-        
+
+
 class MsgBeginValidatorUnstake(Msg):
-    type_: Literal["pos/8.0MsgBeginUnstake", "pos/MsgBeginUnstake"] = Field(alias="type")
+    type_: Literal["pos/8.0MsgBeginUnstake", "pos/MsgBeginUnstake"] = Field(
+        alias="type"
+    )
     value: MsgBeginValidatorUnstakeVal
 
 

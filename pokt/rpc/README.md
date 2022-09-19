@@ -15,6 +15,7 @@ Routes are mapped as follows below:
 ### `rpc.data.account`
 
 - [x] account
+- [x] accounts
 - [x] balance
 - [x] accounttxs
 
