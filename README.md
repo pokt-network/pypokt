@@ -9,7 +9,7 @@ git clone git@github.com:pokt-foundation/pypocket.git
 cd pypocket
 pip install wheel
 pip install -e .
-pip install duckdb pyarrow pandas
+pip install duckdb pyarrow pandas protobuf
 ```
 
 ## Requirements
