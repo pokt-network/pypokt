@@ -9,7 +9,7 @@ with open(_readme_path, "r") as rm:
 
 setup(
     name="pypokt",
-    version="0.0.1",
+    version="0.0.2",
     description="Python Client SDK for Pocket Network.",
     author="blockjoe",
     author_email="joe@pokt.network",
