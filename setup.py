@@ -8,14 +8,14 @@ with open(_readme_path, "r") as rm:
     README = rm.read()
 
 setup(
-    name="pypocket",
+    name="pypokt",
     version="0.0.1",
     description="Python Client SDK for Pocket Network.",
     author="blockjoe",
     author_email="joe@pokt.network",
     license="MIT",
     packages=find_packages(),
-    url="https://github.com/pokt-foundation/pypocket",
+    url="https://github.com/pokt-foundation/pypokt",
     keywords="pocket network sdk rpc",
     long_description=README,
     long_description_content_type="text/markdown",

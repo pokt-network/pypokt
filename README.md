@@ -1,12 +1,12 @@
-# pypocket
+# pypokt
 
 Python Client SDK for Pocket Network
 
 ## Installation
 
 ```sh
-git clone git@github.com:pokt-foundation/pypocket.git
-cd pypocket
+git clone git@github.com:pokt-foundation/pypokt.git
+cd pypokt
 pip install wheel
 pip install -e .
 ```

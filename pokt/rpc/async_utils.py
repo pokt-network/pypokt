@@ -5,7 +5,7 @@ try:
     import aiohttp
 except ImportError:
     raise RuntimeError(
-        "The optional dependencies for async RPC requests don't appear to be installed. These can be installed via 'pip install pypocket[async]'."
+        "The optional dependencies for async RPC requests don't appear to be installed. These can be installed via 'pip install pypokt[async]'."
     )
 
 from . import DEFAULT_GET_HEADERS, DEFAULT_POST_HEADERS, PortalRPCError, PoktRPCError

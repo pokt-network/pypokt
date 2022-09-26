@@ -96,7 +96,7 @@ class PPK(BaseModel):
             from qrcode.image.styles.moduledrawers import CircleModuleDrawer
         except:
             raise ImportError(
-                "Required dependencies qrcode and Pillow not installed. To install the needed dependencies to render a QR code image, run `pip install pypocket[qrcode]`"
+                "Required dependencies qrcode and Pillow not installed. To install the needed dependencies to render a QR code image, run `pip install pypokt[all]`"
             )
         if self.pub_key is None:
             raise RuntimeError(
