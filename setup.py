@@ -9,7 +9,7 @@ with open(_readme_path, "r") as rm:
 
 setup(
     name="pypokt",
-    version="0.0.2",
+    version="0.0.3",
     description="Python Client SDK for Pocket Network.",
     author="blockjoe",
     author_email="joe@pokt.network",
@@ -20,6 +20,7 @@ setup(
     long_description=README,
     long_description_content_type="text/markdown",
     install_requires=[
+        "protobuf>-4.21.6",
         "requests>=2.27.1",
         "pydantic>=1.9.0",
         "PyNaCl>=1.5.0",
