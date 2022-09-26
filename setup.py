@@ -9,7 +9,7 @@ with open(_readme_path, "r") as rm:
 
 setup(
     name="pypocket",
-    version="0.1",
+    version="0.0.1",
     description="Python Client SDK for Pocket Network.",
     author="blockjoe",
     author_email="joe@pokt.network",
@@ -25,22 +25,16 @@ setup(
         "PyNaCl>=1.5.0",
         "pycryptodome>=3.14.1",
         "tabulate>=0.8.9",
+        "duckdb>=0.3.4",
+        "pyarrow>=7.0.0",
+        "aiohttp[speedups]>=3.8.1",
+        "qrcode>=7.3.1",
+        "Pillow>=9.1.0",
     ],
     extras_require={
-        "indexer": ["duckdb>=0.3.4", "pyarrow>=7.0.0", "pandas>=1.4.2"],
-        "async": ["aiohttp[speedups]>=3.8.1"],
-        "qr": ["qrcode>=7.3.1", "Pillow>=9.1.0"],
-        "all": [
-            "duckdb>=0.3.4",
-            "pyarrow>=7.0.0",
-            "aiohttp[speedups]>=3.8.1",
-            "pandas>=1.4.2",
-            "qrcode>=7.3.1",
-            "Pillow>=9.1.0",
-        ],
+        "dev": ["black", "datamodel-code-generator", "fastapi"],
     },
     tests_require=["pytest", "python-dotenv"],
-    setup_requires=["black", "sphinx", "datamodel-code-generator"],
     entry_points={
         "console_scripts": [
             "pokt-index=pokt.index.main:main",
