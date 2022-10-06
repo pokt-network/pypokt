@@ -1,56 +1,54 @@
-import enum
 import json
-from typing import Any, Literal, Optional, Union
-from typing_extensions import Annotated
-from pydantic import BaseModel, Field, validator
-from .validation import (
-    ACLKey,
-    Application,
-    ApplicationParams,
-    Coin,
-    FeeMultiplier,
-    SigningInfo,
-    Upgrade,
-)
+from typing import Annotated, Any, Dict, List, Literal, Optional, Union
+
+from pydantic import Field, validator
+
+from .base import Base
+from .core import Application, ACLKey, FeeMultiplier, Upgrade
+from .msgs import Coin
+
+class ApplicationParams(Base):
+    unstaking_time: Optional[str] = Field(None, description="duration of unstaking")
+    max_applications: Optional[int] = Field(
+        None, description="maximum number of applications"
+    )
+    app_stake_minimum: Optional[int] = Field(
+        None, description="minimum amount needed to stake as an application"
+    )
+    base_relays_per_pokt: Optional[int] = Field(
+        None, description="base relays per POKT coin staked"
+    )
+    stability_adjustment: Optional[int] = Field(
+        None, description="the stability adjustment from the governance"
+    )
+    participation_rate_on: Optional[bool] = Field(
+        None,
+        description="the participation rate affects the amount minted based on staked ratio",
+    )
 
 
-class ApplicationState(BaseModel):
-    applications: list[Application]
+class ApplicationState(Base):
+    applications: List[Application]
     exported: bool
     params: ApplicationParams
 
-
-class PubKey(BaseModel):
-    class Config:
-        allow_population_by_field_name = True
+class PubKey(Base):
 
     type_: str = Field(..., alias="type")
     value: str
 
-
-class BaseAccountVal(BaseModel):
+class BaseAccountVal(Base):
     address: str
-    coins: list[Coin]
-    public_key: Optional[Union[str, PubKey]] = Field(None)
+    coins: List[Coin]
 
-
-class ModuleAccountPermissions(str, enum.Enum):
-    # https://github.com/pokt-network/pocket-core/blob/3c40b817a5358393b274728c6679b89720f65250/x/auth/alias.go#L21
-    # https://github.com/pokt-network/pocket-core/blob/3c40b817a5358393b274728c6679b89720f65250/app/pocket.go#L198
-    burning = "burning"
-    minting = "minting"
-    staking = "staking"
-
-
-class ModuleAccountVal(BaseModel):
+class ModuleAccountVal(Base):
     base_account: Optional[BaseAccountVal] = Field(None, alias="BaseAccount")
     name: Optional[str]
-    permissions: Optional[list[str]]  #
+    permissions: Optional[List[str]]  #
 
+    public_key: Optional[Union[str, PubKey]] = Field(None)
 
-class BaseAccount(BaseModel):
-    class Config:
-        allow_population_by_field_name = True
+class BaseAccount(Base):
 
     type_: Literal["posmint/Account"] = Field(..., alias="type")
     value: BaseAccountVal
@@ -62,9 +60,7 @@ class BaseAccount(BaseModel):
         return v
 
 
-class ModuleAccount(BaseModel):
-    class Config:
-        allow_population_by_field_name = True
+class ModuleAccount(Base):
 
     type_: Literal["posmint/ModuleAccount"] = Field(..., alias="type")
     value: ModuleAccountVal
@@ -76,11 +72,11 @@ class ModuleAccount(BaseModel):
         return v
 
 
-AccountT = Union[BaseAccount, ModuleAccount]
+AccountT = Annotated[Union[BaseAccount, ModuleAccount], Field(discriminator="type_")]
 
 
-class Account(BaseModel):
-    __root__: Annotated[AccountT, Field(discriminator="type_")]
+class Account(Base):
+    __root__: Annotated[Union[BaseAccount, ModuleAccount], Field(discriminator="type_")]
 
     @property
     def type_(self):
@@ -91,62 +87,63 @@ class Account(BaseModel):
         return self.__root__.value
 
 
-class AuthParams(BaseModel):
+
+class AuthParams(Base):
     fee_multipliers: FeeMultiplier
     max_memo_characters: str
     tx_sig_limit: str
 
 
-class SupplyItem(BaseModel):
+class SupplyItem(Base):
     amount: str
     denom: str
 
 
-class AuthState(BaseModel):
-    accounts: list[Account]
+class AuthState(Base):
+    accounts: List[Account]
     params: AuthParams
-    supply: list[SupplyItem]
+    supply: List[SupplyItem]
 
 
-class GovParams(BaseModel):
+class GovParams(Base):
 
-    acl: list[ACLKey]
+    acl: List[ACLKey]
     dao_owner: str
     upgrade: Upgrade
 
 
-class GovState(BaseModel):
+class GovState(Base):
     DAO_Tokens: str
     params: GovParams
 
 
-class ClaimHeader(BaseModel):
+class ClaimHeader(Base):
     app_public_key: str
     chain: str
     session_height: int
 
 
-class Claim(BaseModel):
+class Claim(Base):
     evidence_type: str
     expiration_height: int
     from_address: str
 
 
-class PocketCoreParams(BaseModel):
+class PocketCoreParams(Base):
     claim_expiration: str
     minimum_number_of_proofs: int
     proof_waiting_period: str
     replay_attack_burn_multiplier: str
     session_node_count: int
-    supported_blockchains: list[str]
+    supported_blockchains: List[str]
 
 
-class PocketCoreState(BaseModel):
-    claims: Optional[list[Claim]] = None
+class PocketCoreState(Base):
+    claims: Optional[List[Claim]] = None
     params: PocketCoreParams
 
 
-class PosParams(BaseModel):
+class PosParams(Base):
     dao_allocation: str
     downtime_jail_duration: str
     max_evidence_age: str
@@ -164,14 +161,14 @@ class PosParams(BaseModel):
     unstaking_time: int
 
 
-class ValidatorPowers(BaseModel):
+class ValidatorPowers(Base):
     address: str = Field(..., alias="Address")
     power: str = Field(..., alias="Power")
 
 
-class Validator(BaseModel):
+class Validator(Base):
     address: str
-    chains: list[str]
+    chains: List[str]
     jailed: bool
     output_address: str
     public_key: str
@@ -181,48 +178,63 @@ class Validator(BaseModel):
     unstaking_time: str
 
 
-class PosState(BaseModel):
+class SigningInfo(Base):
+    address: Optional[str] = Field(
+        None, description="operator address of the signing info"
+    )
+    index_offset: Optional[int] = Field(
+        None,
+        description="The counter for the signing info (reset to 0 after SignedBlocksWindow elapses)",
+    )
+    jailed_blocks_counter: Optional[int] = Field(
+        None, description="The number of blocks jailed (reset to 0 after unjail)"
+    )
+    jailed_until: Optional[str] = Field(
+        None, description="The time the node can be unjailed"
+    )
+    missed_blocks_counter: Optional[int] = Field(
+        None,
+        description="The number of blocks missed within SignedBlocksWindow (can be decremented after the fact if new signature information/evidence is found)",
+    )
+    start_height: Optional[int] = Field(
+        None,
+        description="The origin height of the node (when it first joined the network)",
+    )
+
+
+class PosState(Base):
     exported: bool
-    missed_blocks: dict[str, Any]
+    missed_blocks: Dict[str, Any]
     params: PosParams
     prevState_total_power: str
-    prevState_validator_powers: list[ValidatorPowers]
+    prevState_validator_powers: List[ValidatorPowers]
     previous_proposer: str
-    signing_infos: dict[str, SigningInfo]
-    validators: list[Validator]
+    signing_infos: Dict[str, SigningInfo]
+    validators: List[Validator]
 
 
-class AppState(BaseModel):
+class AppState(Base):
     application: ApplicationState
     auth: AuthState
     gov: GovState
     pocketcore: PocketCoreState
     pos: PosState
 
-
-class ConsensusBlockParams(BaseModel):
+class ConsensusBlockParams(Base):
     max_bytes: str
     max_gas: str
     time_iota_ms: str
 
 
-class ConsensusEvidenceParams(BaseModel):
+class ConsensusEvidenceParams(Base):
     max_age: str
 
 
-class ConsensusValidatorParams(BaseModel):
+class ConsensusValidatorParams(Base):
     pub_key_types: list[str]
 
 
-class ConsensusParams(BaseModel):
+class ConsensusParams(Base):
     block: ConsensusBlockParams
     evidence: ConsensusEvidenceParams
     validator: ConsensusValidatorParams
-
-
-class StateResponse(BaseModel):
-    app_hash: str
-    app_state: AppState
-    chain_id: str
-    consensus_params: ConsensusParams
-    genesis_time: str
