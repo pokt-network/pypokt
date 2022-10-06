@@ -28,42 +28,41 @@ class ProtobufTypes(int, Enum):
     SINT32 = 17
     SINT64 = 18
 
+def encode_proto_type(value: Any, proto_type: Optional[ProtobufTypes] = None):
+    if proto_type in (
+        None,
+        ProtobufTypes.FIXED32,
+        ProtobufTypes.FIXED64,
+        ProtobufTypes.SFIXED32,
+        ProtobufTypes.SFIXED64,
+        ProtobufTypes.MESSAGE,
+        ProtobufTypes.GROUP,
+    ):
+        return value
+    elif proto_type in (ProtobufTypes.DOUBLE, ProtobufTypes.FLOAT):
+        return float(value)
+    elif proto_type in (
+        ProtobufTypes.INT64,
+        ProtobufTypes.UINT64,
+        ProtobufTypes.INT32,
+        ProtobufTypes.UINT32,
+        ProtobufTypes.SINT32,
+        ProtobufTypes.SINT64,
+    ):
+        return int(value)
+    elif proto_type in (ProtobufTypes.BYTES,):
+        return bytes(value, "utf-8")
+    elif proto_type in (ProtobufTypes.BOOL,):
+        return bool(value)
+    elif proto_type in (ProtobufTypes.STRING, ProtobufTypes.ENUM):
+        return str(value)
+    elif issubclass(value, ProtobufBase):
+        return value
 
 class ProtobufBase(Base):
 
     __protobuf_model__: Any = None
 
-    @staticmethod
-    def encode_proto_type(value: Any, proto_type: Optional[ProtobufTypes] = None):
-        if issubclass(value, ProtobufBase):
-            return value
-        elif proto_type in (
-            None,
-            ProtobufTypes.FIXED32,
-            ProtobufTypes.FIXED64,
-            ProtobufTypes.SFIXED32,
-            ProtobufTypes.SFIXED64,
-            ProtobufTypes.MESSAGE,
-            ProtobufTypes.GROUP,
-        ):
-            return value
-        elif proto_type in (ProtobufTypes.DOUBLE, ProtobufTypes.FLOAT):
-            return float(value)
-        elif proto_type in (
-            ProtobufTypes.INT64,
-            ProtobufTypes.UINT64,
-            ProtobufTypes.INT32,
-            ProtobufTypes.UINT32,
-            ProtobufTypes.SINT32,
-            ProtobufTypes.SINT64,
-        ):
-            return int(value)
-        elif proto_type in (ProtobufTypes.BYTES,):
-            return bytes(value, "utf-8")
-        elif proto_type in (ProtobufTypes.BOOL,):
-            return bool(value)
-        elif proto_type in (ProtobufTypes.STRING, ProtobufTypes.ENUM):
-            return str(value)
 
     @classmethod
     def __proto_fields__(cls):
@@ -83,7 +82,7 @@ class ProtobufBase(Base):
         for name, (proto_name, field_type) in proto_fields.items():
             value = getattr(self, name)
             try:
-                setattr(msg, proto_name, ProtobufBase.encode_proto_type(value, field_type))
+                setattr(msg, proto_name, encode_proto_type(value, field_type))
             except TypeError:
                 ft = field_type.value if field_type is not None else "None"
                 raise TypeError(

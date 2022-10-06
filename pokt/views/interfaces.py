@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Any, List, Iterator, Optional
 
-from ..rpc.models.validation import AllParams, ParamT, ParamValueT
+from ..rpc.models import AllParams, ParamT, ParamValueT
 
 
 class ProtocolParams(AllParams):
