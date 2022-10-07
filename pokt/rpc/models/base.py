@@ -3,10 +3,12 @@ from typing import Any, Optional
 
 from pydantic import BaseModel
 
+
 class Base(BaseModel):
     class Config:
         use_enum_values = True
         allow_population_by_field_name = True
+
 
 class ProtobufTypes(int, Enum):
     DOUBLE = 1
@@ -27,6 +29,7 @@ class ProtobufTypes(int, Enum):
     SFIXED64 = 16
     SINT32 = 17
     SINT64 = 18
+
 
 def encode_proto_type(value: Any, proto_type: Optional[ProtobufTypes] = None):
     if proto_type in (
@@ -59,10 +62,10 @@ def encode_proto_type(value: Any, proto_type: Optional[ProtobufTypes] = None):
     elif issubclass(value, ProtobufBase):
         return value
 
+
 class ProtobufBase(Base):
 
     __protobuf_model__: Any = None
-
 
     @classmethod
     def __proto_fields__(cls):

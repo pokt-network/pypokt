@@ -7,6 +7,7 @@ from .base import Base
 from .core import Application, ACLKey, FeeMultiplier, Upgrade
 from .msgs import Coin
 
+
 class ApplicationParams(Base):
     unstaking_time: Optional[str] = Field(None, description="duration of unstaking")
     max_applications: Optional[int] = Field(
@@ -32,14 +33,17 @@ class ApplicationState(Base):
     exported: bool
     params: ApplicationParams
 
+
 class PubKey(Base):
 
     type_: str = Field(..., alias="type")
     value: str
 
+
 class BaseAccountVal(Base):
     address: str
     coins: List[Coin]
+
 
 class ModuleAccountVal(Base):
     base_account: Optional[BaseAccountVal] = Field(None, alias="BaseAccount")
@@ -47,6 +51,7 @@ class ModuleAccountVal(Base):
     permissions: Optional[List[str]]  #
 
     public_key: Optional[Union[str, PubKey]] = Field(None)
+
 
 class BaseAccount(Base):
 
@@ -85,7 +90,6 @@ class Account(Base):
     @property
     def value(self):
         return self.__root__.value
-
 
 
 class AuthParams(Base):
@@ -219,6 +223,7 @@ class AppState(Base):
     gov: GovState
     pocketcore: PocketCoreState
     pos: PosState
+
 
 class ConsensusBlockParams(Base):
     max_bytes: str

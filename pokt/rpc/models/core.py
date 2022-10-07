@@ -16,7 +16,7 @@ TxResultMessageTypes = Literal[
     "change_param",
     "dao_transfer",
     "claim",
-    "proof"
+    "proof",
 ]
 
 SortOrder = Literal["asc", "desc"]
@@ -26,6 +26,7 @@ CoinDenom = Literal["pokt", "upokt"]
 # https://github.com/pokt-network/pocket-core/blob/3c40b817a5358393b274728c6679b89720f65250/x/auth/alias.go#L21
 # https://github.com/pokt-network/pocket-core/blob/3c40b817a5358393b274728c6679b89720f65250/app/pocket.go#L198
 ModuleAccountPermissions = Literal["burning", "minting", "staking"]
+
 
 class StakingStatus(int, Enum):
     unstaking = 1
@@ -38,13 +39,14 @@ class JailedStatus(int, Enum):
 
 
 # class SortOrder(str, Enum):
-    # asc = "asc"
-    # desc = "desc"
+# asc = "asc"
+# desc = "desc"
 
 # class CoinDenom(str, Enum):
 #
 #    upokt = "upokt"
 #    pokt = "pokt"
+
 
 class Upgrade(Base):
 
@@ -53,13 +55,16 @@ class Upgrade(Base):
     old_upgrade_height: int = Field(1, alias="OldUpgradeHeight")
     features: Optional[list[str]] = Field(None, alias="Features")
 
+
 class ACLKey(Base):
     acl_key: str
     address: str
 
+
 class FeeMultiplier(Base):
     fee_multiplier: Optional[int] = None
     default: int
+
 
 class ValidatorOpts(Base):
 
@@ -67,9 +72,14 @@ class ValidatorOpts(Base):
     per_page: conint(gt=0, lt=10000) = Field(
         100, description="Number of applications per page"
     )
-    staking_status: Optional[StakingStatus] = Field(None, description="1 for unstaking, 2 for staked")
-    jailed_status: Optional[JailedStatus] = Field(None, description="1 for jailed; 2 for not jailed")
+    staking_status: Optional[StakingStatus] = Field(
+        None, description="1 for unstaking, 2 for staked"
+    )
+    jailed_status: Optional[JailedStatus] = Field(
+        None, description="1 for jailed; 2 for not jailed"
+    )
     blockchain: Optional[str] = None
+
 
 class ApplicationOpts(Base):
 
@@ -79,6 +89,7 @@ class ApplicationOpts(Base):
     )
     staking_status: Optional[StakingStatus] = None
     blockchain: Optional[str] = None
+
 
 class Consensus(Base):
     block: Optional[int] = None
@@ -164,6 +175,7 @@ class Block(Base):
             return BlockEvidence(evidence=v)
         return v
 
+
 class PublicKey(Base):
     type_: str = Field(..., alias="type")
     value: str
@@ -194,6 +206,7 @@ class AAT(Base):
     )
     signature: Optional[str] = Field(None, description="Application's signature in hex")
 
+
 class RelayProofVal(Base):
     request_hash: Optional[str] = Field(None, description="request hash identifier")
     entropy: Optional[int] = Field(None, description="Entropy value to add uniqueness")
@@ -207,15 +220,18 @@ class RelayProofVal(Base):
     aat: Optional[AAT] = None
     signature: Optional[str] = Field(None, description="client's signature in hex")
 
+
 class RelayResponse(Base):
     signature: Optional[str] = None
     payload: Optional[str] = None
     proof: Optional[RelayProofVal] = None
 
+
 class ChallengeProofInvalidDataVal(Base):
     majority_responses: Optional[list[RelayResponse]] = None
     minority_response: Optional[RelayResponse] = None
     reporters_address: Optional[str] = None
+
 
 class Proof(Base):
 
@@ -238,6 +254,7 @@ ProofT = Union[RelayProof, ChallengeProofInvalidData]
 
 class EvidenceType(Base):
     pass
+
 
 class SessionHeader(Base):
     app_public_key: Optional[str] = Field(

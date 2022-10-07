@@ -5,9 +5,11 @@ from pydantic import Field, conint
 from .base import Base
 from .core import ApplicationOpts, ValidatorOpts, SortOrder, ReceiptType
 
+
 class QueryHeightAndValidatorsOpts(Base):
     opts: ValidatorOpts
     height: int
+
 
 class QueryHeightAndApplicationsOpts(Base):
     opts: ApplicationOpts
@@ -22,6 +24,7 @@ class QueryPaginatedHeightAndAddrParams(Base):
         100, description="Number of transactions per page. Max of 10000"
     )
 
+
 class QueryBlockTXs(Base):
 
     height: int
@@ -34,9 +37,11 @@ class QueryBlockTXs(Base):
         "desc", description="The sort order, either 'asc' or 'desc'"
     )
 
+
 class QueryAddressHeight(Base):
     height: Optional[int] = None
     address: str
+
 
 class QueryAccountTXs(Base):
 
@@ -51,13 +56,16 @@ class QueryAccountTXs(Base):
         "desc", description="The sort order, either 'asc' or 'desc'"
     )
 
+
 class QueryHeightAndKey(Base):
     height: Optional[int] = None
     key: str
 
+
 class QueryTX(Base):
     hash_: str = Field(..., alias="hash")
     prove: Optional[bool] = None
+
 
 class QueryNodeReceipt(Base):
 
@@ -68,12 +76,14 @@ class QueryNodeReceipt(Base):
     height: int
     receipt_type: ReceiptType
 
+
 class QueryBlock(Base):
     height: Optional[int] = None
 
 
 class QueryHeight(Base):
     height: Optional[int] = None
+
 
 class QueryPaginatedHeightParams(Base):
     height: Optional[int] = None

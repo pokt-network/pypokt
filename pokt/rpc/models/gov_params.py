@@ -68,6 +68,7 @@ ParamValueT = Union[
     int, str, float, bool, List[str], UpgradeParamObject, FeeMultiplier, ACLKeysObject
 ]
 
+
 class Param(Base):
     param_key: str
     param_value: ParamValueT
@@ -90,6 +91,7 @@ class Param(Base):
 
     def __str__(self):
         return "{}={}".format(self.name, self.value)
+
 
 class IntParam(Param):
     param_key: Literal[
@@ -205,6 +207,7 @@ ParamT = Annotated[
     Field(discriminator="param_key"),
 ]
 
+
 class AllParams(Base):
 
     app_params: List[Annotated[Params, Field(discriminator="param_key")]]
@@ -216,5 +219,3 @@ class AllParams(Base):
 
 class SingleParam(Base):
     __root__: ParamT
-
-

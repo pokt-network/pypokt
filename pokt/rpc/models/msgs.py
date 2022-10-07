@@ -1,12 +1,23 @@
 from typing import Any, Literal, List, Optional, Union
 
 from .base import Base, ProtobufBase, ProtobufTypes
-from .core import CoinDenom, HashRange, MerkleProof, ProofT, PublicKey, TXProof, TxResult, SessionHeader, Upgrade
+from .core import (
+    CoinDenom,
+    HashRange,
+    MerkleProof,
+    ProofT,
+    PublicKey,
+    TXProof,
+    TxResult,
+    SessionHeader,
+    Upgrade,
+)
 from .gov_params import ParamKeys, ParamValueT
 
 import pokt.transactions.messages.proto.tx_signer_pb2 as proto
 
 from pydantic import Field
+
 
 class MsgSendVal(ProtobufBase):
     __protobuf_model__ = proto.MsgSend
@@ -18,6 +29,7 @@ class MsgSendVal(ProtobufBase):
         None, proto_name="ToAddress", proto_type=ProtobufTypes.BYTES
     )
     amount: Optional[int] = Field(None, proto_type=ProtobufTypes.STRING)
+
 
 class MsgChangeParamVal(Base):
     address: Optional[str] = None
@@ -36,6 +48,7 @@ class MsgDaoTransferVal(Base):
 class MsgUpgradeVal(Base):
     address: Optional[str] = None
     upgrade: Optional[Upgrade] = None
+
 
 class MsgAppStakeVal(Base):
     pubkey: Optional[PublicKey] = None
@@ -67,6 +80,7 @@ class MsgBeginValidatorUnstakeVal(Base):
 class MsgValidatorUnjailVal(Base):
     address: Optional[str] = None
     signer_address: Optional[str] = None
+
 
 class MsgProofVal(Base):
     merkle_proofs: Optional[MerkleProof] = None
@@ -176,6 +190,7 @@ MsgT = Union[
     MsgValidatorUnjail,
 ]
 
+
 class Coin(ProtobufBase):
 
     __protobuf_model__ = proto.Coin
@@ -195,12 +210,14 @@ class Signature(ProtobufBase):
         None, proto_name="Signature", proto_type=ProtobufTypes.BYTES
     )
 
+
 class StdTx(Base):
     entropy: Optional[int] = None
     fee: Optional[List[Coin]] = None
     memo: Optional[str] = None
     msg: Optional[MsgT] = Field(None, discriminator="type_")
     signature: Optional[Signature] = None
+
 
 class Transaction(Base):
     hash_: Optional[str] = Field(

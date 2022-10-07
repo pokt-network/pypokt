@@ -43,7 +43,7 @@ from .gov_params import (
     ParamValueT,
     SingleParam,
 )
-from .state import  Account, Application, BaseAccountVal
+from .state import Account, Application, BaseAccountVal
 from .msgs import Coin, MsgSendVal, Transaction
 from .core import (
     ACLKey,
