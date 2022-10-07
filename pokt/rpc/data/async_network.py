@@ -5,6 +5,7 @@ from pydantic import parse_obj_as
 from ..models import (
     AllParams,
     SingleParam,
+    ParamKeys,
     QueryHeight,
     QueryHeightAndKey,
     QueryHeightResponse,
@@ -170,7 +171,7 @@ async def async_get_upgrade(
 
 async def async_get_param(
     provider_url: str,
-    param_key: str,
+    param_key: ParamKeys,
     height: int = 0,
     session: Optional[aiohttp.ClientSession] = None,
 ) -> ParamT:

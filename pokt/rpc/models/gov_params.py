@@ -70,7 +70,7 @@ ParamValueT = Union[
 
 
 class Param(Base):
-    param_key: str
+    param_key: ParamKeys
     param_value: ParamValueT
 
     @property

@@ -4,6 +4,7 @@ import requests
 from pydantic import parse_obj_as
 from ..models import (
     AllParams,
+    ParamKeys,
     ParamT,
     SingleParam,
     QueryHeight,
@@ -166,7 +167,7 @@ def get_upgrade(
 
 def get_param(
     provider_url: str,
-    param_key: str,
+    param_key: ParamKeys,
     height: int = 0,
     session: Optional[requests.Session] = None,
 ) -> ParamT:

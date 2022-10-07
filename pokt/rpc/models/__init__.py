@@ -1,6 +1,6 @@
 from .responses import (
-    QueryAccountsResponse,
     QueryAccountTXsResponse,
+    QueryAccountsResponse,
     QueryAppsResponse,
     QueryBalanceResponse,
     QueryBlockResponse,
@@ -36,12 +36,13 @@ from .gov_params import (
     FeeMultiplierParam,
     FloatParam,
     IntParam,
-    StrParam,
-    SupportedBlockchainsParam,
-    UpgradeParam,
+    ParamKeys,
     ParamT,
     ParamValueT,
     SingleParam,
+    StrParam,
+    SupportedBlockchainsParam,
+    UpgradeParam,
 )
 from .state import Account, Application, BaseAccountVal
 from .msgs import Coin, MsgSendVal, Transaction
