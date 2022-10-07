@@ -4,6 +4,7 @@ from pydantic import Field, conint
 
 from .base import Base
 from .core import ApplicationOpts, ValidatorOpts, SortOrder, ReceiptType
+from .gov_params import ParamKeys
 
 
 class QueryHeightAndValidatorsOpts(Base):
@@ -59,7 +60,7 @@ class QueryAccountTXs(Base):
 
 class QueryHeightAndKey(Base):
     height: Optional[int] = None
-    key: str
+    key: ParamKeys
 
 
 class QueryTX(Base):
