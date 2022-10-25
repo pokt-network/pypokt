@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import json
 from enum import Enum
 from typing import Any, Optional
 
@@ -8,6 +11,12 @@ class Base(BaseModel):
     class Config:
         use_enum_values = True
         allow_population_by_field_name = True
+
+    @classmethod
+    def from_json(cls, filename: str) -> Base:
+        with open(filename, "r") as f:
+            data = json.load(f)
+            return Base(**data)
 
 
 class ProtobufTypes(int, Enum):
