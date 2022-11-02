@@ -42,7 +42,7 @@ def get_block_transactions(
     page: int = 1,
     per_page: int = 100,
     prove: bool = False,
-    order: str = "desc",
+    order: SortOrder = "desc",
     session: Optional[requests.Session] = None,
 ) -> QueryBlockTXsResponse:
     """
@@ -74,7 +74,6 @@ def get_block_transactions(
     -------
     QueryBlockTXsResponse
     """
-    order = SortOrder(order)
     request = QueryBlockTXs(
         height=height, page=page, per_page=per_page, prove=prove, order=order
     )

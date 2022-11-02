@@ -5,8 +5,10 @@ from glob import iglob
 from multiprocessing import cpu_count, Manager, Pool
 import os
 import re
+import traceback
 from typing import Optional
 
+import aiohttp
 from pokt import PoktRPCDataProvider
 from pokt.index.ingest import ingest_block_range, QueueT
 from pokt.index.async_ingest import async_ingest_block_range
@@ -89,10 +91,10 @@ async def async_ingest_chunk(
     headers: str,
     txs: str,
     msgs: str,
+    session: aiohttp.ClientSession,
 ):
-    global total_errors
     try:
-        await async_ingest_block_range(
+        return await async_ingest_block_range(
             start,
             end,
             rpc_url,
@@ -100,12 +102,12 @@ async def async_ingest_chunk(
             txs,
             msgs,
             batch_size=batch_size,
+            session=session,
             progress_queue=queue,
         )
     except Exception as e:
         print("Error encountered during: {} - {}".format(start, end))
         print(e)
-        total_errors += 1
     return queue
 
 
@@ -167,15 +169,15 @@ def run_indexer(
     print()
     man.shutdown()
 
-def async_partial(f, *args, **kwargs):
-   async def f2(*args2, **kwargs2):
-       result = f(*args, *args2, **kwargs, **kwargs2)
-       if asyncio.iscoroutinefunction(f):
-           result = await result
-       return result
+async def async_run(*args, **kwargs):
+    async with aiohttp.ClientSession() as session:
+        kwargs["session"] = session
+        val = await async_ingest_chunk(*args[:2], **kwargs)
+        return val
 
-   return f2
-
+def async_worker(*args, **kwargs):
+    asyncio.run(async_run(*args, **kwargs))
+    return kwargs["queue"]
 
 def async_run_indexer(
     start_block: int,
@@ -190,17 +192,17 @@ def async_run_indexer(
     man = Manager()
     progress = man.Queue()
     bounds = chunks_bounds(start_block, end_block, batch_size)
-    worker = async_partial(
-        ingest_chunk,
-        queue=progress,
-        rpc_url=rpc_url,
-        headers=headers,
-        txs=txs,
-        msgs=msgs,
-    )
+    kwargs = {
+            "queue": progress,
+            "rpc_url": rpc_url,
+            "headers": headers,
+            "txs": txs,
+            "msgs": msgs,
+            "batch_size": batch_size,
+    }
     pool = Pool(n_cores)
     for bound in bounds:
-        pool.apply_async(worker, args=bound, callback=progress_reader)
+        pool.apply_async(async_worker, args=bound, kwds=kwargs, callback=progress_reader)
     pool.close()
     pool.join()
     print()

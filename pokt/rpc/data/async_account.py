@@ -95,7 +95,7 @@ async def async_get_account_transactions(
     per_page: int = 100,
     received: bool = True,
     prove: bool = False,
-    order: str = "desc",
+    order: SortOrder = "desc",
     session: Optional[aiohttp.ClientSession] = None,
 ) -> QueryAccountTXsResponse:
     """
@@ -126,7 +126,6 @@ async def async_get_account_transactions(
     -------
     QueryAccountTXsResponse
     """
-    order = SortOrder(order)
     request = QueryAccountTXs(
         address=address,
         page=page,

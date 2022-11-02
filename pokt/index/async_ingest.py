@@ -41,7 +41,7 @@ async def async_ingest_txs_by_block(
     retries: int = 100,
     txs: Optional[list[Transaction]] = None,
     progress_queue: Optional[QueueT] = None,
-) -> list[Transaction]:
+):
     if txs is None:
         txs = []
     try:
@@ -57,7 +57,7 @@ async def async_ingest_txs_by_block(
                     block_no, page
                 )
             )
-        return await async_ingest_txs_by_block(
+        yield async_ingest_txs_by_block(
             block_no,
             rpc_url,
             session=session,
@@ -67,7 +67,7 @@ async def async_ingest_txs_by_block(
             progress_queue=progress_queue,
         )
     while block_txs.txs:
-        txs.extend(block_txs.txs)
+        yield block_txs.txs
         page += 1
         try:
             block_txs = await async_get_block_transactions(
@@ -82,7 +82,7 @@ async def async_ingest_txs_by_block(
                         block_no, page
                     )
                 )
-            return await async_ingest_txs_by_block(
+            yield async_ingest_txs_by_block(
                 block_no,
                 rpc_url,
                 session=session,
@@ -91,7 +91,6 @@ async def async_ingest_txs_by_block(
                 txs=txs,
                 progress_queue=progress_queue,
             )
-    return txs
 
 
 async def async_ingest_block_header(
@@ -182,11 +181,9 @@ def _append_msg_tables(msgs_dir, tables, start_block, end_block):
 
 
 def _parquet_append(parquet_dir, table, start_block, end_block):
-    def _parquet_name_callback(*args, **kwargs):
-        return "block_{}-{}.parquet".format(start_block, end_block)
-
+    basename = "block_{}-{}".format(start_block, end_block) + "-{i}.parquet"
     pq.write_to_dataset(
-        table, parquet_dir, partition_filename_cb=_parquet_name_callback
+        table, parquet_dir, basename_template=basename, use_legacy_dataset=False
     )
 
 
@@ -196,9 +193,21 @@ async def async_ingest_block(
     session: Optional[aiohttp.ClientSession] = None,
     progress_queue: Optional[QueueT] = None,
 ):
-    txs = await async_ingest_txs_by_block(block_no, rpc_url, session, progress_queue=progress_queue)
-    flat_txs = [flatten_tx(tx) for tx in txs]
-    msgs = flatten_tx_messages(txs)
+    flat_txs = []
+    msgs = {
+        "apps": defaultdict(list),
+        "gov": defaultdict(list),
+        "pos": defaultdict(list),
+        "pocketcore": defaultdict(list),
+    }
+    async for tx_set in async_ingest_txs_by_block(block_no, rpc_url, session, progress_queue=progress_queue):
+
+        flat_txs.extend([flatten_tx(tx) for tx in tx_set])
+        flat_msgs = flatten_tx_messages(tx_set)
+        for k, d in flat_msgs.items():
+            for mod, vals in d.items():
+                msgs[k][mod].extend(vals)
+
     header = await async_ingest_block_header(
         block_no, rpc_url, session, progress_queue=progress_queue
     )
@@ -216,10 +225,10 @@ async def async_ingest_block_range(
     batch_size=1000,
     session: Optional[aiohttp.ClientSession] = None,
     progress_queue: Optional[QueueT] = None,
-):
+) -> QueueT:
     if session is None: # Just pipe back into this with a session
         async with aiohttp.ClientSession('http://httpbin.org') as session:
-            return await async_ingest_block_range(starting_block=starting_block, ending_block=ending_block, rpc_url=rpc_url, block_parquet=block_parquet, tx_parquet=tx_parquet, msgs_parquet=msgs_parquet, batch_size=batch_size, session=session, progress_queue=progress_queue)
+            return await async_ingest_block_range(starting_block, ending_block, rpc_url, block_parquet, tx_parquet, msgs_parquet, batch_size=batch_size, session=session, progress_queue=progress_queue)
 
     txs = []
     headers = []
@@ -270,3 +279,4 @@ async def async_ingest_block_range(
     if progress_queue:
         progress_queue.put(("block", len(headers)))
         progress_queue.put(("txs", len(txs)))
+    return queue
