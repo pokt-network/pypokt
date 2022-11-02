@@ -28,10 +28,6 @@ def make_pokt_qr(address: str) -> Image.Image:
 
 if __name__ == "__main__":
     qr = make_pokt_qr(
-        "https://docs.google.com/forms/d/e/1FAIpQLSf6o6vrEDQ-QUQz5M1tQ76XGOOP47aInzM7dhKTMCuTmThF1w/viewform"
+        "https://docs.pokt.network/apps/quickstart/"
     )
-    qr.save("triforce-1.png")
-    qr = make_pokt_qr(
-        "https://docs.google.com/forms/d/e/1FAIpQLSfYOK1xe4QBMBHWJjT7k2V0Ki-UvFsxOtZgaa4V2CuejVwlXQ/viewform"
-    )
-    qr.save("triforce-2.png")
+    qr.save("quickstart.png")

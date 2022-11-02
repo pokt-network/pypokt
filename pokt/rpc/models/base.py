@@ -6,17 +6,16 @@ from typing import Any, Optional
 
 from pydantic import BaseModel
 
-
 class Base(BaseModel):
     class Config:
         use_enum_values = True
         allow_population_by_field_name = True
 
     @classmethod
-    def from_json(cls, filename: str) -> Base:
+    def from_json(cls, filename: str):
         with open(filename, "r") as f:
             data = json.load(f)
-            return Base(**data)
+            return cls(**data)
 
 
 class ProtobufTypes(int, Enum):

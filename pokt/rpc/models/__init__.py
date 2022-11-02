@@ -49,6 +49,7 @@ from .msgs import Coin, MsgSendVal, Transaction
 from .core import (
     ACLKey,
     ApplicationOpts,
+    BlockHeader,
     CoinDenom,
     FeeMultiplier,
     HashRange,

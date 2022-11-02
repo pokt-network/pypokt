@@ -1,13 +1,15 @@
 from argparse import ArgumentParser
+import asyncio
 from functools import partial
 from glob import iglob
-from multiprocessing import cpu_count, Manager, Pool, Queue
+from multiprocessing import cpu_count, Manager, Pool
 import os
 import re
 from typing import Optional
 
 from pokt import PoktRPCDataProvider
-from pokt.index.ingest import ingest_block_range
+from pokt.index.ingest import ingest_block_range, QueueT
+from pokt.index.async_ingest import async_ingest_block_range
 
 
 def chunks_bounds(start_block: int, end_block: int, batch_size: int):
@@ -53,7 +55,7 @@ def ingest_chunk(
     start: int,
     end: int,
     batch_size: int,
-    queue: Queue,
+    queue: QueueT,
     rpc_url: str,
     headers: str,
     txs: str,
@@ -76,6 +78,36 @@ def ingest_chunk(
         print(e)
         total_errors += 1
     return queue
+
+
+async def async_ingest_chunk(
+    start: int,
+    end: int,
+    batch_size: int,
+    queue: QueueT,
+    rpc_url: str,
+    headers: str,
+    txs: str,
+    msgs: str,
+):
+    global total_errors
+    try:
+        await async_ingest_block_range(
+            start,
+            end,
+            rpc_url,
+            headers,
+            txs,
+            msgs,
+            batch_size=batch_size,
+            progress_queue=queue,
+        )
+    except Exception as e:
+        print("Error encountered during: {} - {}".format(start, end))
+        print(e)
+        total_errors += 1
+    return queue
+
 
 
 def get_latest_block(url):
@@ -135,10 +167,44 @@ def run_indexer(
     print()
     man.shutdown()
 
+def async_partial(f, *args, **kwargs):
+   async def f2(*args2, **kwargs2):
+       result = f(*args, *args2, **kwargs, **kwargs2)
+       if asyncio.iscoroutinefunction(f):
+           result = await result
+       return result
 
-def async_main():
-    pass
+   return f2
 
+
+def async_run_indexer(
+    start_block: int,
+    end_block: int,
+    rpc_url: str,
+    headers: str,
+    txs: str,
+    msgs: str,
+    batch_size: int = 500,
+    n_cores: Optional[int] = None,
+):
+    man = Manager()
+    progress = man.Queue()
+    bounds = chunks_bounds(start_block, end_block, batch_size)
+    worker = async_partial(
+        ingest_chunk,
+        queue=progress,
+        rpc_url=rpc_url,
+        headers=headers,
+        txs=txs,
+        msgs=msgs,
+    )
+    pool = Pool(n_cores)
+    for bound in bounds:
+        pool.apply_async(worker, args=bound, callback=progress_reader)
+    pool.close()
+    pool.join()
+    print()
+    man.shutdown()
 
 def main():
     default_base = os.getcwd()
@@ -225,7 +291,7 @@ def main():
             start + 1, end, args.url, n_cores
         )
     )
-    run_indexer(start + 1, end, args.url, headers, txs, msgs, args.batch_size, n_cores)
+    async_run_indexer(start + 1, end, args.url, headers, txs, msgs, args.batch_size, n_cores)
 
 
 if __name__ == "__main__":

@@ -1,9 +1,8 @@
-from dataclasses import dataclass
 import os
 from typing import TypedDict, Optional, Union
 import pyarrow as pa
 
-from ..rpc.models.validation import BlockHeader, Transaction, HashRange
+from ..rpc.models import BlockHeader, Transaction
 
 
 def camel_to_snake(s):

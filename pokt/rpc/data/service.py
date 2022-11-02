@@ -110,8 +110,8 @@ def get_nodes(
     height: int = 0,
     page: int = 0,
     per_page: int = 10,
-    staking_status: int = 2,
-    jailed_status: int = 2,
+    staking_status: Optional[int] = None,
+    jailed_status: Optional[int] = None,
     blockchain: str = "",
     session: Optional[requests.Session] = None,
 ) -> QueryNodesResponse:

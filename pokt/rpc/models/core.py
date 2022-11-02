@@ -69,7 +69,7 @@ class FeeMultiplier(Base):
 class ValidatorOpts(Base):
 
     page: Optional[int] = None
-    per_page: conint(gt=0, lt=10000) = Field(
+    per_page: conint(gt=0, le=10000) = Field(
         100, description="Number of applications per page"
     )
     staking_status: Optional[StakingStatus] = Field(
@@ -84,7 +84,7 @@ class ValidatorOpts(Base):
 class ApplicationOpts(Base):
 
     page: Optional[int] = None
-    per_page: conint(gt=0, lt=10000) = Field(
+    per_page: conint(gt=0, le=10000) = Field(
         100, description="Number of applications per page"
     )
     staking_status: Optional[StakingStatus] = None
