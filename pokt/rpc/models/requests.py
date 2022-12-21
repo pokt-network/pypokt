@@ -3,8 +3,17 @@ from typing import Optional
 from pydantic import Field, conint
 
 from .base import Base
-from .core import ApplicationOpts, ValidatorOpts, SortOrder, ReceiptType
+from .core import (
+    ApplicationOpts,
+    ValidatorOpts,
+    SortOrder,
+    ReceiptType,
+    RelayMetadata,
+    RelayPayload,
+    RelayProofVal,
+)
 from .gov_params import ParamKeys
+from .responses import QueryRelayResponse
 
 
 class QueryHeightAndValidatorsOpts(Base):
@@ -103,3 +112,27 @@ class QueryPaginatedHeightParams(Base):
     per_page: conint(gt=0, le=10000) = Field(
         100, description="Number of transactions per page. Max of 10000"
     )
+
+
+class QueryRelayRequest(Base):
+    payload: RelayPayload
+    meta: RelayMetadata
+    proof: RelayProofVal
+
+
+class QuerySimRequest(Base):
+    payload: RelayPayload
+    relay_network_id: str
+    meta: Optional[RelayMetadata] = None
+    proof: Optional[RelayProofVal] = None
+
+
+class QueryRawTXRequest(Base):
+    address: str
+    raw_hex_bytes: str
+
+
+class QueryChallengeRequest(Base):
+    majority_responses: list[QueryRelayResponse]
+    minority_response: QueryRelayResponse
+    address: str = Field(..., description="reporter address")

@@ -13,11 +13,16 @@ def make_api_url(provider_url: str, route: str, version: str = "v1") -> str:
     return provider_url + version + route
 
 
-def get(route: str, session: Optional[requests.Session] = None, **params) -> str:
+def raw_get(
+    route: str, session: Optional[requests.Session] = None, **params
+) -> requests.Response:
     if session is None:
-        resp = requests.get(route, headers=DEFAULT_GET_HEADERS, params=params)
-    else:
-        resp = session.get(route, params=params, headers=DEFAULT_GET_HEADERS)
+        return requests.get(route, headers=DEFAULT_GET_HEADERS, params=params)
+    return session.get(route, params=params, headers=DEFAULT_GET_HEADERS)
+
+
+def get(route: str, session: Optional[requests.Session] = None, **params) -> str:
+    resp = raw_get(route, session, **params)
     try:
         data = resp.json()
     except:
@@ -37,15 +42,18 @@ def get(route: str, session: Optional[requests.Session] = None, **params) -> str
     return resp.text
 
 
-def post(route: str, session: Optional[requests.Session] = None, **payload) -> dict:
+def raw_post(
+    route: str, session: Optional[requests.Session] = None, **payload
+) -> requests.Response:
     if session is None:
-        resp = requests.post(
+        return requests.post(
             route, headers=DEFAULT_POST_HEADERS, data=json.dumps(payload)
         )
-    else:
-        resp = session.post(
-            route, data=json.dumps(payload), headers=DEFAULT_POST_HEADERS
-        )
+    return session.post(route, data=json.dumps(payload), headers=DEFAULT_POST_HEADERS)
+
+
+def post(route: str, session: Optional[requests.Session] = None, **payload) -> dict:
+    resp = raw_post(route, session, **payload)
     data = resp.json()
     if isinstance(data, dict):
         error_obj = data.get("error")

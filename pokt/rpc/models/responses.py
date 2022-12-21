@@ -1,9 +1,9 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from pydantic import Field
 
 from .base import Base
-from .core import Application, Block, BlockMeta, Node
+from .core import ABCIMessageLog, Application, Block, BlockMeta, Node, Session
 from .msgs import Transaction, MsgClaimVal, UnconfirmedTransaction
 from .state import AppState, BaseAccountVal, ConsensusParams, SigningInfo
 
@@ -112,3 +112,37 @@ class QueryAccountsResponse(Base):
     result: Optional[List[BaseAccountVal]] = None
     page: Optional[int] = Field(None, description="current page")
     total_pages: Optional[int] = Field(None, description="maximum amount of pages")
+
+
+class QueryDispatchResponse(Base):
+    session: Session
+    block_height: int
+
+
+class QueryRelayResponse(Base):
+    signature: str = Field(..., description="Signature from the node in hex")
+    payload: str = Field(..., description="String response to the relay")
+
+
+class QueryErrorRelayResponse(Base):
+    error: str = Field(..., description="Encoded as an Amino JSON Error String")
+    dispatch: QueryDispatchResponse
+
+
+class QueryRawTXResponse(Base):
+    height: int = Field(..., description="Blockheight of the transaction")
+    txhash: str = Field(..., description="hash of the transaction")
+    codespace: str
+    code: int = Field(..., description="Result code, 0 is OK; else error.")
+    data: str = Field(..., description="Raw transaction data")
+    raw_log: str = Field(..., description="Raw transaction log")
+    logs: list[ABCIMessageLog] = Field(..., description="ABCI Tendermint Logs")
+    info: str
+    gas_wanted: int
+    gas_used: int
+    Tx: dict[str, Any]
+    timestamp: str = Field(..., description="Timestamp of the transaction")
+
+
+class QueryChallengeResponse(Base):
+    response: str

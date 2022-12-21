@@ -50,6 +50,27 @@ def get_accounts(
     per_page: int = 100,
     session: Optional[requests.Session] = None,
 ) -> QueryAccountsResponse:
+    """
+    Get a list of all accounts on the network by page
+
+    Parameters
+    ----------
+    provider_url
+        The URL to make the RPC call to.
+    height: optional
+        The height to get the state at, if none is provided, defaults to the latest height.
+    page: optional
+        The page to access; defaults to the first page.
+    per_page: optional
+        The total amount of accounts per page, max value of 10,000; defaults to 100.
+    session: optional
+        The optional requests session, if none is provided, the request will be handled by calling requests.post directly.
+
+
+    Returns
+    -------
+    QueryAccountsResponse
+    """
     request = QueryPaginatedHeightParams(height=height, page=page, per_page=per_page)
     route = make_api_url(provider_url, "/query/accounts")
     resp_data = post(route, session, **request.dict(by_alias=True))

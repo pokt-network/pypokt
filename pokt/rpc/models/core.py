@@ -275,9 +275,9 @@ class TxResult(Base):
     recipient: Optional[str] = Field(
         None, description="The receiver of the transaction, will be null if no receiver"
     )
-    message_type: Optional[str] = Field(
+    message_type: Optional[TxResultMessageTypes] = Field(
         None,
-        description='The type of the transaction, can be "app_stake", "app_begin_unstake", "stake_validator", "begin_unstake_validator", "unjail_validator", "send", "upgrade", "change_param", "dao_tranfer", "claim", or "proof"',
+        description="The type of the transaction",
     )
 
 
@@ -334,3 +334,48 @@ class Node(Base):
         None,
         description="If unstaking, the minimum time for the validator to complete unstaking",
     )
+
+
+class SessionHeader(Base):
+    app_public_key: str = Field(
+        ...,
+        description="Hex public key associated with the application the session is for",
+    )
+    chain: str = Field(..., description="Chain for session service, represented as hex")
+    session_height: int = Field(..., description="The height of the session")
+
+
+class Session(Base):
+    header: SessionHeader
+    key: str
+    nodes: list[Node]
+
+
+class RelayPayload(Base):
+    data: str = Field(
+        ..., description="The data of the request string for the external chain"
+    )
+    method: str = Field(..., description="The HTTP method")
+    path: str = Field(..., description="The rest path")
+    headers: dict[str, str]
+
+
+class RelayMetadata(Base):
+    block_height: int
+
+
+class Attribute(Base):
+    key: str
+    value: str
+
+
+class ABCIEvent(Base):
+    type_: str = Field(..., alias="type")
+    attributes: list[Attribute]
+
+
+class ABCIMessageLog(Base):
+    msg_index: int
+    success: bool
+    log: str
+    events: list[ABCIEvent]

@@ -22,18 +22,18 @@ from ..utils import make_api_url, get, post
 
 def get_version(provider_url: str, session: Optional[requests.Session] = None) -> str:
     """
-     Get the current version.
+    Get the current version.
 
     Parameters
-     ----------
-     provider_url
-         The URL to make the RPC call to.
-     session: optional
-         The optional requests session, if none is provided, the request will be handled by calling requests.post directly.
+    ----------
+    provider_url
+        The URL to make the RPC call to.
+    session: optional
+        The optional requests session, if none is provided, the request will be handled by calling requests.post directly.
 
-     Returns
-     -------
-     str
+    Returns
+    -------
+    str
     """
     route = make_api_url(provider_url, "/")
     return get(route, session)

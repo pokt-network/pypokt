@@ -55,12 +55,36 @@ def get_app(
 def get_apps(
     provider_url: str,
     height: int = 0,
-    page: int = 0,
+    page: int = 1,
     per_page: int = 100,
-    staking_status: int = 2,
+    staking_status: Optional[int] = None,
     blockchain: str = "",
     session: Optional[requests.Session] = None,
 ) -> QueryAppsResponse:
+    """
+    Get a paginated list of apps on the network by search criteria
+
+    Parameters
+    ----------
+    provider_url
+        The URL to make the RPC call to.
+    height: optional
+        The height to get the state at, if none is provided, defaults to the latest height.
+    page: optional
+        The index of the page, defaults to the first page.
+    per_page: optional
+        The amount of results to return for each page, defaults to 100.
+    staking_status: optional
+        Whether or not the app is staked (2) or unstaking (1); defaults to neither.
+    blockchain: optional
+        The relay chain the apps are staked for.
+    session: optional
+        The optional requests session, if none is provided, the request will be handled by calling requests.post directly.
+
+    Returns
+    -------
+    QueryAppsResponse
+    """
     if staking_status:
         staking_status = StakingStatus(staking_status)
     opts = ApplicationOpts(
@@ -115,6 +139,32 @@ def get_nodes(
     blockchain: str = "",
     session: Optional[requests.Session] = None,
 ) -> QueryNodesResponse:
+    """
+    Get a paginated list of apps on the network by search criteria
+
+    Parameters
+    ----------
+    provider_url
+        The URL to make the RPC call to.
+    height: optional
+        The height to get the state at, if none is provided, defaults to the latest height.
+    page: optional
+        The index of the page, defaults to the first page.
+    per_page: optional
+        The amount of results to return for each page, defaults to 100.
+    staking_status: optional
+        Whether or not the node is staked (2) or unstaking (1); defaults to neither.
+    jailed_status: optional
+        Whether or not the node is jailed (1) or unjailed (1); defaults to neither
+    blockchain: optional
+        The relay chain the nodes are staked for.
+    session: optional
+        The optional requests session, if none is provided, the request will be handled by calling requests.post directly.
+
+    Returns
+    -------
+    QueryNodesResponse
+    """
     if staking_status:
         staking_status = StakingStatus(staking_status)
     if jailed_status:
@@ -140,6 +190,28 @@ def get_signing_info(
     per_page: int = 100,
     session: Optional[requests.Session] = None,
 ) -> QuerySigningInfoResponse:
+    """
+    Get either the signing info of a particular address, or a paginated list for all accounts
+
+    Parameters
+    ----------
+    provider_url
+        The URL to make the RPC call to.
+    address: optional
+        The address of the account
+    height: optional
+        The height to look after
+    page: optional
+        The index of the page, defaults to the first page.
+    per_page: optional
+        The amount of results to return for each page, defaults to 100.
+    session: optional
+        The optional requests session, if none is provided, the request will be handled by calling requests.post directly.
+
+    Returns
+    -------
+    QuerySigningInfoResponse
+    """
     request = QueryPaginatedHeightAndAddrParams(
         height=height, address=address, page=page, per_page=per_page
     )
@@ -155,10 +227,35 @@ def get_node_claim(
     app_pubkey: str,
     height: int,
     session_block_height: int,
-    receipt_type: str,
+    receipt_type: ReceiptType = "relay",
     session: Optional[requests.Session] = None,
 ) -> QueryNodeClaimResponse:
-    receipt_type = ReceiptType(receipt_type)
+    """
+    Get the specific outstanding claim for a node
+
+    Parameters
+    ----------
+    provider_url
+        The URL to make the RPC call to.
+    address
+        The address of the node
+    blockchain: str
+        The chain the node claimed service on
+    app_pubkey:
+        The public key of the app the node claimed to service
+    height:
+        The height the claim was made
+    session_block_height:
+        The height of the session the node is claiming for
+    receipt_type: optional
+        The kind of claim; defaults to Relay
+    session: optional
+        The optional requests session, if none is provided, the request will be handled by calling requests.post directly.
+
+    Returns
+    -------
+    QueryNodeClaimResponse
+    """
     request = QueryNodeReceipt(
         address=address,
         blockchain=blockchain,
@@ -169,7 +266,6 @@ def get_node_claim(
     )
     route = make_api_url(provider_url, "/query/nodeclaim")
     resp_data = post(route, session, **request.dict(by_alias=True))
-    print(resp_data)
     return QueryNodeClaimResponse(**resp_data)
 
 
@@ -181,6 +277,28 @@ def get_node_claims(
     per_page: int = 1000,
     session: Optional[requests.Session] = None,
 ) -> QueryNodeClaimsResponse:
+    """
+    Get a paginated list of claims made by a given node
+
+    Parameters
+    ----------
+    provider_url
+        The URL to make the RPC call to.
+    address
+        The address of the node
+    height: optional
+        The height the claims were made after
+    page: optional
+        The index of the page, defaults to the first page.
+    per_page: optional
+        The amount of results to return for each page, defaults to 100.
+    session: optional
+        The optional requests session, if none is provided, the request will be handled by calling requests.post directly.
+
+    Returns
+    -------
+    QueryNodeClaimsResponse
+    """
     request = QueryPaginatedHeightAndAddrParams(
         height=height, address=address, page=page, per_page=per_page
     )

@@ -3,7 +3,6 @@ import requests
 from ..models import (
     QueryTX,
     QueryUnconfirmedTX,
-    QueryUnconfirmedTXResponse,
     Transaction,
     UnconfirmedTransaction,
 )

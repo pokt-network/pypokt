@@ -9,6 +9,7 @@ from .core import (
     PublicKey,
     TXProof,
     TxResult,
+    TxResultMessageTypes,
     SessionHeader,
     Upgrade,
 )
@@ -223,9 +224,9 @@ class UnconfirmedTransaction(Base):
     hash_: Optional[str] = Field(
         None, alias="hash", description="Hash of the transaction"
     )
-    message_type: Optional[str] = Field(
+    message_type: Optional[TxResultMessageTypes] = Field(
         None,
-        description='The type of the transaction, can be "app_stake", "app_begin_unstake", "stake_validator", "begin_unstake_validator", "unjail_validator", "send", "upgrade", "change_param", "dao_tranfer", "claim", or "proof"',
+        description="The type of the transaction",
     )
     stdTx: Optional[StdTx] = None
 
