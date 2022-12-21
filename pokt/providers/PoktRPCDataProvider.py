@@ -52,6 +52,7 @@ from ..rpc.models import (
     QueryUnconfirmedTXsResponse,
     ReceiptType,
     SortOrder,
+    StateResponse,
     Transaction,
     UnconfirmedTransaction,
     Upgrade,

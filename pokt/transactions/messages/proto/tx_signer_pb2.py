@@ -7,7 +7,6 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
-
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
@@ -16,180 +15,141 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x0ftx-signer.proto\x12\x0ePocketWalletQt\x1a\x19google/protobuf/any.proto"\xa7\x01\n\nProtoStdTx\x12!\n\x03msg\x18\x01 \x01(\x0b\x32\x14.google.protobuf.Any\x12!\n\x03\x66\x65\x65\x18\x02 \x03(\x0b\x32\x14.PocketWalletQt.Coin\x12\x34\n\tsignature\x18\x03 \x01(\x0b\x32!.PocketWalletQt.ProtoStdSignature\x12\x0c\n\x04memo\x18\x04 \x01(\t\x12\x0f\n\x07\x65ntropy\x18\x05 \x01(\x03"9\n\x11ProtoStdSignature\x12\x11\n\tpublicKey\x18\x01 \x01(\x0c\x12\x11\n\tSignature\x18\x02 \x01(\x0c"V\n\nStdSignDoc\x12\x0f\n\x07\x43hainID\x18\x01 \x01(\t\x12\x0b\n\x03\x66\x65\x65\x18\x02 \x01(\x0c\x12\x0c\n\x04memo\x18\x03 \x01(\t\x12\x0b\n\x03msg\x18\x04 \x01(\x0c\x12\x0f\n\x07\x65ntropy\x18\x05 \x01(\x03"%\n\x04\x43oin\x12\r\n\x05\x64\x65nom\x18\x01 \x01(\t\x12\x0e\n\x06\x61mount\x18\x02 \x01(\t"(\n\x07\x44\x65\x63\x43oin\x12\r\n\x05\x64\x65nom\x18\x01 \x01(\t\x12\x0e\n\x06\x61mount\x18\x02 \x01(\t"?\n\rMsgProtoStake\x12\x0f\n\x07pub_key\x18\x01 \x01(\x0c\x12\x0e\n\x06\x63hains\x18\x02 \x03(\t\x12\r\n\x05value\x18\x03 \x01(\t""\n\x0fMsgBeginUnstake\x12\x0f\n\x07\x41\x64\x64ress\x18\x01 \x01(\x0c"\x1c\n\tMsgUnjail\x12\x0f\n\x07\x41ppAddr\x18\x01 \x01(\x0c"Y\n\x11MsgProtoNodeStake\x12\x11\n\tPublickey\x18\x01 \x01(\x0c\x12\x0e\n\x06\x43hains\x18\x02 \x03(\t\x12\r\n\x05value\x18\x03 \x01(\t\x12\x12\n\nServiceUrl\x18\x04 \x01(\t"&\n\x13MsgBeginNodeUnstake\x12\x0f\n\x07\x41\x64\x64ress\x18\x01 \x01(\x0c"&\n\rMsgNodeUnjail\x12\x15\n\rValidatorAddr\x18\x01 \x01(\x0c"A\n\x07MsgSend\x12\x13\n\x0b\x46romAddress\x18\x01 \x01(\x0c\x12\x11\n\tToAddress\x18\x02 \x01(\x0c\x12\x0e\n\x06\x61mount\x18\x03 \x01(\tb\x06proto3'
-)
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0ftx-signer.proto\x12\x06pypokt\x1a\x19google/protobuf/any.proto\"\x97\x01\n\nProtoStdTx\x12!\n\x03msg\x18\x01 \x01(\x0b\x32\x14.google.protobuf.Any\x12\x19\n\x03\x66\x65\x65\x18\x02 \x03(\x0b\x32\x0c.pypokt.Coin\x12,\n\tsignature\x18\x03 \x01(\x0b\x32\x19.pypokt.ProtoStdSignature\x12\x0c\n\x04memo\x18\x04 \x01(\t\x12\x0f\n\x07\x65ntropy\x18\x05 \x01(\x03\"9\n\x11ProtoStdSignature\x12\x11\n\tpublicKey\x18\x01 \x01(\x0c\x12\x11\n\tSignature\x18\x02 \x01(\x0c\"V\n\nStdSignDoc\x12\x0f\n\x07\x43hainID\x18\x01 \x01(\t\x12\x0b\n\x03\x66\x65\x65\x18\x02 \x01(\x0c\x12\x0c\n\x04memo\x18\x03 \x01(\t\x12\x0b\n\x03msg\x18\x04 \x01(\x0c\x12\x0f\n\x07\x65ntropy\x18\x05 \x01(\x03\"%\n\x04\x43oin\x12\r\n\x05\x64\x65nom\x18\x01 \x01(\t\x12\x0e\n\x06\x61mount\x18\x02 \x01(\t\"(\n\x07\x44\x65\x63\x43oin\x12\r\n\x05\x64\x65nom\x18\x01 \x01(\t\x12\x0e\n\x06\x61mount\x18\x02 \x01(\t\"?\n\rMsgProtoStake\x12\x0f\n\x07pub_key\x18\x01 \x01(\x0c\x12\x0e\n\x06\x63hains\x18\x02 \x03(\t\x12\r\n\x05value\x18\x03 \x01(\t\"\"\n\x0fMsgBeginUnstake\x12\x0f\n\x07\x41\x64\x64ress\x18\x01 \x01(\x0c\"\x1c\n\tMsgUnjail\x12\x0f\n\x07\x41ppAddr\x18\x01 \x01(\x0c\"n\n\x12MsgProtoNodeStake8\x12\x11\n\tPublickey\x18\x01 \x01(\x0c\x12\x0e\n\x06\x43hains\x18\x02 \x03(\t\x12\r\n\x05value\x18\x03 \x01(\t\x12\x12\n\nServiceUrl\x18\x04 \x01(\t\x12\x12\n\nOutAddress\x18\x05 \x01(\x0c\"7\n\x14MsgBeginNodeUnstake8\x12\x0f\n\x07\x41\x64\x64ress\x18\x01 \x01(\x0c\x12\x0e\n\x06Signer\x18\x02 \x01(\x0c\"&\n\rMsgNodeUnjail\x12\x15\n\rValidatorAddr\x18\x01 \x01(\x0c\"7\n\x0eMsgNodeUnjail8\x12\x15\n\rValidatorAddr\x18\x01 \x01(\x0c\x12\x0e\n\x06Signer\x18\x02 \x01(\x0c\"A\n\x07MsgSend\x12\x13\n\x0b\x46romAddress\x18\x01 \x01(\x0c\x12\x11\n\tToAddress\x18\x02 \x01(\x0c\x12\x0e\n\x06\x61mount\x18\x03 \x01(\tb\x06proto3')
 
 
-_PROTOSTDTX = DESCRIPTOR.message_types_by_name["ProtoStdTx"]
-_PROTOSTDSIGNATURE = DESCRIPTOR.message_types_by_name["ProtoStdSignature"]
-_STDSIGNDOC = DESCRIPTOR.message_types_by_name["StdSignDoc"]
-_COIN = DESCRIPTOR.message_types_by_name["Coin"]
-_DECCOIN = DESCRIPTOR.message_types_by_name["DecCoin"]
-_MSGPROTOSTAKE = DESCRIPTOR.message_types_by_name["MsgProtoStake"]
-_MSGBEGINUNSTAKE = DESCRIPTOR.message_types_by_name["MsgBeginUnstake"]
-_MSGUNJAIL = DESCRIPTOR.message_types_by_name["MsgUnjail"]
-_MSGPROTONODESTAKE = DESCRIPTOR.message_types_by_name["MsgProtoNodeStake"]
-_MSGBEGINNODEUNSTAKE = DESCRIPTOR.message_types_by_name["MsgBeginNodeUnstake"]
-_MSGNODEUNJAIL = DESCRIPTOR.message_types_by_name["MsgNodeUnjail"]
-_MSGSEND = DESCRIPTOR.message_types_by_name["MsgSend"]
-ProtoStdTx = _reflection.GeneratedProtocolMessageType(
-    "ProtoStdTx",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _PROTOSTDTX,
-        "__module__": "tx_signer_pb2"
-        # @@protoc_insertion_point(class_scope:PocketWalletQt.ProtoStdTx)
-    },
-)
+
+_PROTOSTDTX = DESCRIPTOR.message_types_by_name['ProtoStdTx']
+_PROTOSTDSIGNATURE = DESCRIPTOR.message_types_by_name['ProtoStdSignature']
+_STDSIGNDOC = DESCRIPTOR.message_types_by_name['StdSignDoc']
+_COIN = DESCRIPTOR.message_types_by_name['Coin']
+_DECCOIN = DESCRIPTOR.message_types_by_name['DecCoin']
+_MSGPROTOSTAKE = DESCRIPTOR.message_types_by_name['MsgProtoStake']
+_MSGBEGINUNSTAKE = DESCRIPTOR.message_types_by_name['MsgBeginUnstake']
+_MSGUNJAIL = DESCRIPTOR.message_types_by_name['MsgUnjail']
+_MSGPROTONODESTAKE8 = DESCRIPTOR.message_types_by_name['MsgProtoNodeStake8']
+_MSGBEGINNODEUNSTAKE8 = DESCRIPTOR.message_types_by_name['MsgBeginNodeUnstake8']
+_MSGNODEUNJAIL = DESCRIPTOR.message_types_by_name['MsgNodeUnjail']
+_MSGNODEUNJAIL8 = DESCRIPTOR.message_types_by_name['MsgNodeUnjail8']
+_MSGSEND = DESCRIPTOR.message_types_by_name['MsgSend']
+ProtoStdTx = _reflection.GeneratedProtocolMessageType('ProtoStdTx', (_message.Message,), {
+  'DESCRIPTOR' : _PROTOSTDTX,
+  '__module__' : 'tx_signer_pb2'
+  # @@protoc_insertion_point(class_scope:pypokt.ProtoStdTx)
+  })
 _sym_db.RegisterMessage(ProtoStdTx)
 
-ProtoStdSignature = _reflection.GeneratedProtocolMessageType(
-    "ProtoStdSignature",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _PROTOSTDSIGNATURE,
-        "__module__": "tx_signer_pb2"
-        # @@protoc_insertion_point(class_scope:PocketWalletQt.ProtoStdSignature)
-    },
-)
+ProtoStdSignature = _reflection.GeneratedProtocolMessageType('ProtoStdSignature', (_message.Message,), {
+  'DESCRIPTOR' : _PROTOSTDSIGNATURE,
+  '__module__' : 'tx_signer_pb2'
+  # @@protoc_insertion_point(class_scope:pypokt.ProtoStdSignature)
+  })
 _sym_db.RegisterMessage(ProtoStdSignature)
 
-StdSignDoc = _reflection.GeneratedProtocolMessageType(
-    "StdSignDoc",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _STDSIGNDOC,
-        "__module__": "tx_signer_pb2"
-        # @@protoc_insertion_point(class_scope:PocketWalletQt.StdSignDoc)
-    },
-)
+StdSignDoc = _reflection.GeneratedProtocolMessageType('StdSignDoc', (_message.Message,), {
+  'DESCRIPTOR' : _STDSIGNDOC,
+  '__module__' : 'tx_signer_pb2'
+  # @@protoc_insertion_point(class_scope:pypokt.StdSignDoc)
+  })
 _sym_db.RegisterMessage(StdSignDoc)
 
-Coin = _reflection.GeneratedProtocolMessageType(
-    "Coin",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _COIN,
-        "__module__": "tx_signer_pb2"
-        # @@protoc_insertion_point(class_scope:PocketWalletQt.Coin)
-    },
-)
+Coin = _reflection.GeneratedProtocolMessageType('Coin', (_message.Message,), {
+  'DESCRIPTOR' : _COIN,
+  '__module__' : 'tx_signer_pb2'
+  # @@protoc_insertion_point(class_scope:pypokt.Coin)
+  })
 _sym_db.RegisterMessage(Coin)
 
-DecCoin = _reflection.GeneratedProtocolMessageType(
-    "DecCoin",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _DECCOIN,
-        "__module__": "tx_signer_pb2"
-        # @@protoc_insertion_point(class_scope:PocketWalletQt.DecCoin)
-    },
-)
+DecCoin = _reflection.GeneratedProtocolMessageType('DecCoin', (_message.Message,), {
+  'DESCRIPTOR' : _DECCOIN,
+  '__module__' : 'tx_signer_pb2'
+  # @@protoc_insertion_point(class_scope:pypokt.DecCoin)
+  })
 _sym_db.RegisterMessage(DecCoin)
 
-MsgProtoStake = _reflection.GeneratedProtocolMessageType(
-    "MsgProtoStake",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _MSGPROTOSTAKE,
-        "__module__": "tx_signer_pb2"
-        # @@protoc_insertion_point(class_scope:PocketWalletQt.MsgProtoStake)
-    },
-)
+MsgProtoStake = _reflection.GeneratedProtocolMessageType('MsgProtoStake', (_message.Message,), {
+  'DESCRIPTOR' : _MSGPROTOSTAKE,
+  '__module__' : 'tx_signer_pb2'
+  # @@protoc_insertion_point(class_scope:pypokt.MsgProtoStake)
+  })
 _sym_db.RegisterMessage(MsgProtoStake)
 
-MsgBeginUnstake = _reflection.GeneratedProtocolMessageType(
-    "MsgBeginUnstake",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _MSGBEGINUNSTAKE,
-        "__module__": "tx_signer_pb2"
-        # @@protoc_insertion_point(class_scope:PocketWalletQt.MsgBeginUnstake)
-    },
-)
+MsgBeginUnstake = _reflection.GeneratedProtocolMessageType('MsgBeginUnstake', (_message.Message,), {
+  'DESCRIPTOR' : _MSGBEGINUNSTAKE,
+  '__module__' : 'tx_signer_pb2'
+  # @@protoc_insertion_point(class_scope:pypokt.MsgBeginUnstake)
+  })
 _sym_db.RegisterMessage(MsgBeginUnstake)
 
-MsgUnjail = _reflection.GeneratedProtocolMessageType(
-    "MsgUnjail",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _MSGUNJAIL,
-        "__module__": "tx_signer_pb2"
-        # @@protoc_insertion_point(class_scope:PocketWalletQt.MsgUnjail)
-    },
-)
+MsgUnjail = _reflection.GeneratedProtocolMessageType('MsgUnjail', (_message.Message,), {
+  'DESCRIPTOR' : _MSGUNJAIL,
+  '__module__' : 'tx_signer_pb2'
+  # @@protoc_insertion_point(class_scope:pypokt.MsgUnjail)
+  })
 _sym_db.RegisterMessage(MsgUnjail)
 
-MsgProtoNodeStake = _reflection.GeneratedProtocolMessageType(
-    "MsgProtoNodeStake",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _MSGPROTONODESTAKE,
-        "__module__": "tx_signer_pb2"
-        # @@protoc_insertion_point(class_scope:PocketWalletQt.MsgProtoNodeStake)
-    },
-)
-_sym_db.RegisterMessage(MsgProtoNodeStake)
+MsgProtoNodeStake8 = _reflection.GeneratedProtocolMessageType('MsgProtoNodeStake8', (_message.Message,), {
+  'DESCRIPTOR' : _MSGPROTONODESTAKE8,
+  '__module__' : 'tx_signer_pb2'
+  # @@protoc_insertion_point(class_scope:pypokt.MsgProtoNodeStake8)
+  })
+_sym_db.RegisterMessage(MsgProtoNodeStake8)
 
-MsgBeginNodeUnstake = _reflection.GeneratedProtocolMessageType(
-    "MsgBeginNodeUnstake",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _MSGBEGINNODEUNSTAKE,
-        "__module__": "tx_signer_pb2"
-        # @@protoc_insertion_point(class_scope:PocketWalletQt.MsgBeginNodeUnstake)
-    },
-)
-_sym_db.RegisterMessage(MsgBeginNodeUnstake)
+MsgBeginNodeUnstake8 = _reflection.GeneratedProtocolMessageType('MsgBeginNodeUnstake8', (_message.Message,), {
+  'DESCRIPTOR' : _MSGBEGINNODEUNSTAKE8,
+  '__module__' : 'tx_signer_pb2'
+  # @@protoc_insertion_point(class_scope:pypokt.MsgBeginNodeUnstake8)
+  })
+_sym_db.RegisterMessage(MsgBeginNodeUnstake8)
 
-MsgNodeUnjail = _reflection.GeneratedProtocolMessageType(
-    "MsgNodeUnjail",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _MSGNODEUNJAIL,
-        "__module__": "tx_signer_pb2"
-        # @@protoc_insertion_point(class_scope:PocketWalletQt.MsgNodeUnjail)
-    },
-)
+MsgNodeUnjail = _reflection.GeneratedProtocolMessageType('MsgNodeUnjail', (_message.Message,), {
+  'DESCRIPTOR' : _MSGNODEUNJAIL,
+  '__module__' : 'tx_signer_pb2'
+  # @@protoc_insertion_point(class_scope:pypokt.MsgNodeUnjail)
+  })
 _sym_db.RegisterMessage(MsgNodeUnjail)
 
-MsgSend = _reflection.GeneratedProtocolMessageType(
-    "MsgSend",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _MSGSEND,
-        "__module__": "tx_signer_pb2"
-        # @@protoc_insertion_point(class_scope:PocketWalletQt.MsgSend)
-    },
-)
+MsgNodeUnjail8 = _reflection.GeneratedProtocolMessageType('MsgNodeUnjail8', (_message.Message,), {
+  'DESCRIPTOR' : _MSGNODEUNJAIL8,
+  '__module__' : 'tx_signer_pb2'
+  # @@protoc_insertion_point(class_scope:pypokt.MsgNodeUnjail8)
+  })
+_sym_db.RegisterMessage(MsgNodeUnjail8)
+
+MsgSend = _reflection.GeneratedProtocolMessageType('MsgSend', (_message.Message,), {
+  'DESCRIPTOR' : _MSGSEND,
+  '__module__' : 'tx_signer_pb2'
+  # @@protoc_insertion_point(class_scope:pypokt.MsgSend)
+  })
 _sym_db.RegisterMessage(MsgSend)
 
 if _descriptor._USE_C_DESCRIPTORS == False:
 
-    DESCRIPTOR._options = None
-    _PROTOSTDTX._serialized_start = 63
-    _PROTOSTDTX._serialized_end = 230
-    _PROTOSTDSIGNATURE._serialized_start = 232
-    _PROTOSTDSIGNATURE._serialized_end = 289
-    _STDSIGNDOC._serialized_start = 291
-    _STDSIGNDOC._serialized_end = 377
-    _COIN._serialized_start = 379
-    _COIN._serialized_end = 416
-    _DECCOIN._serialized_start = 418
-    _DECCOIN._serialized_end = 458
-    _MSGPROTOSTAKE._serialized_start = 460
-    _MSGPROTOSTAKE._serialized_end = 523
-    _MSGBEGINUNSTAKE._serialized_start = 525
-    _MSGBEGINUNSTAKE._serialized_end = 559
-    _MSGUNJAIL._serialized_start = 561
-    _MSGUNJAIL._serialized_end = 589
-    _MSGPROTONODESTAKE._serialized_start = 591
-    _MSGPROTONODESTAKE._serialized_end = 680
-    _MSGBEGINNODEUNSTAKE._serialized_start = 682
-    _MSGBEGINNODEUNSTAKE._serialized_end = 720
-    _MSGNODEUNJAIL._serialized_start = 722
-    _MSGNODEUNJAIL._serialized_end = 760
-    _MSGSEND._serialized_start = 762
-    _MSGSEND._serialized_end = 827
+  DESCRIPTOR._options = None
+  _PROTOSTDTX._serialized_start=55
+  _PROTOSTDTX._serialized_end=206
+  _PROTOSTDSIGNATURE._serialized_start=208
+  _PROTOSTDSIGNATURE._serialized_end=265
+  _STDSIGNDOC._serialized_start=267
+  _STDSIGNDOC._serialized_end=353
+  _COIN._serialized_start=355
+  _COIN._serialized_end=392
+  _DECCOIN._serialized_start=394
+  _DECCOIN._serialized_end=434
+  _MSGPROTOSTAKE._serialized_start=436
+  _MSGPROTOSTAKE._serialized_end=499
+  _MSGBEGINUNSTAKE._serialized_start=501
+  _MSGBEGINUNSTAKE._serialized_end=535
+  _MSGUNJAIL._serialized_start=537
+  _MSGUNJAIL._serialized_end=565
+  _MSGPROTONODESTAKE8._serialized_start=567
+  _MSGPROTONODESTAKE8._serialized_end=677
+  _MSGBEGINNODEUNSTAKE8._serialized_start=679
+  _MSGBEGINNODEUNSTAKE8._serialized_end=734
+  _MSGNODEUNJAIL._serialized_start=736
+  _MSGNODEUNJAIL._serialized_end=774
+  _MSGNODEUNJAIL8._serialized_start=776
+  _MSGNODEUNJAIL8._serialized_end=831
+  _MSGSEND._serialized_start=833
+  _MSGSEND._serialized_end=898
 # @@protoc_insertion_point(module_scope)
