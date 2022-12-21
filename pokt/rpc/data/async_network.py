@@ -4,15 +4,17 @@ import aiohttp
 from pydantic import parse_obj_as
 from ..models import (
     AllParams,
-    SingleParam,
     ParamKeys,
+    ParamT,
     QueryHeight,
     QueryHeightAndKey,
     QueryHeightResponse,
     QuerySupplyResponse,
     QuerySupportedChainsResponse,
+    QueryUnconfirmedTXs,
+    QueryUnconfirmedTXsResponse,
     SingleParam,
-    ParamT,
+    SingleParam,
     StateResponse,
     Upgrade,
 )
@@ -223,3 +225,33 @@ async def async_get_all_params(
     route = make_api_url(provider_url, "/query/allParams")
     resp_data = await post_async(route, session, **request.dict(by_alias=True))
     return AllParams(**resp_data)
+
+
+async def async_get_mempool_txs(
+    provider_url: str,
+    page: int = 1,
+    per_page: int = 100,
+    session: Optional[aiohttp.ClientSession] = None,
+) -> QueryUnconfirmedTXsResponse:
+    """
+    Get the paginated unconfirmed transactions from the mempool
+
+    Parameters
+    ----------
+    provider_url
+        The URL to make the RPC call to.
+    page: optional
+        The page to retrieve; defaults to the first page.
+    per_page: optional
+        The number of transactions to return per page; defaults to 100.
+    session: optional
+        The optional requests session, if none is provided, the request will be handled by calling requests.post directly.
+
+    Returns
+    -------
+    QueryUnconfirmedTXsResponse
+    """
+    request = QueryUnconfirmedTXs(page=page, per_page=per_page)
+    route = make_api_url(provider_url, "/query/unconfirmedtxs")
+    resp_data = await post_async(route, session, **request.dict(by_alias=True))
+    return QueryUnconfirmedTXsResponse(**resp_data)

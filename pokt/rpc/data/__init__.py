@@ -9,6 +9,7 @@ from .network import (
     get_supported_chains,
     get_upgrade,
     get_version,
+    get_mempool_txs,
 )
 from .service import (
     get_app,
@@ -19,4 +20,4 @@ from .service import (
     get_node_claims,
     get_signing_info,
 )
-from .transaction import get_transaction_by_hash
+from .transaction import get_transaction_by_hash, get_unconfirmed_transaction_by_hash

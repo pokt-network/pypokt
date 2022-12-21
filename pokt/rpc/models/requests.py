@@ -26,6 +26,17 @@ class QueryPaginatedHeightAndAddrParams(Base):
     )
 
 
+class QueryUnconfirmedTX(Base):
+    hash_: str = Field(..., alias="hash")
+
+
+class QueryUnconfirmedTXs(Base):
+    page: int
+    per_page: conint(gt=0, le=10000) = Field(
+        100, description="Number of transactions per page. Max of 10000"
+    )
+
+
 class QueryBlockTXs(Base):
 
     height: int

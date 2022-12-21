@@ -4,7 +4,7 @@ from pydantic import Field
 
 from .base import Base
 from .core import Application, Block, BlockMeta, Node
-from .msgs import Transaction, MsgClaimVal
+from .msgs import Transaction, MsgClaimVal, UnconfirmedTransaction
 from .state import AppState, BaseAccountVal, ConsensusParams, SigningInfo
 
 
@@ -29,6 +29,16 @@ class QueryAccountTXsResponse(Base):
     total_txs: Optional[str] = None
     page_total: Optional[str] = None
     total_count: Optional[str] = None
+
+
+class QueryUnconfirmedTXResponse(Base):
+    transaction: Optional[UnconfirmedTransaction] = None
+
+
+class QueryUnconfirmedTXsResponse(Base):
+    txs: Optional[List[UnconfirmedTransaction]] = None
+    page_count: int
+    total_txs: int
 
 
 class QueryTXResponse(Base):

@@ -111,7 +111,6 @@ async def async_ingest_chunk(
     return queue
 
 
-
 def get_latest_block(url):
     rpc = PoktRPCDataProvider(url)
     return rpc.get_height() - 1
@@ -169,15 +168,18 @@ def run_indexer(
     print()
     man.shutdown()
 
+
 async def async_run(*args, **kwargs):
     async with aiohttp.ClientSession() as session:
         kwargs["session"] = session
         val = await async_ingest_chunk(*args[:2], **kwargs)
         return val
 
+
 def async_worker(*args, **kwargs):
     asyncio.run(async_run(*args, **kwargs))
     return kwargs["queue"]
+
 
 def async_run_indexer(
     start_block: int,
@@ -193,20 +195,23 @@ def async_run_indexer(
     progress = man.Queue()
     bounds = chunks_bounds(start_block, end_block, batch_size)
     kwargs = {
-            "queue": progress,
-            "rpc_url": rpc_url,
-            "headers": headers,
-            "txs": txs,
-            "msgs": msgs,
-            "batch_size": batch_size,
+        "queue": progress,
+        "rpc_url": rpc_url,
+        "headers": headers,
+        "txs": txs,
+        "msgs": msgs,
+        "batch_size": batch_size,
     }
     pool = Pool(n_cores)
     for bound in bounds:
-        pool.apply_async(async_worker, args=bound, kwds=kwargs, callback=progress_reader)
+        pool.apply_async(
+            async_worker, args=bound, kwds=kwargs, callback=progress_reader
+        )
     pool.close()
     pool.join()
     print()
     man.shutdown()
+
 
 def main():
     default_base = os.getcwd()
@@ -293,7 +298,9 @@ def main():
             start + 1, end, args.url, n_cores
         )
     )
-    async_run_indexer(start + 1, end, args.url, headers, txs, msgs, args.batch_size, n_cores)
+    async_run_indexer(
+        start + 1, end, args.url, headers, txs, msgs, args.batch_size, n_cores
+    )
 
 
 if __name__ == "__main__":

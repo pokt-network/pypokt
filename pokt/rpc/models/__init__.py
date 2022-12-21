@@ -13,6 +13,8 @@ from .responses import (
     QuerySupplyResponse,
     QuerySupportedChainsResponse,
     QueryTXResponse,
+    QueryUnconfirmedTXResponse,
+    QueryUnconfirmedTXsResponse,
     StateResponse,
 )
 from .requests import (
@@ -28,6 +30,8 @@ from .requests import (
     QueryPaginatedHeightAndAddrParams,
     QueryPaginatedHeightParams,
     QueryTX,
+    QueryUnconfirmedTX,
+    QueryUnconfirmedTXs,
 )
 from .gov_params import (
     ACLParam,
@@ -45,7 +49,7 @@ from .gov_params import (
     UpgradeParam,
 )
 from .state import Account, Application, BaseAccountVal
-from .msgs import Coin, MsgSendVal, Transaction
+from .msgs import Coin, MsgSendVal, Transaction, UnconfirmedTransaction
 from .core import (
     ACLKey,
     ApplicationOpts,

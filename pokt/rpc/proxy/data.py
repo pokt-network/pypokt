@@ -1,3 +1,4 @@
+from pokt.rpc.models.responses import QueryUnconfirmedTXResponse
 from fastapi import APIRouter, Depends
 
 from .conf import ProxySettings, settings
@@ -24,22 +25,25 @@ from ..data.async_block import (
     QueryBlockTXsResponse,
 )
 from ..data.async_network import (
+    AllParams,
+    ParamT,
+    QueryHeight,
+    QueryHeightAndKey,
+    QueryHeightResponse,
+    QuerySupplyResponse,
+    QuerySupportedChainsResponse,
+    QueryUnconfirmedTXs,
+    QueryUnconfirmedTXsResponse,
+    StateResponse,
+    Upgrade,
     async_get_all_params,
     async_get_height,
+    async_get_mempool_txs,
     async_get_param,
     async_get_state,
     async_get_supply,
     async_get_supported_chains,
     async_get_upgrade,
-    QueryHeight,
-    QueryHeightAndKey,
-    QueryHeightResponse,
-    StateResponse,
-    QuerySupplyResponse,
-    QuerySupportedChainsResponse,
-    Upgrade,
-    ParamT,
-    AllParams,
 )
 from ..data.async_service import (
     async_get_app,
@@ -62,7 +66,14 @@ from ..data.async_service import (
     QueryNodeClaimResponse,
     QueryNodeClaimsResponse,
 )
-from ..data.async_transaction import async_get_transaction_by_hash, QueryTX, Transaction
+from ..data.async_transaction import (
+    async_get_transaction_by_hash,
+    async_get_unconfirmed_transaction_by_hash,
+    QueryTX,
+    QueryUnconfirmedTX,
+    Transaction,
+    UnconfirmedTransaction,
+)
 
 
 router = APIRouter(prefix="/v1/query")
@@ -214,3 +225,21 @@ async def node_claims(
 @router.post("/tx", response_model=Transaction, tags=["transaction"])
 async def tx(req: QueryTX, conf: ProxySettings = Depends(settings)) -> Transaction:
     return await async_get_transaction_by_hash(conf.url, req.hash_, bool(req.prove))
+
+
+@router.post("/unsupportedtx", response_model=UnconfirmedTransaction, tags=["mempool"])
+async def unconfirmedtx(
+    req: QueryUnconfirmedTX, conf: ProxySettings = Depends(settings)
+) -> UnconfirmedTransaction:
+    return await async_get_unconfirmed_transaction_by_hash(
+        conf.url, **req.dict(exclude_unset=True)
+    )
+
+
+@router.post(
+    "/unsupportedtxs", response_model=QueryUnconfirmedTXResponse, tags=["mempool"]
+)
+async def unconfirmedtxs(
+    req: QueryUnconfirmedTXs, conf: ProxySettings = Depends(settings)
+) -> QueryUnconfirmedTXsResponse:
+    return await async_get_mempool_txs(conf.url, **req.dict(exclude_unset=True))

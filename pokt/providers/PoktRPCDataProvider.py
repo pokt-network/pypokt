@@ -24,6 +24,8 @@ from ..rpc.data import (
     get_node_claim,
     get_node_claims,
     get_signing_info,
+    get_unconfirmed_transaction_by_hash,
+    get_mempool_txs,
 )
 
 
@@ -127,3 +129,11 @@ class PoktRPCDataProvider(_BaseRPCProvider):
     @wraps(get_signing_info)
     def get_signing_info(self, *args, **kwargs):
         return self._make_rpc_call(get_signing_info, *args, **kwargs)
+
+    @wraps(get_unconfirmed_transaction_by_hash)
+    def get_unconfirmed_transaction_by_hash(self, *args, **kwargs):
+        return self._make_rpc_call(get_unconfirmed_transaction_by_hash, *args, **kwargs)
+
+    @wraps(get_mempool_txs)
+    def get_mempool_txs(self, *args, **kwargs):
+        return self._make_rpc_call(get_mempool_txs, *args, **kwargs)

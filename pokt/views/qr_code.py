@@ -27,7 +27,5 @@ def make_pokt_qr(address: str) -> Image.Image:
 
 
 if __name__ == "__main__":
-    qr = make_pokt_qr(
-        "https://docs.pokt.network/apps/quickstart/"
-    )
+    qr = make_pokt_qr("https://docs.pokt.network/apps/quickstart/")
     qr.save("quickstart.png")

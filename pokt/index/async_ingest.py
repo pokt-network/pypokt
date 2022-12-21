@@ -200,7 +200,9 @@ async def async_ingest_block(
         "pos": defaultdict(list),
         "pocketcore": defaultdict(list),
     }
-    async for tx_set in async_ingest_txs_by_block(block_no, rpc_url, session, progress_queue=progress_queue):
+    async for tx_set in async_ingest_txs_by_block(
+        block_no, rpc_url, session, progress_queue=progress_queue
+    ):
 
         flat_txs.extend([flatten_tx(tx) for tx in tx_set])
         flat_msgs = flatten_tx_messages(tx_set)
@@ -226,9 +228,19 @@ async def async_ingest_block_range(
     session: Optional[aiohttp.ClientSession] = None,
     progress_queue: Optional[QueueT] = None,
 ) -> QueueT:
-    if session is None: # Just pipe back into this with a session
-        async with aiohttp.ClientSession('http://httpbin.org') as session:
-            return await async_ingest_block_range(starting_block, ending_block, rpc_url, block_parquet, tx_parquet, msgs_parquet, batch_size=batch_size, session=session, progress_queue=progress_queue)
+    if session is None:  # Just pipe back into this with a session
+        async with aiohttp.ClientSession("http://httpbin.org") as session:
+            return await async_ingest_block_range(
+                starting_block,
+                ending_block,
+                rpc_url,
+                block_parquet,
+                tx_parquet,
+                msgs_parquet,
+                batch_size=batch_size,
+                session=session,
+                progress_queue=progress_queue,
+            )
 
     txs = []
     headers = []

@@ -12,6 +12,8 @@ from ..models import (
     QueryHeightResponse,
     QuerySupplyResponse,
     QuerySupportedChainsResponse,
+    QueryUnconfirmedTXs,
+    QueryUnconfirmedTXsResponse,
     StateResponse,
     Upgrade,
 )
@@ -219,3 +221,33 @@ def get_all_params(
     route = make_api_url(provider_url, "/query/allParams")
     resp_data = post(route, session, **request.dict(by_alias=True))
     return AllParams(**resp_data)
+
+
+def get_mempool_txs(
+    provider_url: str,
+    page: int = 1,
+    per_page: int = 100,
+    session: Optional[requests.Session] = None,
+) -> QueryUnconfirmedTXsResponse:
+    """
+    Get the paginated unconfirmed transactions from the mempool
+
+    Parameters
+    ----------
+    provider_url
+        The URL to make the RPC call to.
+    page: optional
+        The page to retrieve; defaults to the first page.
+    per_page: optional
+        The number of transactions to return per page; defaults to 100.
+    session: optional
+        The optional requests session, if none is provided, the request will be handled by calling requests.post directly.
+
+    Returns
+    -------
+    QueryUnconfirmedTXsResponse
+    """
+    request = QueryUnconfirmedTXs(page=page, per_page=per_page)
+    route = make_api_url(provider_url, "/query/unconfirmedtxs")
+    resp_data = post(route, session, **request.dict(by_alias=True))
+    return QueryUnconfirmedTXsResponse(**resp_data)

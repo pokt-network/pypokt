@@ -27,7 +27,7 @@ def custom_oas():
     oas = get_openapi(
         title="Pocket Network",
         description=api_description,
-        version="RC-0.9.0",
+        version="RC-0.9.2",
         terms_of_service="https://pokt.network/terms/",
         contact={
             "name": "Pocket Network",
