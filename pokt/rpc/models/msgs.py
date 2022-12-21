@@ -1,4 +1,4 @@
-from typing import Any, Literal, List, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 from .base import Base, ProtobufBase, ProtobufTypes
 from .core import (
@@ -61,26 +61,56 @@ class MsgBeginAppUnstakeVal(Base):
     application_address: Optional[str] = None
 
 
-class MsgAppUnjailVal(Base):
-    address: Optional[str] = None
+class MsgAppUnjailVal(ProtobufBase):
+
+    __protobuf_model__ = proto.MsgUnjail
+
+    address: Optional[str] = Field(
+        None, proto_name="AppAddr", proto_type=ProtobufTypes.BYTES
+    )
 
 
-class MsgValidatorStakeVal(Base):
-    public_key: Optional[PublicKey] = None
-    chains: Optional[list[str]] = None
-    value: Optional[int] = None
-    service_url: Optional[str] = None
-    output_address: Optional[str] = None
+class MsgValidatorStakeVal(ProtobufBase):
+
+    __protobuf_model__ = proto.MsgProtoNodeStake8
+
+    public_key: Optional[PublicKey] = Field(
+        None, proto_name="Publickey", proto_type=ProtobufTypes.BYTES
+    )
+    chains: Optional[list[str]] = Field(
+        None, proto_name="Chains", proto_type=ProtobufTypes.STRING, proto_repeated=True
+    )
+    value: Optional[int] = Field(None, proto_type=ProtobufTypes.STRING)
+    service_url: Optional[str] = Field(
+        None, proto_name="ServiceUrl", proto_type=ProtobufTypes.STRING
+    )
+    output_address: Optional[str] = Field(
+        None, proto_name="OutAddress", proto_type=ProtobufTypes.BYTES
+    )
 
 
-class MsgBeginValidatorUnstakeVal(Base):
-    validator_address: Optional[str] = None
-    signer_address: Optional[str] = None
+class MsgBeginValidatorUnstakeVal(ProtobufBase):
+
+    __protobuf_model__ = proto.MsgBeginNodeUnstake8
+
+    validator_address: Optional[str] = Field(
+        None, proto_name="Address", proto_type=ProtobufTypes.BYTES
+    )
+    signer_address: Optional[str] = Field(
+        None, proto_name="Signer", proto_type=ProtobufTypes.BYTES
+    )
 
 
-class MsgValidatorUnjailVal(Base):
-    address: Optional[str] = None
-    signer_address: Optional[str] = None
+class MsgValidatorUnjailVal(ProtobufBase):
+
+    __protobuf_model__ = proto.MsgNodeUnjail8
+
+    address: Optional[str] = Field(
+        None, proto_name="ValidatorAddr", proto_type=ProtobufTypes.BYTES
+    )
+    signer_address: Optional[str] = Field(
+        None, proto_name="Signer", proto_type=ProtobufTypes.BYTES
+    )
 
 
 class MsgProofVal(Base):
@@ -106,6 +136,9 @@ MsgValT = Union[
     MsgAppUnjailVal,
     MsgBeginValidatorUnstakeVal,
     MsgBeginAppUnstakeVal,
+    MsgChangeParamVal,
+    MsgUpgradeVal,
+    MsgDaoTransferVal,
 ]
 
 
@@ -213,11 +246,25 @@ class Signature(ProtobufBase):
 
 
 class StdTx(Base):
+
     entropy: Optional[int] = None
-    fee: Optional[List[Coin]] = None
+    fee: Optional[list[Coin]] = None
     memo: Optional[str] = None
     msg: Optional[MsgT] = Field(None, discriminator="type_")
     signature: Optional[Signature] = None
+
+
+class ProtoStdTx(ProtobufBase):
+
+    __protobuf_model__ = proto.ProtoStdTx
+
+    entropy: Optional[int] = Field(None, proto_type=ProtobufTypes.INT64)
+    fee: Optional[list[Coin]] = Field(
+        None, proto_type=ProtobufTypes.MESSAGE, proto_repeated=True
+    )
+    memo: Optional[str] = Field(None, proto_type=ProtobufTypes.STRING)
+    msg: Optional[MsgValT] = Field(None, proto_type=ProtobufTypes.ANY)
+    signature: Optional[Signature] = Field(None, proto_type=ProtobufTypes.MESSAGE)
 
 
 class UnconfirmedTransaction(Base):

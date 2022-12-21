@@ -6,6 +6,8 @@ from typing import Any, Optional
 
 from pydantic import BaseModel
 
+from google.protobuf.any_pb2 import Any as ProtoAny
+
 
 class Base(BaseModel):
     class Config:
@@ -38,19 +40,31 @@ class ProtobufTypes(int, Enum):
     SFIXED64 = 16
     SINT32 = 17
     SINT64 = 18
+    ANY = 19
 
 
-def encode_proto_type(value: Any, proto_type: Optional[ProtobufTypes] = None):
+def encode_proto_type(
+    value: Any, proto_type: Optional[ProtobufTypes] = None, repeats: bool = False
+):
+    if repeats:
+        return [encode_proto_type(item, proto_type) for item in value]
     if proto_type in (
         None,
         ProtobufTypes.FIXED32,
         ProtobufTypes.FIXED64,
         ProtobufTypes.SFIXED32,
         ProtobufTypes.SFIXED64,
-        ProtobufTypes.MESSAGE,
         ProtobufTypes.GROUP,
     ):
         return value
+    elif proto_type in (ProtobufTypes.MESSAGE,):
+        if isinstance(value, ProtobufBase):
+            return value.protobuf_message()
+        return value
+    elif proto_type in (ProtobufTypes.ANY,):
+        msg = ProtoAny()
+        msg.Pack(value.protobuf_message())
+        return msg
     elif proto_type in (ProtobufTypes.DOUBLE, ProtobufTypes.FLOAT):
         return float(value)
     elif proto_type in (
@@ -82,19 +96,32 @@ class ProtobufBase(Base):
         for name, val in cls.__fields__.items():
             proto_name = val.field_info.extra.get("proto_name", name)
             proto_type = val.field_info.extra.get("proto_type")
-            proto_fields[name] = (proto_name, proto_type)
+
+            proto_repeated = val.field_info.extra.get("proto_repeated", False)
+            proto_fields[name] = (proto_name, proto_type, proto_repeated)
 
         return proto_fields
 
-    def protobuf_payload(self):
+    def protobuf_message(self):
         if self.__protobuf_model__ is None:
             raise ValueError("The protobuf model was never defined.")
         msg = self.__protobuf_model__()
         proto_fields = self.__proto_fields__()
-        for name, (proto_name, field_type) in proto_fields.items():
+        for name, (proto_name, field_type, repeats) in proto_fields.items():
             value = getattr(self, name)
             try:
-                setattr(msg, proto_name, encode_proto_type(value, field_type))
+                if repeats:
+                    getattr(msg, proto_name).extend(
+                        encode_proto_type(value, field_type, repeats)
+                    )
+                elif field_type in (ProtobufTypes.MESSAGE, ProtobufTypes.ANY):
+                    getattr(msg, proto_name).CopyFrom(
+                        encode_proto_type(value, field_type, repeats)
+                    )
+                else:
+                    setattr(
+                        msg, proto_name, encode_proto_type(value, field_type, repeats)
+                    )
             except TypeError:
                 ft = field_type.value if field_type is not None else "None"
                 raise TypeError(
@@ -102,4 +129,4 @@ class ProtobufBase(Base):
                         value, ft, proto_name
                     )
                 )
-        return msg.SerializeToString()
+        return msg

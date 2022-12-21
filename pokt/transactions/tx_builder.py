@@ -1,4 +1,4 @@
-from pokt.rpc.models import MsgSendVal, ProtobufTypes
+from pokt.rpc.models import MsgSendVal, Coin, Signature, ProtoStdTx, ProtobufTypes
 from .messages.proto import tx_signer_pb2 as proto
 
 
@@ -17,6 +17,15 @@ def build_tx():
     protobuf_inspect(proto.ProtoStdTx)
 
 
-def build_send_tx_msg(from_address: str, to_address: str, amount: int):
+def build_send_tx(from_address: str, to_address: str, amount: int):
     msg = MsgSendVal(from_address=from_address, to_address=to_address, amount=amount)
-    print(msg.protobuf_payload())
+    fee = [Coin(amount="100")]
+    sig = Signature(pub_key="0xfuckyoujeff", signature="0xthisisright")
+    tx = ProtoStdTx(
+        msg=msg, entropy=696969669, fee=fee, memo="fuck yeah", signature=sig
+    )
+    print(tx.protobuf_message())
+
+
+if __name__ == "__main__":
+    build_send_tx("0xfdfdsa", "0x373737373", 6900)

@@ -56,7 +56,18 @@ from .gov_params import (
     UpgradeParam,
 )
 from .state import Account, Application, BaseAccountVal
-from .msgs import Coin, MsgSendVal, Transaction, UnconfirmedTransaction
+from .msgs import (
+    Coin,
+    MsgSendVal,
+    Transaction,
+    UnconfirmedTransaction,
+    MsgAppUnjailVal,
+    MsgBeginValidatorUnstakeVal,
+    MsgValidatorStakeVal,
+    MsgValidatorUnjailVal,
+    Signature,
+    ProtoStdTx,
+)
 from .core import (
     ACLKey,
     ApplicationOpts,
