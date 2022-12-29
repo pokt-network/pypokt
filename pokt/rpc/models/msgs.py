@@ -22,6 +22,7 @@ from pydantic import Field
 
 class MsgSendVal(ProtobufBase):
     __protobuf_model__ = proto.MsgSend
+    __protobuf_type_url__ = "/x.nodes.MsgSend"
 
     from_address: Optional[str] = Field(
         None, proto_name="FromAddress", proto_type=ProtobufTypes.BYTES
@@ -32,38 +33,28 @@ class MsgSendVal(ProtobufBase):
     amount: Optional[int] = Field(None, proto_type=ProtobufTypes.STRING)
 
 
-class MsgChangeParamVal(Base):
-    address: Optional[str] = None
-    param_key: Optional[ParamKeys] = None
-    param_value: Optional[ParamValueT] = None
-    # param: SingleParamT
+class MsgAppStakeVal(ProtobufBase):
+
+    __protobuf_model__ = proto.MsgProtoStake
+    __protobuf_type_url__ = "/x.apps.MsgProtoStake"
+
+    pubkey: Optional[PublicKey] = Field(None, proto_name="pub_key", proto_type=ProtobufTypes.BYTES)
+    chains: Optional[list[str]] = Field(None, proto_type=ProtobufTypes.STRING, proto_repeated=True)
+    value: Optional[int] = Field(None, proto_type=ProtobufTypes.STRING)
 
 
-class MsgDaoTransferVal(Base):
-    from_address: Optional[str] = None
-    to_address: Optional[str] = None
-    amount: Optional[int] = None
-    action: Optional[str] = None
+class MsgBeginAppUnstakeVal(ProtobufBase):
 
+    __protobuf_model__ = proto.MsgBeginUnstake
+    __protobuf_type_url__ = "/x.apps.MsgBeginUnstake"
 
-class MsgUpgradeVal(Base):
-    address: Optional[str] = None
-    upgrade: Optional[Upgrade] = None
-
-
-class MsgAppStakeVal(Base):
-    pubkey: Optional[PublicKey] = None
-    chains: Optional[list[str]] = None
-    value: Optional[int] = None
-
-
-class MsgBeginAppUnstakeVal(Base):
-    application_address: Optional[str] = None
+    application_address: Optional[str] = Field(None, proto_name="Address", proto_type=ProtobufTypes.BYTES)
 
 
 class MsgAppUnjailVal(ProtobufBase):
 
     __protobuf_model__ = proto.MsgUnjail
+    __protobuf_type_url__ = "/x.apps.MsgUnjail"
 
     address: Optional[str] = Field(
         None, proto_name="AppAddr", proto_type=ProtobufTypes.BYTES
@@ -73,6 +64,7 @@ class MsgAppUnjailVal(ProtobufBase):
 class MsgValidatorStakeVal(ProtobufBase):
 
     __protobuf_model__ = proto.MsgProtoNodeStake8
+    __protobuf_type_url__ = "/x.nodes.MsgProtoStake8"
 
     public_key: Optional[PublicKey] = Field(
         None, proto_name="Publickey", proto_type=ProtobufTypes.BYTES
@@ -92,6 +84,7 @@ class MsgValidatorStakeVal(ProtobufBase):
 class MsgBeginValidatorUnstakeVal(ProtobufBase):
 
     __protobuf_model__ = proto.MsgBeginNodeUnstake8
+    __protobuf_type_url__ = "/x.nodes.MsgBeginUnstake8"
 
     validator_address: Optional[str] = Field(
         None, proto_name="Address", proto_type=ProtobufTypes.BYTES
@@ -104,6 +97,7 @@ class MsgBeginValidatorUnstakeVal(ProtobufBase):
 class MsgValidatorUnjailVal(ProtobufBase):
 
     __protobuf_model__ = proto.MsgNodeUnjail8
+    __protobuf_type_url__ = "/x.nodes.MsgUnjail8"
 
     address: Optional[str] = Field(
         None, proto_name="ValidatorAddr", proto_type=ProtobufTypes.BYTES
@@ -111,6 +105,25 @@ class MsgValidatorUnjailVal(ProtobufBase):
     signer_address: Optional[str] = Field(
         None, proto_name="Signer", proto_type=ProtobufTypes.BYTES
     )
+
+
+class MsgChangeParamVal(Base):
+    address: Optional[str] = None
+    param_key: Optional[ParamKeys] = None
+    param_value: Optional[ParamValueT] = None
+    # param: SingleParamT
+
+
+class MsgDaoTransferVal(Base):
+    from_address: Optional[str] = None
+    to_address: Optional[str] = None
+    amount: Optional[int] = None
+    action: Optional[str] = None
+
+
+class MsgUpgradeVal(Base):
+    address: Optional[str] = None
+    upgrade: Optional[Upgrade] = None
 
 
 class MsgProofVal(Base):

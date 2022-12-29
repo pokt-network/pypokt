@@ -44,8 +44,7 @@ class ProtobufTypes(int, Enum):
 
 
 def encode_proto_type(
-    value: Any, proto_type: Optional[ProtobufTypes] = None, repeats: bool = False
-):
+        value: Any, proto_type: Optional[ProtobufTypes] = None, repeats: bool = False):
     if repeats:
         return [encode_proto_type(item, proto_type) for item in value]
     if proto_type in (
@@ -63,7 +62,11 @@ def encode_proto_type(
         return value
     elif proto_type in (ProtobufTypes.ANY,):
         msg = ProtoAny()
-        msg.Pack(value.protobuf_message())
+        msg_val = value.protobuf_message()
+        msg.Pack(msg_val)
+        msg_type = getattr(value, "__protobuf_type_url__")
+        if msg_type is not None:
+            msg.type_url = msg_type
         return msg
     elif proto_type in (ProtobufTypes.DOUBLE, ProtobufTypes.FLOAT):
         return float(value)
@@ -71,7 +74,7 @@ def encode_proto_type(
         ProtobufTypes.INT64,
         ProtobufTypes.UINT64,
         ProtobufTypes.INT32,
-        ProtobufTypes.UINT32,
+       ProtobufTypes.UINT32,
         ProtobufTypes.SINT32,
         ProtobufTypes.SINT64,
     ):
@@ -89,6 +92,7 @@ def encode_proto_type(
 class ProtobufBase(Base):
 
     __protobuf_model__: Any = None
+    __protobuf_type_url__: Optional[str] = None
 
     @classmethod
     def __proto_fields__(cls):
